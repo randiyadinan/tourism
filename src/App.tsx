@@ -50,6 +50,9 @@ import { ManagePaymentsPage } from './pages/admin/ManagePaymentsPage';
 import { ManageReviewsPage } from './pages/admin/ManageReviewsPage';
 import { ManageDiscountsPage } from './pages/admin/ManageDiscountsPage';
 import { ReportsPage } from './pages/admin/ReportsPage';
+import { ManageAirportTransfersPage } from './pages/admin/ManageAirportTransfersPage';
+import { AdminNotificationsPage } from './pages/admin/AdminNotificationsPage';
+import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
 
 export const App: React.FC = () => {
   return (
@@ -75,9 +78,10 @@ export const App: React.FC = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                  <Route path="/checkout" element={<CheckoutPage />} />
-          </Route>
+          <Route path="/checkout" element={<CheckoutPage />} />
+        </Route>
 
+        {/* CUSTOMER PORTAL ROUTES (Protected) */}
         <Route
           path="/customer"
           element={
@@ -113,12 +117,15 @@ export const App: React.FC = () => {
           <Route path="activities" element={<ManageActivitiesPage />} />
           <Route path="hotels" element={<ManageHotelsPage />} />
           <Route path="vehicles" element={<ManageVehiclesPage />} />
+          <Route path="transfers" element={<ManageAirportTransfersPage />} />
           <Route path="customers" element={<ManageCustomersPage />} />
           <Route path="bookings" element={<ManageBookingsPage />} />
           <Route path="payments" element={<ManagePaymentsPage />} />
           <Route path="reviews" element={<ManageReviewsPage />} />
           <Route path="discounts" element={<ManageDiscountsPage />} />
+          <Route path="notifications" element={<AdminNotificationsPage />} />
           <Route path="reports" element={<ReportsPage />} />
+          <Route path="settings" element={<AdminSettingsPage />} />
         </Route>
 
         {/* Catch-all */}

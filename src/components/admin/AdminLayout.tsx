@@ -17,6 +17,9 @@ import {
   Compass, 
   Menu, 
   X,
+  Plane,
+  Bell,
+  Settings,
   Shield } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { TopAnnouncement } from '../common/TopAnnouncement';
@@ -31,27 +34,30 @@ export const AdminLayout: React.FC = () => {
       title: 'Operations',
       items: [
         { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-        { name: 'Manage Bookings', href: '/admin/bookings', icon: Calendar },
-        { name: 'Manage Payments', href: '/admin/payments', icon: CreditCard },
-        { name: 'Manage Customers', href: '/admin/customers', icon: Users },
+        { name: 'Bookings', href: '/admin/bookings', icon: Calendar },
+        { name: 'Airport Transfers', href: '/admin/transfers', icon: Plane },
+        { name: 'Payments', href: '/admin/payments', icon: CreditCard },
+        { name: 'Customers', href: '/admin/customers', icon: Users },
       ]
     },
     {
       title: 'Catalog & Inventory',
       items: [
-        { name: 'Manage Tours', href: '/admin/tours', icon: BookOpen },
-        { name: 'Manage Destinations', href: '/admin/destinations', icon: MapPin },
-        { name: 'Manage Activities', href: '/admin/activities', icon: ActivityIcon },
-        { name: 'Manage Hotels', href: '/admin/hotels', icon: Hotel },
+        { name: 'Tours', href: '/admin/tours', icon: BookOpen },
+        { name: 'Destinations', href: '/admin/destinations', icon: MapPin },
+        { name: 'Activities', href: '/admin/activities', icon: ActivityIcon },
+        { name: 'Hotels', href: '/admin/hotels', icon: Hotel },
         { name: 'Fleet & Vehicles', href: '/admin/vehicles', icon: Car },
       ]
     },
     {
-      title: 'Marketing & Reports',
+      title: 'Marketing & System',
       items: [
-        { name: 'Review Moderation', href: '/admin/reviews', icon: Star },
-        { name: 'Discounts & Promos', href: '/admin/discounts', icon: Percent },
+        { name: 'Reviews', href: '/admin/reviews', icon: Star },
+        { name: 'Coupons', href: '/admin/discounts', icon: Percent },
+        { name: 'Notifications', href: '/admin/notifications', icon: Bell },
         { name: 'Reports & Analytics', href: '/admin/reports', icon: BarChart3 },
+        { name: 'Settings', href: '/admin/settings', icon: Settings },
       ]
     }
   ];
