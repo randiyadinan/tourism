@@ -12,10 +12,18 @@ import { activityService } from '../../services/activityService';
 import { TourCard } from '../../components/tours/TourCard';
 import { ActivityCard } from '../../components/activities/ActivityCard';
 import { StarRating } from '../../components/common/StarRating';
+import { analytics } from '../../services/analytics';
 
 export const DestinationDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const destination = destinationService.getDestinationBySlug(slug || '');
+
+  React.useEffect(() => {
+    if (destination) {
+      document.title = `${destination.name} Travel Guide | LankaVoyage Sri Lanka`;
+      analytics.viewDestination(destination.id, destination.name);
+    }
+  }, [destination]);
 
   if (!destination) {
     return (

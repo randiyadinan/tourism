@@ -7,6 +7,8 @@ import { PublicLayout } from './components/common/PublicLayout';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
 import { CustomerLayout } from './components/customer/CustomerLayout';
 import { AdminLayout } from './components/admin/AdminLayout';
+import { SEOTracker } from './components/common/SEOTracker';
+import { analytics } from './services/analytics';
 
 // Public Pages (15)
 import { HomePage } from './pages/public/HomePage';
@@ -57,9 +59,14 @@ import { AdminNotificationsPage } from './pages/admin/AdminNotificationsPage';
 import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
 
 export const App: React.FC = () => {
+  React.useEffect(() => {
+    analytics.init();
+  }, []);
+
   return (
     <>
       <ScrollToTop />
+      <SEOTracker />
       <Routes>
         
         {/* PUBLIC ROUTES (with PublicLayout: TopAnnouncement, Navbar, Footer) */}

@@ -23,6 +23,7 @@ import { useAuth } from '../../context/AuthContext';
 import { bookingService } from '../../services/bookingService';
 import { paymentService } from '../../services/paymentService';
 import { payhereService } from '../../services/payhereService';
+import { analytics } from '../../services/analytics';
 
 interface CheckoutState {
   tourId: string;
@@ -60,6 +61,13 @@ export const CheckoutPage: React.FC = () => {
   const [travelerPhone, setTravelerPhone] = useState(user?.phone || '');
   const [nationality, setNationality] = useState('Sri Lanka');
   const [passportNumber, setPassportNumber] = useState('');
+
+  useEffect(() => {
+    if (state) {
+      analytics.beginCheckout(state.tourId, state.tourTitle, state.totalAmount, 'USD');
+    }
+  }, [state]);
+
   const [address, setAddress] = useState('No. 12, Lotus Road');
   const [city, setCity] = useState('Colombo');
   const [specialRequests, setSpecialRequests] = useState('');
@@ -261,10 +269,14 @@ export const CheckoutPage: React.FC = () => {
       setStatusMessage('PayHere Secure Checkout Window Opened. Please complete payment in the popup.');
 
       // 3. Launch PayHere JS Modal or Redirect
+      analytics.initiatePayment(provisionalBooking.bookingCode, state.totalAmount, 'USD');
       payhereService.launchPayment(payherePayload, {
         onCompleted: async (orderId: string) => {
           setPhase('initiating');
           setStatusMessage('Payment verified! Finalizing booking confirmation...');
+
+          // Track GA4 Purchase
+          analytics.purchase(orderId, provisionalBooking.bookingCode, state.totalAmount, 'USD');
 
           // Confirm booking & payment
           bookingService.applyGatewayPaymentSuccess(provisionalBooking.id, {

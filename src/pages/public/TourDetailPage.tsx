@@ -23,6 +23,7 @@ import { TourGallery } from '../../components/tours/TourGallery';
 import { ItineraryTimeline } from '../../components/tours/ItineraryTimeline';
 import { StickyBookingPanel } from '../../components/tours/StickyBookingPanel';
 import { StarRating } from '../../components/common/StarRating';
+import { analytics } from '../../services/analytics';
 
 export const TourDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -34,6 +35,13 @@ export const TourDetailPage: React.FC = () => {
   const reviews = tour ? reviewService.getReviewsForTarget('tour', tour.id) : [];
 
   const [openFaqIdx, setOpenFaqIdx] = useState<number | null>(0);
+
+  React.useEffect(() => {
+    if (tour) {
+      document.title = `${tour.title} | Luxury Sri Lanka Tours | LankaVoyage`;
+      analytics.viewTour(tour.id, tour.title, tour.pricePerPerson);
+    }
+  }, [tour]);
 
   if (!tour) {
     return (
