@@ -6,6 +6,6 @@
   "compatibility_flags": ["nodejs_compat"],
   "vars": {
     "PAYHERE_SANDBOX_MODE": "true",
-    "FRONTEND_URL": "https://tourism.vercel.app"
+    "FRONTEND_URL": "https://tourism-swart-seven.vercel.app"
   }
 }
