@@ -29,6 +29,7 @@ import { ForgotPasswordPage } from './pages/public/ForgotPasswordPage';
 import { CheckoutPage } from './pages/public/CheckoutPage';
 import { TermsAndConditionsPage } from './pages/public/TermsAndConditionsPage';
 import { PrivacyPolicyPage } from './pages/public/PrivacyPolicyPage';
+import { CancellationRefundPolicyPage } from './pages/public/CancellationRefundPolicyPage';
 
 // Customer Portal Pages (8)
 import { CustomerDashboardPage } from './pages/customer/CustomerDashboardPage';
@@ -90,6 +91,7 @@ export const App: React.FC = () => {
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/terms-and-conditions" element={<TermsAndConditionsPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+          <Route path="/cancellation-refund-policy" element={<CancellationRefundPolicyPage />} />
         </Route>
 
         {/* CUSTOMER PORTAL ROUTES (Protected) */}

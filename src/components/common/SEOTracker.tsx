@@ -14,6 +14,7 @@ const ROUTE_TITLES: Record<string, string> = {
   '/contact': 'Contact 24/7 Island Concierge | LankaVoyage',
   '/terms-and-conditions': 'Terms & Conditions | LankaVoyage',
   '/privacy-policy': 'Privacy Policy & Data Protection | LankaVoyage',
+  '/cancellation-refund-policy': 'Cancellation & Refund Policy | LankaVoyage',
   '/login': 'Sign In | LankaVoyage Traveler Portal',
   '/register': 'Create Traveler Account | LankaVoyage',
   '/checkout': 'Secure Checkout & Reservation | LankaVoyage'
