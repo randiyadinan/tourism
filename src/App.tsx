@@ -25,6 +25,7 @@ import { LoginPage } from './pages/public/LoginPage';
 import { RegisterPage } from './pages/public/RegisterPage';
 import { ForgotPasswordPage } from './pages/public/ForgotPasswordPage';
 import { CheckoutPage } from './pages/public/CheckoutPage';
+import { TermsAndConditionsPage } from './pages/public/TermsAndConditionsPage';
 
 // Customer Portal Pages (8)
 import { CustomerDashboardPage } from './pages/customer/CustomerDashboardPage';
@@ -79,6 +80,7 @@ export const App: React.FC = () => {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/terms-and-conditions" element={<TermsAndConditionsPage />} />
         </Route>
 
         {/* CUSTOMER PORTAL ROUTES (Protected) */}
