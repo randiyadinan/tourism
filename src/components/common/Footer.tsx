@@ -10,6 +10,7 @@ import {
   
   Globe,
   Clock } from 'lucide-react';
+import { SOCIAL_LINKS } from '../../config/socialLinks';
 
 export const Footer: React.FC = () => {
   return (
@@ -48,15 +49,61 @@ export const Footer: React.FC = () => {
               </div>
             </div>
 
-            {/* Social Icons */}
+            {/* Social Icons & WhatsApp */}
             <div className="flex items-center gap-3 pt-2">
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-white/5 hover:bg-[#C5A059] hover:text-[#082F24] text-stone-300 flex items-center justify-center transition-colors">
-                <Globe className="w-4 h-4" />
-              </a>
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-white/5 hover:bg-[#C5A059] hover:text-[#082F24] text-stone-300 flex items-center justify-center transition-colors">
-                <Globe className="w-4 h-4" />
-              </a>
-              <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-white/5 hover:bg-[#C5A059] hover:text-[#082F24] text-stone-300 flex items-center justify-center transition-colors">
+              {SOCIAL_LINKS.instagram?.url ? (
+                <a 
+                  href={SOCIAL_LINKS.instagram.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  aria-label={SOCIAL_LINKS.instagram.ariaLabel}
+                  className="w-9 h-9 rounded-full bg-white/5 hover:bg-[#C5A059] hover:text-[#082F24] text-stone-300 flex items-center justify-center transition-colors"
+                >
+                  <Globe className="w-4 h-4" />
+                </a>
+              ) : null}
+
+              {SOCIAL_LINKS.facebook?.url ? (
+                <a 
+                  href={SOCIAL_LINKS.facebook.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  aria-label={SOCIAL_LINKS.facebook.ariaLabel}
+                  className="w-9 h-9 rounded-full bg-white/5 hover:bg-[#C5A059] hover:text-[#082F24] text-stone-300 flex items-center justify-center transition-colors"
+                >
+                  <Globe className="w-4 h-4" />
+                </a>
+              ) : null}
+
+              {SOCIAL_LINKS.youtube?.url ? (
+                <a 
+                  href={SOCIAL_LINKS.youtube.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  aria-label={SOCIAL_LINKS.youtube.ariaLabel}
+                  className="w-9 h-9 rounded-full bg-white/5 hover:bg-[#C5A059] hover:text-[#082F24] text-stone-300 flex items-center justify-center transition-colors"
+                >
+                  <Globe className="w-4 h-4" />
+                </a>
+              ) : null}
+
+              {SOCIAL_LINKS.whatsapp?.url ? (
+                <a 
+                  href={SOCIAL_LINKS.whatsapp.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  aria-label={SOCIAL_LINKS.whatsapp.ariaLabel}
+                  className="w-9 h-9 rounded-full bg-white/5 hover:bg-[#25D366] hover:text-white text-stone-300 flex items-center justify-center transition-colors"
+                >
+                  <Phone className="w-4 h-4" />
+                </a>
+              ) : null}
+
+              <a 
+                href="mailto:concierge@lankavoyage.com" 
+                aria-label="Send email to LankaVoyage Concierge"
+                className="w-9 h-9 rounded-full bg-white/5 hover:bg-[#C5A059] hover:text-[#082F24] text-stone-300 flex items-center justify-center transition-colors"
+              >
                 <Mail className="w-4 h-4" />
               </a>
             </div>

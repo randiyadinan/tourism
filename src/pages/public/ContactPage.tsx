@@ -11,6 +11,7 @@ import {
   ChevronDown,
   MessageSquare
 } from 'lucide-react';
+import { SOCIAL_LINKS } from '../../config/socialLinks';
 
 export const ContactPage: React.FC = () => {
   const [name, setName] = useState('');
@@ -83,15 +84,18 @@ export const ContactPage: React.FC = () => {
               </div>
 
               <div className="space-y-4 text-sm text-stone-200">
-                <a 
-                  href="https://wa.me/94771234567" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-3 bg-white/10 hover:bg-[#C5A059] hover:text-[#082F24] rounded-2xl transition-colors font-semibold"
-                >
-                  <MessageSquare className="w-5 h-5 text-[#E5C378]" />
-                  <span>WhatsApp Direct: +94 77 123 4567</span>
-                </a>
+                {SOCIAL_LINKS.whatsapp?.url ? (
+                  <a 
+                    href={SOCIAL_LINKS.whatsapp.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    aria-label={SOCIAL_LINKS.whatsapp.ariaLabel}
+                    className="flex items-center gap-3 p-3 bg-white/10 hover:bg-[#25D366] hover:text-white rounded-2xl transition-colors font-semibold"
+                  >
+                    <MessageSquare className="w-5 h-5 text-[#E5C378]" />
+                    <span>WhatsApp Direct: +94 77 123 4567</span>
+                  </a>
+                ) : null}
 
                 <div className="flex items-center gap-3">
                   <Phone className="w-4 h-4 text-[#C5A059] shrink-0" />
