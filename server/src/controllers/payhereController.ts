@@ -1,14 +1,14 @@
-import crypto from 'node:crypto';
-import path from 'node:path';
-import dotenv from 'dotenv';
-import type { Request, Response } from 'express';
+import type { Context } from 'hono';
 import { paymentStore } from '../services/paymentStore.js';
+import { md5 } from '../utils/crypto.js';
 
-// Load .env from both local and parent directories
-dotenv.config();
-dotenv.config({ path: path.resolve(process.cwd(), '.env') });
-dotenv.config({ path: path.resolve(process.cwd(), '..', '.env') });
-dotenv.config({ path: path.resolve(process.cwd(), 'server', '.env') });
+export interface Bindings {
+  PAYHERE_MERCHANT_ID?: string;
+  PAYHERE_MERCHANT_SECRET?: string;
+  PAYHERE_SANDBOX_MODE?: string;
+  PAYHERE_CALLBACK_URL?: string;
+  FRONTEND_URL?: string;
+}
 
 /**
  * PayHere MD5 Hash Generator for Payment Initiation
@@ -22,18 +22,9 @@ export function generatePayHereHash(
   merchantSecret: string
 ): string {
   const formattedAmount = Number(amount).toFixed(2);
-  const hashedSecret = crypto
-    .createHash('md5')
-    .update(merchantSecret.trim())
-    .digest('hex')
-    .toUpperCase();
-
+  const hashedSecret = md5(merchantSecret.trim()).toUpperCase();
   const hashString = `${merchantId.trim()}${orderId.trim()}${formattedAmount}${currency.trim()}${hashedSecret}`;
-  return crypto
-    .createHash('md5')
-    .update(hashString)
-    .digest('hex')
-    .toUpperCase();
+  return md5(hashString).toUpperCase();
 }
 
 /**
@@ -51,28 +42,27 @@ export function verifyPayHereNotificationHash(
 ): boolean {
   if (!receivedMd5sig) return false;
 
-  const hashedSecret = crypto
-    .createHash('md5')
-    .update(merchantSecret.trim())
-    .digest('hex')
-    .toUpperCase();
-
+  const hashedSecret = md5(merchantSecret.trim()).toUpperCase();
   const hashString = `${merchantId.trim()}${orderId.trim()}${payhereAmount.trim()}${payhereCurrency.trim()}${statusCode}${hashedSecret}`;
-  const calculatedSig = crypto
-    .createHash('md5')
-    .update(hashString)
-    .digest('hex')
-    .toUpperCase();
+  const calculatedSig = md5(hashString).toUpperCase();
 
   return calculatedSig === receivedMd5sig.trim().toUpperCase();
+}
+
+/**
+ * Helper to get environment variable from Hono Context or process.env
+ */
+function getEnvVar(c: Context<{ Bindings: Bindings }>, key: keyof Bindings): string | undefined {
+  return (c.env && (c.env as any)[key]) || (typeof process !== 'undefined' ? process.env[key] : undefined);
 }
 
 /**
  * POST /api/payhere/initiate
  * Generates secure parameters and hash for PayHere Sandbox/Live Checkout
  */
-export async function initiatePayment(req: Request, res: Response): Promise<void> {
+export async function initiatePayment(c: Context<{ Bindings: Bindings }>) {
   try {
+    const body = await c.req.json().catch(() => ({}));
     const {
       orderId,
       bookingId,
@@ -87,30 +77,28 @@ export async function initiatePayment(req: Request, res: Response): Promise<void
       address = 'No. 12, Galle Road',
       city = 'Colombo',
       country = 'Sri Lanka'
-    } = req.body;
+    } = body;
 
     if (!orderId || !amount || !customerName || !customerEmail) {
-      res.status(400).json({
+      return c.json({
         error: 'Missing required parameters: orderId, amount, customerName, and customerEmail are required.'
-      });
-      return;
+      }, 400);
     }
 
-    const merchantId = process.env.PAYHERE_MERCHANT_ID;
-    const merchantSecret = process.env.PAYHERE_MERCHANT_SECRET;
+    const merchantId = getEnvVar(c, 'PAYHERE_MERCHANT_ID');
+    const merchantSecret = getEnvVar(c, 'PAYHERE_MERCHANT_SECRET');
 
     if (!merchantId || !merchantSecret) {
       console.error('PayHere Error: PAYHERE_MERCHANT_ID or PAYHERE_MERCHANT_SECRET missing from environment.');
-      res.status(500).json({
-        error: 'PayHere Configuration Error: PAYHERE_MERCHANT_ID or PAYHERE_MERCHANT_SECRET is missing. Please configure them in your server .env file.'
-      });
-      return;
+      return c.json({
+        error: 'PayHere Configuration Error: PAYHERE_MERCHANT_ID or PAYHERE_MERCHANT_SECRET is missing. Please configure them in your server environment.'
+      }, 500);
     }
 
-    const isSandbox = (process.env.PAYHERE_SANDBOX_MODE || 'true').toLowerCase() !== 'false';
-    const callbackBaseUrl = process.env.PAYHERE_CALLBACK_URL || 'http://localhost:5000/api/payhere/notify';
-    const frontendBaseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    
+    const isSandbox = (getEnvVar(c, 'PAYHERE_SANDBOX_MODE') || 'true').toLowerCase() !== 'false';
+    const frontendBaseUrl = getEnvVar(c, 'FRONTEND_URL') || 'https://tourism.vercel.app';
+    const callbackBaseUrl = getEnvVar(c, 'PAYHERE_CALLBACK_URL') || `${new URL(c.req.url).origin}/api/payhere/notify`;
+
     const returnUrl = `${frontendBaseUrl}/checkout?payment_status=return&order_id=${encodeURIComponent(orderId)}&booking_id=${encodeURIComponent(bookingId || '')}`;
     const cancelUrl = `${frontendBaseUrl}/checkout?payment_status=cancelled&order_id=${encodeURIComponent(orderId)}`;
     const notifyUrl = callbackBaseUrl;
@@ -118,7 +106,7 @@ export async function initiatePayment(req: Request, res: Response): Promise<void
     const numAmount = Number(amount);
     const formattedAmount = numAmount.toFixed(2);
 
-    // Compute secure cryptographic hash on server
+    // Compute secure cryptographic hash
     const hash = generatePayHereHash(
       merchantId,
       orderId,
@@ -146,9 +134,7 @@ export async function initiatePayment(req: Request, res: Response): Promise<void
       itemTitle: itemTitle || 'LankaVoyage Travel Experience',
     });
 
-    console.log(`[PayHere] Initiated payment for order ${orderId}, amount: ${currency} ${formattedAmount}`);
-
-    res.json({
+    return c.json({
       success: true,
       sandbox: isSandbox,
       merchant_id: merchantId,
@@ -173,7 +159,7 @@ export async function initiatePayment(req: Request, res: Response): Promise<void
     });
   } catch (error: any) {
     console.error('Error initiating PayHere payment:', error);
-    res.status(500).json({ error: error.message || 'Internal server error' });
+    return c.json({ error: error.message || 'Internal server error' }, 500);
   }
 }
 
@@ -181,10 +167,16 @@ export async function initiatePayment(req: Request, res: Response): Promise<void
  * POST /api/payhere/notify
  * Webhook/IPN endpoint called by PayHere upon payment completion
  */
-export async function handleNotification(req: Request, res: Response): Promise<void> {
+export async function handleNotification(c: Context<{ Bindings: Bindings }>) {
   try {
-    const payload = req.body;
-    console.log('[PayHere IPN] Received notification payload:', payload);
+    let payload: any = {};
+    const contentType = c.req.header('content-type') || '';
+
+    if (contentType.includes('application/json')) {
+      payload = await c.req.json().catch(() => ({}));
+    } else {
+      payload = await c.req.parseBody().catch(() => ({}));
+    }
 
     const {
       merchant_id,
@@ -201,11 +193,10 @@ export async function handleNotification(req: Request, res: Response): Promise<v
       card_expiry
     } = payload;
 
-    const merchantSecret = process.env.PAYHERE_MERCHANT_SECRET;
+    const merchantSecret = getEnvVar(c, 'PAYHERE_MERCHANT_SECRET');
     if (!merchantSecret) {
       console.error('[PayHere IPN] PAYHERE_MERCHANT_SECRET is not configured.');
-      res.status(500).send('Server configuration error');
-      return;
+      return c.text('Server configuration error', 500);
     }
 
     // Verify signature
@@ -221,8 +212,7 @@ export async function handleNotification(req: Request, res: Response): Promise<v
 
     if (!isValidSignature) {
       console.warn('[PayHere IPN] Signature mismatch for order:', order_id);
-      res.status(400).send('Signature verification failed');
-      return;
+      return c.text('Signature verification failed', 400);
     }
 
     let mappedStatus: 'SUCCESS' | 'FAILED' | 'CANCELLED' | 'PENDING' | 'CHARGEDBACK' = 'PENDING';
@@ -254,10 +244,10 @@ export async function handleNotification(req: Request, res: Response): Promise<v
     });
 
     console.log(`[PayHere IPN] Order ${order_id} updated to ${mappedStatus}`);
-    res.status(200).send('OK');
+    return c.text('OK', 200);
   } catch (error: any) {
     console.error('[PayHere IPN] Error processing notification:', error);
-    res.status(500).send('Internal Server Error');
+    return c.text('Internal Server Error', 500);
   }
 }
 
@@ -265,17 +255,19 @@ export async function handleNotification(req: Request, res: Response): Promise<v
  * GET /api/payhere/status/:orderId
  * Fetches server-verified status for an order
  */
-export async function getPaymentStatus(req: Request, res: Response): Promise<void> {
+export async function getPaymentStatus(c: Context<{ Bindings: Bindings }>) {
   try {
-    const { orderId } = req.params;
+    const orderId = c.req.param('orderId');
+    if (!orderId) {
+      return c.json({ error: 'Missing orderId parameter' }, 400);
+    }
     const payment = paymentStore.getPayment(orderId);
 
     if (!payment) {
-      res.status(404).json({ error: 'Payment record not found' });
-      return;
+      return c.json({ error: 'Payment record not found' }, 404);
     }
 
-    res.json({
+    return c.json({
       orderId: payment.orderId,
       bookingId: payment.bookingId,
       bookingCode: payment.bookingCode,
@@ -291,6 +283,6 @@ export async function getPaymentStatus(req: Request, res: Response): Promise<voi
     });
   } catch (error: any) {
     console.error('Error fetching payment status:', error);
-    res.status(500).json({ error: error.message || 'Internal server error' });
+    return c.json({ error: error.message || 'Internal server error' }, 500);
   }
 }

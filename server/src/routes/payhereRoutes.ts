@@ -1,11 +1,12 @@
-import { Router } from 'express';
+import { Hono } from 'hono';
 import {
   initiatePayment,
   handleNotification,
-  getPaymentStatus
+  getPaymentStatus,
+  type Bindings
 } from '../controllers/payhereController.js';
 
-export const payhereRouter = Router();
+export const payhereRouter = new Hono<{ Bindings: Bindings }>();
 
 // Endpoint to generate payment hash and initiation payload
 payhereRouter.post('/initiate', initiatePayment);

@@ -60,6 +60,7 @@ export const payhereService = {
    */
   async initiatePayment(input: PayHereInitiateInput): Promise<PayHereInitiateResponse> {
     const endpoints = [
+      API_BASE ? `${API_BASE}/api/payhere/initiate` : '/api/payhere/initiate',
       '/api/payhere/initiate',
     ];
 
