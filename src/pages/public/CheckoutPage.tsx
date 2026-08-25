@@ -16,7 +16,8 @@ import {
   Users,
   Plane,
   Sparkles,
-  Info
+  Info,
+  Clock
 } from 'lucide-react';
 import type { PaymentMethod } from '../../types';
 import { useAuth } from '../../context/AuthContext';
@@ -41,7 +42,7 @@ interface CheckoutState {
   vehicleType: string;
 }
 
-type CheckoutPhase = 'form' | 'initiating' | 'gateway_opened' | 'success' | 'error';
+type CheckoutPhase = 'form' | 'initiating' | 'gateway_opened' | 'pending_verification' | 'success' | 'error';
 
 export const CheckoutPage: React.FC = () => {
   const location = useLocation();
@@ -99,12 +100,11 @@ export const CheckoutPage: React.FC = () => {
   useEffect(() => {
     if (returnPaymentStatus === 'return' && returnOrderId) {
       setPhase('initiating');
-      setStatusMessage('Verifying payment confirmation from PayHere...');
+      setStatusMessage('Verifying payment confirmation with PayHere gateway...');
 
-      // Query server status
+      // Query server status independently
       payhereService.getPaymentStatus(returnOrderId).then((statusData) => {
-        const isSuccess = statusData?.status === 'SUCCESS' || true; // In sandbox, return indicates success
-        if (isSuccess) {
+        if (statusData && statusData.status === 'SUCCESS') {
           const booking = bookingService.getBookingById(returnOrderId) || 
                           bookingService.getAllBookings().find(b => b.bookingCode === returnOrderId || b.id === returnBookingId);
           
@@ -114,7 +114,7 @@ export const CheckoutPage: React.FC = () => {
               paymentMethod: 'Credit / Debit Card'
             });
 
-            const txnRef = statusData?.paymentId ? `PAYHERE-${statusData.paymentId}` : `PH-SANDBOX-${returnOrderId}`;
+            const txnRef = statusData.paymentId ? `PAYHERE-${statusData.paymentId}` : `PH-CONFIRMED-${returnOrderId}`;
             paymentService.recordTransaction({
               userId: booking.userId,
               bookingId: booking.id,
@@ -124,7 +124,7 @@ export const CheckoutPage: React.FC = () => {
               paymentMethod: 'Credit / Debit Card',
               status: 'Successful',
               transactionReference: txnRef,
-              cardBrand: 'Visa'
+              cardBrand: statusData.paymentMethod || 'Credit / Debit Card'
             });
 
             setSuccessBookingId(booking.id);
@@ -138,19 +138,22 @@ export const CheckoutPage: React.FC = () => {
             setPhase('success');
             triggerConfetti();
           }
-        } else {
-          setErrorMessage('Payment verification indicated the transaction was not completed.');
+        } else if (statusData && statusData.status === 'FAILED') {
+          setErrorMessage(statusData.statusMessage || 'Payment transaction failed or was declined by the bank.');
           setPhase('error');
+        } else {
+          // Transaction still processing or awaiting IPN callback
+          setSuccessBookingCode(returnOrderId);
+          setPhase('pending_verification');
         }
-      }).catch(() => {
-        // Fallback to success for sandbox redirect
+      }).catch((err) => {
+        console.warn('Could not immediately query payment status:', err);
+        // Do NOT treat as error or auto-success; display safe pending verification notice
         setSuccessBookingCode(returnOrderId);
-        setSuccessTxnRef(`PH-SANDBOX-${returnOrderId}`);
-        setPhase('success');
-        triggerConfetti();
+        setPhase('pending_verification');
       });
     } else if (returnPaymentStatus === 'cancelled') {
-      setErrorMessage('Payment was cancelled in PayHere. You have not been charged.');
+      setErrorMessage('Payment was cancelled in the PayHere portal. No charges were made.');
       setPhase('error');
     }
   }, [returnPaymentStatus, returnOrderId, returnBookingId]);
@@ -443,6 +446,52 @@ export const CheckoutPage: React.FC = () => {
           <Link to="/tours" className="text-xs text-[#8C6D2B] font-semibold hover:underline block pt-2">
             ← Continue browsing more Sri Lanka tours
           </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── PENDING VERIFICATION VIEW ─────────────────────────────
+  if (phase === 'pending_verification') {
+    return (
+      <div className="bg-[#FAF8F5] min-h-screen flex items-center justify-center py-20 px-4">
+        <div className="bg-white rounded-3xl border border-stone-200 shadow-xl p-8 sm:p-10 max-w-lg w-full text-center space-y-6">
+          <div className="w-20 h-20 rounded-full bg-amber-100 flex items-center justify-center mx-auto ring-8 ring-amber-50">
+            <Clock className="w-12 h-12 text-amber-600" />
+          </div>
+
+          <div className="space-y-2">
+            <h1 className="font-serif text-3xl font-bold text-[#082F24]">Payment Verification Pending</h1>
+            <p className="text-stone-600 text-xs sm:text-sm">
+              We received your redirect from the payment gateway. Your bank transaction is currently undergoing automated settlement verification.
+            </p>
+          </div>
+
+          {successBookingCode && (
+            <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 text-left space-y-1">
+              <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider block">Booking Reference</span>
+              <span className="font-mono text-base font-bold text-[#082F24] block">{successBookingCode}</span>
+              <p className="text-[11px] text-stone-500 pt-1">
+                Your provisional itinerary has been logged in our operations queue. Our concierge system will update your booking status to Confirmed as soon as settlement is cleared by the gateway IPN.
+              </p>
+            </div>
+          )}
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={() => navigate('/customer/bookings')}
+              className="flex-1 py-3 px-5 bg-[#0D3B2E] text-white font-bold text-xs rounded-xl hover:bg-[#134E3F] transition-all flex items-center justify-center gap-2"
+            >
+              <Calendar className="w-4 h-4 text-[#E5C378]" />
+              Check My Bookings
+            </button>
+            <Link
+              to="/contact"
+              className="flex-1 py-3 px-5 bg-stone-100 text-stone-700 font-bold text-xs rounded-xl hover:bg-stone-200 transition-all flex items-center justify-center gap-2"
+            >
+              Contact Concierge
+            </Link>
+          </div>
         </div>
       </div>
     );
