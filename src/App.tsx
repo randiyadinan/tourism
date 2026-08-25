@@ -24,6 +24,7 @@ import { ContactPage } from './pages/public/ContactPage';
 import { LoginPage } from './pages/public/LoginPage';
 import { RegisterPage } from './pages/public/RegisterPage';
 import { ForgotPasswordPage } from './pages/public/ForgotPasswordPage';
+import { CheckoutPage } from './pages/public/CheckoutPage';
 
 // Customer Portal Pages (8)
 import { CustomerDashboardPage } from './pages/customer/CustomerDashboardPage';
@@ -74,7 +75,8 @@ export const App: React.FC = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        </Route>
+                  <Route path="/checkout" element={<CheckoutPage />} />
+          </Route>
 
         <Route
           path="/customer"

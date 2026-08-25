@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import confetti from 'canvas-confetti';
 import { 
   Clock, 
   MapPin, 
@@ -13,42 +12,28 @@ import {
   ChevronDown, 
   Heart, 
   Share2, 
-  ArrowRight,
   HelpCircle,
-  CreditCard,
   CheckCircle2
 } from 'lucide-react';
 import { tourService } from '../../services/tourService';
 import { reviewService } from '../../services/reviewService';
-import { bookingService } from '../../services/bookingService';
-import { useAuth } from '../../context/AuthContext';
+
 import { useWishlist } from '../../context/WishlistContext';
 import { TourGallery } from '../../components/tours/TourGallery';
 import { ItineraryTimeline } from '../../components/tours/ItineraryTimeline';
 import { StickyBookingPanel } from '../../components/tours/StickyBookingPanel';
 import { StarRating } from '../../components/common/StarRating';
-import { Modal } from '../../components/common/Modal';
 
 export const TourDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+
   const { isInWishlist, toggleWishlist } = useWishlist();
 
   const tour = tourService.getTourBySlug(slug || '');
   const reviews = tour ? reviewService.getReviewsForTarget('tour', tour.id) : [];
 
   const [openFaqIdx, setOpenFaqIdx] = useState<number | null>(0);
-  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
-  const [bookingPayload, setBookingPayload] = useState<any>(null);
-
-  // Instant Checkout Form state inside modal
-  const [travelerName, setTravelerName] = useState(user?.name || 'Sarah Jenkins');
-  const [travelerEmail, setTravelerEmail] = useState(user?.email || 'sarah.traveler@example.com');
-  const [travelerPhone, setTravelerPhone] = useState(user?.phone || '+44 7700 900077');
-  const [specialRequests, setSpecialRequests] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<'Credit / Debit Card' | 'PayPal' | 'Bank Wire Transfer' | 'Pay on Arrival / Deposit'>('Credit / Debit Card');
-  const [isProcessing, setIsProcessing] = useState(false);
 
   if (!tour) {
     return (
@@ -79,75 +64,25 @@ export const TourDetailPage: React.FC = () => {
   };
 
   const handleBookNowTrigger = (details: any) => {
-    setBookingPayload(details);
-    setIsBookingModalOpen(true);
-  };
-
-  const handleConfirmBooking = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsProcessing(true);
-
-    setTimeout(() => {
-      const newBooking = bookingService.createBooking({
-        userId: user?.id || 'user-customer-1',
-        customerName: travelerName,
-        customerEmail: travelerEmail,
-        customerPhone: travelerPhone,
-        type: 'standard_tour',
+    navigate('/checkout', {
+      state: {
         tourId: tour.id,
         tourTitle: tour.title,
         tourImage: tour.heroImage,
-        startDate: bookingPayload?.startDate || '2026-10-15',
-        endDate: new Date(new Date(bookingPayload?.startDate || '2026-10-15').getTime() + tour.durationDays * 86400000).toISOString().split('T')[0],
-        adultsCount: bookingPayload?.adults || 2,
-        childrenCount: bookingPayload?.children || 0,
-        infantsCount: 0,
-        destinationsCovered: tour.destinations,
-        hotelTier: tour.accommodationType,
-        vehicleType: tour.transportType,
-        mealPlan: 'Half Board (Breakfast & Dinner)',
-        airportPickup: bookingPayload?.airportPickup,
-        travelers: [
-          {
-            title: 'Mr',
-            fullName: travelerName,
-            email: travelerEmail,
-            phone: travelerPhone,
-            nationality: 'United Kingdom',
-            isLead: true,
-            specialRequirements: specialRequests
-          }
-        ],
-        basePrice: (bookingPayload?.adults || 2) * tour.pricePerPerson,
-        customizationTotal: bookingPayload?.airportPickup ? 40 : 0,
-        discountAmount: bookingPayload?.discountAmount || 0,
-        discountCode: bookingPayload?.discountCode,
-        taxAmount: 0,
-        totalAmount: bookingPayload?.totalAmount || tour.pricePerPerson * 2,
-        amountPaid: bookingPayload?.totalAmount || tour.pricePerPerson * 2,
-        bookingStatus: 'Pending',
-        paymentStatus: 'Fully Paid',
-        paymentMethod: paymentMethod,
-        notes: specialRequests
-      });
-
-      setIsProcessing(false);
-      setIsBookingModalOpen(false);
-
-      // Trigger celebration confetti
-      try {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 }
-        });
-      } catch (err) {
-        // Safe confetti fallback
+        durationDays: tour.durationDays,
+        startDate: details.startDate,
+        adults: details.adults,
+        children: details.children,
+        airportPickup: details.airportPickup,
+        discountCode: details.discountCode,
+        discountAmount: details.discountAmount,
+        totalAmount: details.totalAmount,
+        destinations: tour.destinations,
+        vehicleType: tour.transportType
       }
-
-      navigate(`/customer/bookings/${newBooking.id}`);
-    }, 1000);
+    });
   };
+
 
   return (
     <div className="bg-[#FAF8F5] min-h-screen py-8 sm:py-12">
@@ -402,121 +337,6 @@ export const TourDetailPage: React.FC = () => {
 
       </div>
 
-      {/* Instant Checkout Modal */}
-      <Modal
-        isOpen={isBookingModalOpen}
-        onClose={() => setIsBookingModalOpen(false)}
-        title="Complete Your Reservation • LankaVoyage"
-        maxWidth="lg"
-      >
-        <form onSubmit={handleConfirmBooking} className="space-y-5">
-          <div className="bg-[#FAF8F5] p-4 rounded-2xl border border-stone-200 space-y-2">
-            <h4 className="font-serif font-bold text-sm text-[#082F24]">{tour.title}</h4>
-            <div className="flex items-center justify-between text-xs text-stone-600">
-              <span>Dates: {bookingPayload?.startDate} ({tour.durationDays} Days)</span>
-              <span className="font-bold text-[#082F24]">${bookingPayload?.totalAmount?.toLocaleString()} Total</span>
-            </div>
-          </div>
-
-          {/* Traveler Details Form */}
-          <div className="space-y-3">
-            <span className="text-xs font-bold text-[#082F24] uppercase tracking-wider block">
-              Lead Traveler Contact Details
-            </span>
-
-            <div className="space-y-1">
-              <label className="text-xs text-stone-600">Full Legal Name (as on Passport)</label>
-              <input
-                type="text"
-                required
-                value={travelerName}
-                onChange={(e) => setTravelerName(e.target.value)}
-                className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-sm text-[#082F24]"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-xs text-stone-600">Email Address</label>
-                <input
-                  type="email"
-                  required
-                  value={travelerEmail}
-                  onChange={(e) => setTravelerEmail(e.target.value)}
-                  className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-sm text-[#082F24]"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs text-stone-600">Phone / WhatsApp</label>
-                <input
-                  type="tel"
-                  required
-                  value={travelerPhone}
-                  onChange={(e) => setTravelerPhone(e.target.value)}
-                  className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-sm text-[#082F24]"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs text-stone-600">Special Dietary or Room Preferences</label>
-              <textarea
-                rows={2}
-                value={specialRequests}
-                onChange={(e) => setSpecialRequests(e.target.value)}
-                placeholder="e.g. Vegetarian meals, high floor king suite, celebrating wedding anniversary..."
-                className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#082F24]"
-              />
-            </div>
-          </div>
-
-          {/* Payment Method Selector */}
-          <div className="space-y-2 pt-2 border-t border-stone-100">
-            <span className="text-xs font-bold text-[#082F24] uppercase tracking-wider block">
-              Payment Method (Demo Gateway)
-            </span>
-            <div className="grid grid-cols-2 gap-2">
-              {(['Credit / Debit Card', 'PayPal', 'Bank Wire Transfer', 'Pay on Arrival / Deposit'] as const).map(m => (
-                <button
-                  key={m}
-                  type="button"
-                  onClick={() => setPaymentMethod(m)}
-                  className={`p-2.5 rounded-xl border text-xs font-semibold text-left transition-all ${
-                    paymentMethod === m 
-                      ? 'bg-[#0D3B2E] text-white border-[#0D3B2E]' 
-                      : 'bg-[#FAF8F5] text-stone-700 border-stone-200 hover:bg-stone-100'
-                  }`}
-                >
-                  {m}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Confirm Button */}
-          <div className="pt-2">
-            <button
-              type="submit"
-              disabled={isProcessing}
-              className="w-full py-4 bg-gradient-to-r from-[#C5A059] to-[#A37F37] text-[#082F24] font-bold text-base rounded-2xl shadow-xl hover:from-[#E5C378] hover:to-[#C5A059] transition-all flex items-center justify-center gap-2"
-            >
-              {isProcessing ? (
-                <span>Generating Digital Voucher...</span>
-              ) : (
-                <>
-                  <CreditCard className="w-5 h-5" />
-                  <span>Confirm Booking • ${bookingPayload?.totalAmount?.toLocaleString()}</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
-            <p className="text-[11px] text-stone-400 text-center mt-2">
-              Instant PDF travel voucher and QR code generated upon confirmation.
-            </p>
-          </div>
-        </form>
-      </Modal>
     </div>
   );
 };

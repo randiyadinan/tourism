@@ -1,0 +1,257 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                 String         @id @default(cuid())
+  name               String
+  email              String         @unique
+  role               String         @default("customer")
+  passwordHash       String?
+  phone              String?
+  country            String?
+  avatar             String?
+  passportNumber     String?
+  dietaryPreferences String?
+  emergencyContact   Json?
+  createdAt          DateTime       @default(now())
+  bookings           Booking[]
+  notifications      Notification[]
+}
+
+model Tour {
+  id                String    @id @default(cuid())
+  slug              String    @unique
+  title             String
+  subtitle          String
+  tagline           String
+  category          String
+  durationDays      Int
+  durationNights    Int
+  pricePerPerson    Float
+  originalPrice     Float?
+  discountPercent   Float?
+  featured          Boolean   @default(false)
+  published         Boolean   @default(true)
+  rating            Float     @default(0)
+  reviewCount       Int       @default(0)
+  difficulty        String
+  groupSizeMax      Int
+  startLocation     String
+  endLocation       String
+  heroImage         String
+  gallery           Json
+  overview          String
+  highlights        Json
+  destinations      Json
+  itinerary         Json
+  inclusions        Json
+  exclusions        Json
+  accommodationType String
+  transportType     String
+  importantInfo     Json
+  faqs              Json
+  bookings          Booking[]
+  reviews           Review[]
+}
+
+model Destination {
+  id                  String   @id @default(cuid())
+  slug                String   @unique
+  name                String
+  sinhalaName         String?
+  province            String
+  tagline             String
+  shortDescription    String
+  overview            String
+  heroImage           String
+  gallery             Json
+  bestTimeToVisit     String
+  recommendedDuration String
+  startingPrice       Float
+  rating              Float    @default(0)
+  reviewCount         Int      @default(0)
+  popularActivities   Json
+  attractions         Json
+  coordinates         Json
+  climate             Json
+  featured            Boolean  @default(false)
+  reviews             Review[]
+}
+
+model Activity {
+  id               String   @id @default(cuid())
+  slug             String   @unique
+  title            String
+  category         String
+  destination      String
+  duration         String
+  pricePerPerson   Float
+  rating           Float    @default(0)
+  reviewCount      Int      @default(0)
+  difficulty       String
+  image            String
+  gallery          Json?
+  shortDescription String
+  description      String
+  highlights       Json
+  included         Json
+  whatToBring      Json
+  meetingPoint     String
+  featured         Boolean  @default(false)
+  reviews          Review[]
+}
+
+model Hotel {
+  id               String @id @default(cuid())
+  name             String
+  destination      String
+  starCategory     String
+  pricePerNightUSD Float
+  image            String
+  description      String
+  amenities        Json
+  rating           Float  @default(0)
+}
+
+model Vehicle {
+  id                       String                   @id @default(cuid())
+  name                     String
+  type                     String
+  capacityPassengers       Int
+  capacityLuggage          Int
+  dailyRateUSD             Float
+  transferRateCMBtoColombo Float
+  image                    String
+  features                 Json
+  isAirConditioned         Boolean                  @default(true)
+  airportTransfers         AirportTransferBooking[]
+}
+
+model Booking {
+  id                     String   @id @default(cuid())
+  bookingCode            String   @unique
+  userId                 String
+  customerName           String
+  customerEmail          String
+  customerPhone          String
+  type                   String
+  tourId                 String?
+  tourTitle              String?
+  tourImage              String?
+  startDate              DateTime
+  endDate                DateTime
+  adultsCount            Int      @default(0)
+  childrenCount          Int      @default(0)
+  infantsCount           Int      @default(0)
+  totalTravelers         Int
+  destinationsCovered    Json?
+  hotelTier              String?
+  vehicleType            String?
+  mealPlan               String?
+  activitiesSelected     Json?
+  airportPickup          Boolean  @default(false)
+  airportTransferOption  String?
+  airportTransferDetails Json?
+  flightNumber           String?
+  flightArrivalTime      String?
+  travelers              Json
+  basePrice              Float
+  customizationTotal     Float    @default(0)
+  discountAmount         Float    @default(0)
+  discountCode           String?
+  taxAmount              Float    @default(0)
+  totalAmount            Float
+  amountPaid             Float    @default(0)
+  bookingStatus          String   @default("Pending")
+  paymentStatus          String   @default("Unpaid")
+  paymentMethod          String
+  notes                  String?
+  assignedGuide          Json?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  tour                   Tour?    @relation(fields: [tourId], references: [id])
+  user                   User     @relation(fields: [userId], references: [id])
+  reviews                Review[]
+}
+
+model AirportTransferBooking {
+  id              String   @id @default(cuid())
+  bookingCode     String   @unique
+  airport         String
+  tripType        String
+  destinationArea String
+  hotelAddress    String
+  flightDate      DateTime
+  flightTime      String
+  flightNumber    String
+  passengers      Int
+  luggageCount    Int
+  vehicleId       String
+  vehicleName     String
+  basePriceUSD    Float
+  totalPriceUSD   Float
+  contactName     String
+  contactEmail    String
+  contactPhone    String
+  specialRequests String?
+  status          String   @default("Pending")
+  paymentStatus   String   @default("Unpaid")
+  createdAt       DateTime @default(now())
+  vehicle         Vehicle  @relation(fields: [vehicleId], references: [id])
+}
+
+model Review {
+  id                  String       @id @default(cuid())
+  targetType          String
+  targetId            String?
+  targetTitle         String?
+  authorName          String
+  authorCountry       String
+  authorAvatar        String?
+  rating              Int
+  date                DateTime     @default(now())
+  title               String
+  content             String
+  tripType            String
+  verifiedTraveler    Boolean      @default(false)
+  photos              Json?
+  status              String       @default("pending")
+  replyFromManagement Json?
+  tourId              String?
+  destinationId       String?
+  activityId          String?
+  bookingId           String?
+  activity            Activity?    @relation(fields: [activityId], references: [id])
+  booking             Booking?     @relation(fields: [bookingId], references: [id])
+  destination         Destination? @relation(fields: [destinationId], references: [id])
+  tour                Tour?        @relation(fields: [tourId], references: [id])
+}
+
+model DiscountCoupon {
+  id            String   @id @default(cuid())
+  code          String   @unique
+  description   String
+  discountType  String
+  discountValue Float
+  minSpendUSD   Float?
+  validUntil    DateTime
+  isActive      Boolean  @default(true)
+  usageCount    Int      @default(0)
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      String
+  isRead    Boolean  @default(false)
+  linkUrl   String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}

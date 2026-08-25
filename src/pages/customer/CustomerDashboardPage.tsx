@@ -14,7 +14,6 @@ import {
   Car } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { bookingService } from '../../services/bookingService';
-import { tourService } from '../../services/tourService';
 
 export const CustomerDashboardPage: React.FC = () => {
   const { user } = useAuth();
@@ -22,9 +21,7 @@ export const CustomerDashboardPage: React.FC = () => {
   const userBookings = user ? bookingService.getUserBookings(user.id) : [];
   const pendingBookings = userBookings.filter(b => b.bookingStatus === 'Pending');
   const confirmedBookings = userBookings.filter(b => b.bookingStatus === 'Confirmed');
-  const rejectedBookings = userBookings.filter(b => b.bookingStatus === 'Rejected');
   const activeTrip = userBookings.find(b => b.bookingStatus === 'Confirmed' || b.bookingStatus === 'Pending') || userBookings[0];
-  const featuredTours = tourService.getFeaturedTours().slice(0, 2);
 
   return (
     <div className="space-y-8">
@@ -63,20 +60,12 @@ export const CustomerDashboardPage: React.FC = () => {
         <div className="absolute right-0 top-0 bottom-0 w-1/2 opacity-10 bg-[radial-gradient(#C5A059_1px,transparent_1px)] [background-size:16px_16px]" />
       </div>
 
-      {/* 4 Real KPI Cards: Total, Pending, Confirmed, Rejected */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      {/* KPI Highlights: Bookings status */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm space-y-1">
           <span className="text-xs text-stone-400 font-semibold block uppercase">Total Bookings</span>
           <span className="font-serif text-2xl font-bold text-[#082F24]">{userBookings.length}</span>
           <p className="text-[11px] text-stone-500">All registered trips</p>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-amber-200 shadow-sm space-y-1 bg-amber-50/40">
-          <span className="text-xs text-amber-800 font-semibold block uppercase">Pending</span>
-          <span className="font-serif text-2xl font-bold text-amber-700">
-            {pendingBookings.length}
-          </span>
-          <p className="text-[11px] text-stone-500">Waiting for review</p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-emerald-200 shadow-sm space-y-1 bg-emerald-50/40">
@@ -84,15 +73,15 @@ export const CustomerDashboardPage: React.FC = () => {
           <span className="font-serif text-2xl font-bold text-emerald-700">
             {confirmedBookings.length}
           </span>
-          <p className="text-[11px] text-stone-500">Approved & dispatched</p>
+          <p className="text-[11px] text-stone-500">Ready & Confirmed</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-rose-200 shadow-sm space-y-1 bg-rose-50/40">
-          <span className="text-xs text-rose-800 font-semibold block uppercase">Rejected</span>
-          <span className="font-serif text-2xl font-bold text-rose-700">
-            {rejectedBookings.length}
+        <div className="bg-white p-5 rounded-2xl border border-amber-200 shadow-sm space-y-1 bg-amber-50/40 col-span-2 sm:col-span-1">
+          <span className="text-xs text-amber-800 font-semibold block uppercase">Pending Review</span>
+          <span className="font-serif text-2xl font-bold text-amber-700">
+            {pendingBookings.length}
           </span>
-          <p className="text-[11px] text-stone-500">Declined requests</p>
+          <p className="text-[11px] text-stone-500">Awaiting confirmation</p>
         </div>
       </div>
 
@@ -105,7 +94,7 @@ export const CustomerDashboardPage: React.FC = () => {
           <div className="space-y-1">
             <h3 className="font-serif text-xl font-bold text-[#082F24]">No bookings yet</h3>
             <p className="text-xs text-stone-500 max-w-sm mx-auto">
-              Explore our tours to start your journey. Choose from our signature itineraries or customize your own bespoke Ceylon expedition.
+              Explore our curated tours or customize your own private Sri Lankan journey.
             </p>
           </div>
           <Link
@@ -233,32 +222,6 @@ export const CustomerDashboardPage: React.FC = () => {
           </div>
         </div>
       )}
-
-      {/* Recommended for You */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="font-serif text-xl font-bold text-[#082F24]">Recommended Ceylon Experiences</h3>
-          <Link to="/tours" className="text-xs font-bold text-[#0D3B2E] hover:underline">
-            View All &rarr;
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {featuredTours.map((t) => (
-            <div key={t.id} className="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm flex gap-4 items-center">
-              <img src={t.heroImage} alt={t.title} className="w-24 h-24 rounded-xl object-cover shrink-0" />
-              <div className="space-y-1 flex-1">
-                <span className="text-[10px] font-bold text-[#8C6D2B] uppercase">{t.category}</span>
-                <h4 className="font-serif font-bold text-sm text-[#082F24] line-clamp-1">{t.title}</h4>
-                <p className="text-xs text-stone-500 line-clamp-1">{t.durationDays} Days • From ${t.pricePerPerson}</p>
-                <Link to={`/tours/${t.slug}`} className="inline-block pt-1 text-xs font-bold text-[#0D3B2E] hover:underline">
-                  View Tour &rarr;
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
 
     </div>
   );

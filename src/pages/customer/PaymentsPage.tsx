@@ -5,9 +5,11 @@ import {
    
   ShieldCheck } from 'lucide-react';
 import { paymentService } from '../../services/paymentService';
+import { useAuth } from '../../context/AuthContext';
 
 export const PaymentsPage: React.FC = () => {
-  const transactions = paymentService.getTransactions();
+  const { user } = useAuth();
+  const transactions = user ? paymentService.getUserTransactions(user.id) : [];
 
   const handleDownloadInvoice = (txnRef: string) => {
     alert(`Downloading PDF Invoice for receipt ${txnRef}...`);

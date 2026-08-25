@@ -26,6 +26,8 @@ import {
 } from '../../components/custom/CustomWizardSteps';
 import { DynamicPriceReceipt, calculateCustomTripCost } from '../../components/custom/DynamicPriceReceipt';
 import { bookingService } from '../../services/bookingService';
+import { paymentService } from '../../services/paymentService';
+import { payhereService } from '../../services/payhereService';
 import { useAuth } from '../../context/AuthContext';
 import { INITIAL_DESTINATIONS } from '../../data/destinations';
 import { INITIAL_ACTIVITIES } from '../../data/activities';
@@ -114,7 +116,7 @@ export const CustomTripPage: React.FC = () => {
     }
   };
 
-  const handleFinalBooking = (e: React.FormEvent) => {
+  const handleFinalBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
@@ -122,63 +124,115 @@ export const CustomTripPage: React.FC = () => {
     const destNames = tripState.selectedDestinations.map(id => INITIAL_DESTINATIONS.find(d => d.id === id)?.name || id);
     const actNames = tripState.selectedActivities.map(id => INITIAL_ACTIVITIES.find(a => a.id === id)?.title || id);
 
-    setTimeout(() => {
-      const newBooking = bookingService.createBooking({
-        userId: user?.id || 'user-customer-1',
-        customerName: contactName,
-        customerEmail: contactEmail,
-        customerPhone: contactPhone,
-        type: 'custom_trip',
-        tourTitle: `${cost.daysCount}-Day Bespoke Sri Lanka Expedition`,
-        tourImage: 'https://images.unsplash.com/photo-1546708973-b339540b5162?auto=format&fit=crop&w=800&q=80',
-        startDate: tripState.arrivalDate,
-        endDate: tripState.departureDate,
-        adultsCount: tripState.adults,
-        childrenCount: tripState.children,
-        infantsCount: tripState.infants,
-        destinationsCovered: destNames,
-        vehicleType: tripState.transportType,
-        activitiesSelected: actNames,
-        airportPickup: tripState.airportPickup,
-        airportTransferOption: tripState.airportTransferOption,
-        airportTransferDetails: tripState.airportTransferDetails,
-        flightNumber: tripState.flightNumber,
-        flightArrivalTime: tripState.arrivalTime,
-        travelers: [
-          {
-            title: 'Mr',
-            fullName: contactName,
-            email: contactEmail,
-            phone: contactPhone,
-            nationality: 'International',
-            isLead: true,
-            specialRequirements: tripState.specialRequests
-          }
-        ],
-        basePrice: cost.baseTourTotal,
-        customizationTotal: cost.vehicleCost + cost.airportPickupCost,
-        discountAmount: cost.discount,
-        taxAmount: 0,
-        totalAmount: cost.estimatedTotal,
-        amountPaid: cost.estimatedTotal,
-        bookingStatus: 'Pending',
-        paymentStatus: 'Fully Paid',
-        paymentMethod: paymentMethod,
-        notes: tripState.specialRequests
-      });
+    // Create provisional booking
+    const newBooking = bookingService.createBooking({
+      userId: user?.id || 'user-customer-1',
+      customerName: contactName,
+      customerEmail: contactEmail,
+      customerPhone: contactPhone,
+      type: 'custom_trip',
+      tourTitle: `${cost.daysCount}-Day Bespoke Sri Lanka Expedition`,
+      tourImage: 'https://images.unsplash.com/photo-1546708973-b339540b5162?auto=format&fit=crop&w=800&q=80',
+      startDate: tripState.arrivalDate,
+      endDate: tripState.departureDate,
+      adultsCount: tripState.adults,
+      childrenCount: tripState.children,
+      infantsCount: tripState.infants,
+      destinationsCovered: destNames,
+      vehicleType: tripState.transportType,
+      activitiesSelected: actNames,
+      airportPickup: tripState.airportPickup,
+      airportTransferOption: tripState.airportTransferOption,
+      airportTransferDetails: tripState.airportTransferDetails,
+      flightNumber: tripState.flightNumber,
+      flightArrivalTime: tripState.arrivalTime,
+      travelers: [
+        {
+          title: 'Mr',
+          fullName: contactName,
+          email: contactEmail,
+          phone: contactPhone,
+          nationality: 'International',
+          isLead: true,
+          specialRequirements: tripState.specialRequests
+        }
+      ],
+      basePrice: cost.baseTourTotal,
+      customizationTotal: cost.vehicleCost + cost.airportPickupCost,
+      discountAmount: cost.discount,
+      taxAmount: 0,
+      totalAmount: cost.estimatedTotal,
+      amountPaid: 0,
+      bookingStatus: 'Pending',
+      paymentStatus: 'Unpaid',
+      paymentMethod: paymentMethod,
+      notes: tripState.specialRequests
+    });
 
-      setIsSubmitting(false);
-
+    if (paymentMethod === 'Credit / Debit Card') {
       try {
-        confetti({
-          particleCount: 120,
-          spread: 80,
-          origin: { y: 0.6 }
+        const payhereData = await payhereService.initiatePayment({
+          orderId: newBooking.bookingCode,
+          bookingId: newBooking.id,
+          bookingCode: newBooking.bookingCode,
+          userId: user?.id,
+          amount: cost.estimatedTotal,
+          currency: 'USD',
+          itemTitle: `${cost.daysCount}-Day Bespoke Sri Lanka Expedition`,
+          customerName: contactName,
+          customerEmail: contactEmail,
+          customerPhone: contactPhone,
+          city: 'Colombo',
+          country: 'Sri Lanka'
         });
-      } catch (err) {}
 
+        payhereService.launchPayment(payhereData, {
+          onCompleted: (orderId: string) => {
+            bookingService.applyGatewayPaymentSuccess(newBooking.id, {
+              amountPaid: cost.estimatedTotal,
+              paymentMethod: 'Credit / Debit Card'
+            });
+
+            const txnRef = `PAYHERE-TXN-${orderId}`;
+            paymentService.recordTransaction({
+              userId: user?.id,
+              bookingId: newBooking.id,
+              bookingCode: newBooking.bookingCode,
+              customerName: contactName,
+              amountUSD: cost.estimatedTotal,
+              paymentMethod: 'Credit / Debit Card',
+              status: 'Successful',
+              transactionReference: txnRef,
+              cardBrand: 'Visa/Mastercard'
+            });
+
+            try {
+              confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+            } catch (err) {}
+
+            navigate(`/customer/bookings/${newBooking.id}`);
+          },
+          onDismissed: () => {
+            setIsSubmitting(false);
+          },
+          onError: (err: string) => {
+            alert(`Payment Error: ${err}`);
+            setIsSubmitting(false);
+          }
+        });
+      } catch (err: any) {
+        console.error('Failed to initiate PayHere for custom trip:', err);
+        // Fallback navigation
+        setIsSubmitting(false);
+        navigate(`/customer/bookings/${newBooking.id}`);
+      }
+    } else {
+      setIsSubmitting(false);
+      try {
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+      } catch (err) {}
       navigate(`/customer/bookings/${newBooking.id}`);
-    }, 1200);
+    }
   };
 
   return (

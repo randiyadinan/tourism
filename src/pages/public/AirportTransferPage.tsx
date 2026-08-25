@@ -18,6 +18,8 @@ import { airportTransferService, TRANSFER_RATES } from '../../services/airportTr
 import { INITIAL_VEHICLES } from '../../data/vehicles';
 import { useAuth } from '../../context/AuthContext';
 import { Modal } from '../../components/common/Modal';
+import { payhereService } from '../../services/payhereService';
+import { paymentService } from '../../services/paymentService';
 
 export const AirportTransferPage: React.FC = () => {
   const { user } = useAuth();
@@ -46,12 +48,12 @@ export const AirportTransferPage: React.FC = () => {
   const isRoundTrip = tripType === 'Round Trip';
   const estimatedQuote = airportTransferService.calculateQuote(destinationArea, selectedVehicle.dailyRateUSD, isRoundTrip);
 
-  const handleConfirmTransfer = (e: React.FormEvent) => {
+  const handleConfirmTransfer = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    setTimeout(() => {
-      airportTransferService.bookTransfer({
+    try {
+      const newTransfer = airportTransferService.bookTransfer({
         airport,
         tripType,
         destinationArea,
@@ -69,18 +71,61 @@ export const AirportTransferPage: React.FC = () => {
         contactEmail,
         contactPhone,
         specialRequests,
-        paymentStatus: 'Fully Paid'
+        paymentStatus: 'Unpaid'
+      });
+
+      const payhereData = await payhereService.initiatePayment({
+        orderId: newTransfer.bookingCode,
+        bookingId: newTransfer.id,
+        bookingCode: newTransfer.bookingCode,
+        userId: user?.id,
+        amount: estimatedQuote,
+        currency: 'USD',
+        itemTitle: `VIP Airport Transfer: ${destinationArea}`,
+        customerName: contactName,
+        customerEmail: contactEmail,
+        customerPhone: contactPhone,
+        city: 'Colombo',
+        country: 'Sri Lanka'
       });
 
       setIsSubmitting(false);
       setIsModalOpen(false);
 
-      try {
-        confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
-      } catch (err) {}
+      payhereService.launchPayment(payhereData, {
+        onCompleted: (orderId: string) => {
+          paymentService.recordTransaction({
+            userId: user?.id,
+            bookingId: newTransfer.id,
+            bookingCode: newTransfer.bookingCode,
+            customerName: contactName,
+            amountUSD: estimatedQuote,
+            paymentMethod: 'Credit / Debit Card',
+            status: 'Successful',
+            transactionReference: `PAYHERE-TRF-${orderId}`,
+            cardBrand: 'Visa/Mastercard'
+          });
 
+          try {
+            confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
+          } catch (err) {}
+
+          navigate('/customer/bookings');
+        },
+        onDismissed: () => {
+          navigate('/customer/bookings');
+        },
+        onError: (err: string) => {
+          alert(`Transfer payment warning: ${err}`);
+          navigate('/customer/bookings');
+        }
+      });
+    } catch (err: any) {
+      console.error('Failed PayHere initiation for transfer:', err);
+      setIsSubmitting(false);
+      setIsModalOpen(false);
       navigate('/customer/bookings');
-    }, 1000);
+    }
   };
 
   return (

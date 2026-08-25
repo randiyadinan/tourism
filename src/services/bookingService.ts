@@ -194,6 +194,31 @@ export const bookingService = {
     return bookings[idx];
   },
 
+  /**
+   * Updates booking after verified gateway payment (PayHere).
+   */
+  applyGatewayPaymentSuccess(
+    idOrCode: string,
+    details: {
+      amountPaid: number;
+      paymentMethod?: PaymentMethod;
+    }
+  ): Booking | undefined {
+    const bookings = this.getAllBookings();
+    const idx = bookings.findIndex(b => b.id === idOrCode || b.bookingCode === idOrCode);
+    if (idx === -1) return undefined;
+
+    bookings[idx].paymentStatus = 'Fully Paid';
+    bookings[idx].amountPaid = details.amountPaid;
+    bookings[idx].bookingStatus = 'Confirmed';
+    if (details.paymentMethod) {
+      bookings[idx].paymentMethod = details.paymentMethod;
+    }
+    bookings[idx].updatedAt = new Date().toISOString();
+    localStorage.setItem(BOOKINGS_KEY, JSON.stringify(bookings));
+    return bookings[idx];
+  },
+
   deleteBooking(id: string): void {
     const currentUser = authService.getCurrentUser();
     if (!currentUser || currentUser.role !== 'admin') {

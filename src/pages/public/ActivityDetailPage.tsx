@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import confetti from 'canvas-confetti';
+import React from 'react';
+import { useParams, Link } from 'react-router-dom';
 import { 
   Clock, 
   MapPin, 
@@ -8,26 +7,15 @@ import {
   Heart, 
   Sparkles, 
   ShieldCheck, 
-  CreditCard, 
   Info
 } from 'lucide-react';
 import { activityService } from '../../services/activityService';
-import { bookingService } from '../../services/bookingService';
-import { useAuth } from '../../context/AuthContext';
 import { useWishlist } from '../../context/WishlistContext';
-import { Modal } from '../../components/common/Modal';
 
 export const ActivityDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const activity = activityService.getActivityBySlug(slug || '');
-  const { user } = useAuth();
   const { isInWishlist, toggleWishlist } = useWishlist();
-  const navigate = useNavigate();
-
-  const [date, setDate] = useState('2026-10-18');
-  const [participants, setParticipants] = useState(2);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
 
   if (!activity) {
     return (
@@ -54,59 +42,6 @@ export const ActivityDetailPage: React.FC = () => {
       location: activity.destination,
       slug: activity.slug
     });
-  };
-
-  const totalPrice = participants * activity.pricePerPerson;
-
-  const handleConfirmActivityBooking = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsProcessing(true);
-
-    setTimeout(() => {
-      const newBooking = bookingService.createBooking({
-        userId: user?.id || 'user-customer-1',
-        customerName: user?.name || 'Sarah Jenkins',
-        customerEmail: user?.email || 'sarah.traveler@example.com',
-        customerPhone: user?.phone || '+44 7700 900077',
-        type: 'activity_only',
-        tourTitle: activity.title,
-        tourImage: activity.image,
-        startDate: date,
-        endDate: date,
-        adultsCount: participants,
-        childrenCount: 0,
-        infantsCount: 0,
-        destinationsCovered: [activity.destination],
-        travelers: [
-          {
-            title: 'Mr',
-            fullName: user?.name || 'Sarah Jenkins',
-            email: user?.email || 'sarah.traveler@example.com',
-            phone: user?.phone || '+44 7700 900077',
-            nationality: 'United Kingdom',
-            isLead: true
-          }
-        ],
-        basePrice: totalPrice,
-        customizationTotal: 0,
-        discountAmount: 0,
-        taxAmount: 0,
-        totalAmount: totalPrice,
-        amountPaid: totalPrice,
-        bookingStatus: 'Pending',
-        paymentStatus: 'Fully Paid',
-        paymentMethod: 'Credit / Debit Card'
-      });
-
-      setIsProcessing(false);
-      setIsModalOpen(false);
-
-      try {
-        confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
-      } catch (e) {}
-
-      navigate(`/customer/bookings/${newBooking.id}`);
-    }, 1000);
   };
 
   return (
@@ -212,76 +147,47 @@ export const ActivityDetailPage: React.FC = () => {
 
           </div>
 
-          {/* Right Column: Sticky Booking Widget (5 cols) */}
+          {/* Right Column: Experience Info & Trip Action Widget (5 cols) */}
           <div className="lg:col-span-5">
             <div className="bg-white rounded-3xl border border-stone-200 p-6 sm:p-8 shadow-xl space-y-6 sticky top-24">
               
-              <div className="flex items-baseline justify-between border-b border-stone-100 pb-4">
-                <div>
-                  <span className="text-xs text-stone-400 font-semibold block uppercase">Price</span>
-                  <div className="flex items-baseline gap-1">
-                    <span className="font-serif text-3xl font-bold text-[#082F24]">
-                      ${activity.pricePerPerson}
-                    </span>
-                    <span className="text-xs text-stone-500">/ person</span>
-                  </div>
+              <div className="border-b border-stone-100 pb-4">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0D3B2E]/10 text-[#0D3B2E] text-xs font-bold uppercase tracking-wider mb-2">
+                  <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
+                  Sri Lanka Experience
                 </div>
-                <div className="text-xs font-bold text-[#0D3B2E]">
-                  ★ {activity.rating.toFixed(1)} ({activity.reviewCount} reviews)
-                </div>
+                <h3 className="font-serif text-2xl font-bold text-[#082F24]">{activity.title}</h3>
+                <p className="text-xs text-stone-500 mt-1">{activity.destination} • {activity.duration} • {activity.difficulty} Pace</p>
               </div>
 
-              <div className="space-y-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-[#082F24] uppercase">Date of Activity</label>
-                  <input
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3.5 py-2.5 text-sm text-[#082F24]"
-                  />
+              <div className="bg-[#FAF8F5] p-5 rounded-2xl border border-stone-200/80 space-y-3 text-xs text-stone-600">
+                <div className="flex items-center gap-2 font-bold text-[#082F24]">
+                  <Clock className="w-4 h-4 text-[#C5A059]" />
+                  <span>Duration: {activity.duration}</span>
                 </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-[#082F24] uppercase">Participants</label>
-                  <select
-                    value={participants}
-                    onChange={(e) => setParticipants(Number(e.target.value))}
-                    className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3.5 py-2.5 text-sm text-[#082F24]"
-                  >
-                    {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
-                      <option key={n} value={n}>{n} Participant{n > 1 ? 's' : ''}</option>
-                    ))}
-                  </select>
+                <div className="flex items-center gap-2 font-bold text-[#082F24]">
+                  <MapPin className="w-4 h-4 text-[#C5A059]" />
+                  <span>Location: {activity.destination}</span>
                 </div>
+                <p className="text-stone-500 pt-1 leading-relaxed">
+                  Select and include this experience in your customized Sri Lanka tour itinerary with dedicated chauffeur transport.
+                </p>
               </div>
 
-              <div className="bg-[#FAF8F5] p-4 rounded-2xl border border-stone-200/80 space-y-2 text-xs">
-                <div className="flex justify-between">
-                  <span>{participants} x ${activity.pricePerPerson}</span>
-                  <span className="font-bold text-[#082F24]">${totalPrice}</span>
-                </div>
-                <div className="flex justify-between text-sm font-bold text-[#082F24] pt-2 border-t border-stone-200">
-                  <span>Total Amount</span>
-                  <span className="font-serif text-2xl text-[#0D3B2E]">${totalPrice}</span>
-                </div>
-              </div>
-
-              <div className="space-y-2.5">
-                <button
-                  onClick={() => setIsModalOpen(true)}
-                  className="w-full py-4 bg-[#0D3B2E] hover:bg-[#134E3F] text-white font-bold text-sm rounded-2xl transition-all shadow-lg flex items-center justify-center gap-2"
-                >
-                  <CreditCard className="w-4 h-4 text-[#E5C378]" />
-                  <span>Book This Experience</span>
-                </button>
-
+              <div className="space-y-3 pt-2">
                 <Link
                   to={`/customize?activityId=${activity.id}`}
-                  className="w-full inline-flex items-center justify-center gap-2 py-3 bg-[#C5A059]/20 hover:bg-[#C5A059]/30 text-[#8C6D2B] font-bold text-xs rounded-xl transition-colors"
+                  className="w-full py-4 bg-gradient-to-r from-[#0D3B2E] to-[#134E3F] hover:from-[#134E3F] hover:to-[#0D3B2E] text-white font-bold text-sm rounded-2xl transition-all shadow-lg flex items-center justify-center gap-2"
                 >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Add to Custom Sri Lanka Trip</span>
+                  <Sparkles className="w-4 h-4 text-[#E5C378]" />
+                  <span>Select & Add to Custom Tour</span>
+                </Link>
+
+                <Link
+                  to="/tours"
+                  className="w-full inline-flex items-center justify-center gap-2 py-3 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs rounded-xl transition-colors"
+                >
+                  <span>Browse All Tours & Itineraries</span>
                 </Link>
               </div>
 
@@ -296,66 +202,6 @@ export const ActivityDetailPage: React.FC = () => {
         </div>
 
       </div>
-
-      {/* Activity Booking Modal */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="Reserve Experience • Instant Confirmation"
-        maxWidth="md"
-      >
-        <form onSubmit={handleConfirmActivityBooking} className="space-y-4">
-          <div className="bg-[#FAF8F5] p-4 rounded-xl border border-stone-200 space-y-1">
-            <h4 className="font-serif font-bold text-sm text-[#082F24]">{activity.title}</h4>
-            <p className="text-xs text-stone-500">{date} • {participants} Participants • ${totalPrice} Total</p>
-          </div>
-
-          <div className="space-y-3">
-            <div className="space-y-1">
-              <label className="text-xs text-stone-600">Lead Guest Name</label>
-              <input
-                type="text"
-                required
-                defaultValue={user?.name || 'Sarah Jenkins'}
-                className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-sm text-[#082F24]"
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs text-stone-600">Email Address</label>
-              <input
-                type="email"
-                required
-                defaultValue={user?.email || 'sarah.traveler@example.com'}
-                className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-sm text-[#082F24]"
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs text-stone-600">Phone / WhatsApp</label>
-              <input
-                type="tel"
-                required
-                defaultValue={user?.phone || '+44 7700 900077'}
-                className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-sm text-[#082F24]"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={isProcessing}
-            className="w-full py-3.5 bg-[#0D3B2E] text-white font-bold text-sm rounded-xl shadow-lg hover:bg-[#134E3F] transition-all flex items-center justify-center gap-2"
-          >
-            {isProcessing ? (
-              <span>Confirming Booking...</span>
-            ) : (
-              <>
-                <CreditCard className="w-4 h-4 text-[#E5C378]" />
-                <span>Confirm & Generate Voucher • ${totalPrice}</span>
-              </>
-            )}
-          </button>
-        </form>
-      </Modal>
     </div>
   );
 };

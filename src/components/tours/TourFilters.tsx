@@ -1,6 +1,6 @@
 import React from 'react';
 import { Filter, RotateCcw, Sparkles } from 'lucide-react';
-import type { TourCategory, TourDifficulty } from '../../types';
+import type { TourCategory } from '../../types';
 import type { TourFilterParams } from '../../services/tourService';
 import { INITIAL_DESTINATIONS } from '../../data/destinations';
 
@@ -20,8 +20,6 @@ const CATEGORIES: (TourCategory | 'All')[] = [
   'Active Adventure',
   'Ayurveda & Wellness'
 ];
-
-const DIFFICULTIES: (TourDifficulty | 'All')[] = ['All', 'Easy', 'Moderate', 'Challenging'];
 
 export const TourFilters: React.FC<TourFiltersProps> = ({ filters, onChange, onReset }) => {
   return (
@@ -130,50 +128,6 @@ export const TourFilters: React.FC<TourFiltersProps> = ({ filters, onChange, onR
           >
             9+ Days
           </button>
-        </div>
-      </div>
-
-      {/* Difficulty */}
-      <div className="space-y-2 pt-2 border-t border-stone-100">
-        <label className="text-xs font-bold text-[#082F24] uppercase tracking-wider block">
-          Pace / Difficulty
-        </label>
-        <div className="flex items-center gap-1.5 flex-wrap">
-          {DIFFICULTIES.map((diff) => (
-            <button
-              key={diff}
-              onClick={() => onChange({ ...filters, difficulty: diff })}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                (filters.difficulty || 'All') === diff
-                  ? 'bg-[#C5A059] text-[#082F24]'
-                  : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-              }`}
-            >
-              {diff}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Minimum Rating */}
-      <div className="space-y-2 pt-2 border-t border-stone-100">
-        <label className="text-xs font-bold text-[#082F24] uppercase tracking-wider block">
-          Minimum Rating
-        </label>
-        <div className="flex items-center gap-2">
-          {[4.5, 4.8, 4.9].map((star) => (
-            <button
-              key={star}
-              onClick={() => onChange({ ...filters, ratingMin: filters.ratingMin === star ? undefined : star })}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                filters.ratingMin === star
-                  ? 'bg-[#0D3B2E] text-[#E5C378]'
-                  : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
-              }`}
-            >
-              ★ {star}+
-            </button>
-          ))}
         </div>
       </div>
 

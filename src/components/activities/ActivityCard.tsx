@@ -89,16 +89,10 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onAddToTri
           <p className="text-xs text-stone-600 line-clamp-2 leading-relaxed">{activity.shortDescription}</p>
         </div>
 
-        {/* Price & Action */}
+        {/* Actions */}
         <div className="pt-3 border-t border-stone-100 flex items-center justify-between">
-          <div>
-            <span className="text-[10px] text-stone-400 block uppercase font-semibold">From</span>
-            <div className="flex items-baseline gap-1">
-              <span className="font-serif text-xl font-bold text-[#082F24]">
-                ${activity.pricePerPerson}
-              </span>
-              <span className="text-[11px] text-stone-500">/ person</span>
-            </div>
+          <div className="flex items-center gap-1 text-[11px] font-semibold text-[#8C6D2B]">
+            <span>Experience</span>
           </div>
 
           <div className="flex items-center gap-1.5">
@@ -108,14 +102,14 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onAddToTri
                 className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#134E3F] text-white hover:bg-[#0D3B2E] transition-colors"
               >
                 <Plus className="w-3.5 h-3.5" />
-                Add
+                Select
               </button>
             ) : (
               <Link
                 to={`/customize?activityId=${activity.id}`}
-                className="px-2.5 py-1.5 text-[11px] font-semibold rounded-lg bg-stone-100 text-stone-700 hover:bg-stone-200 transition-colors"
+                className="px-2.5 py-1.5 text-[11px] font-semibold rounded-lg bg-[#0D3B2E]/10 text-[#0D3B2E] hover:bg-[#0D3B2E] hover:text-white transition-colors"
               >
-                Add to Trip
+                + Add to Trip
               </Link>
             )}
 
