@@ -12,8 +12,7 @@ import {
   Sparkles, 
   Car, 
   Users, 
-  Star,
-  Leaf
+  Star
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -34,7 +33,7 @@ export const Navbar: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu on route changes
+  // Close mobile drawer on route changes
   useEffect(() => {
     setMobileMenuOpen(false);
     setAdminMenuOpen(false);
@@ -53,7 +52,7 @@ export const Navbar: React.FC = () => {
     { name: 'Activities', href: '/activities' },
     { name: 'Customize', href: '/customize' },
     { name: 'Reviews', href: '/reviews' },
-    { name: 'About', href: '/about' },
+    { name: 'Contact', href: '/contact' },
   ];
 
   const adminMgmtLinks = [
@@ -71,25 +70,22 @@ export const Navbar: React.FC = () => {
     <header 
       className={`sticky top-0 z-50 transition-all duration-300 ${
         isScrolled 
-          ? 'bg-white/80 backdrop-blur-xl border-b border-white/60 shadow-[0_10px_30px_-10px_rgba(6,44,34,0.06)] py-3 text-[#17231F]' 
+          ? 'bg-[#FCFEFD]/85 backdrop-blur-xl border-b border-white/70 shadow-[0_8px_24px_-8px_rgba(7,94,99,0.08)] py-3 text-[#173238]' 
           : isHome
-            ? 'bg-[#062C22]/40 backdrop-blur-md border-b border-white/10 py-4 text-white'
-            : 'bg-[#062C22]/95 backdrop-blur-xl border-b border-white/10 py-4 text-white'
+            ? 'bg-[#075E63]/30 backdrop-blur-md border-b border-white/10 py-4 text-white'
+            : 'bg-[#075E63]/95 backdrop-blur-xl border-b border-white/10 py-4 text-white'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-11">
           
-          {/* Brand Logo with Soft Mint & Emerald accents */}
-          <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#176B52] to-[#0B3D2E] border border-white/20 flex items-center justify-center shadow-xs transition-transform group-hover:scale-105">
-              <Leaf className="w-4 h-4 text-[#DDEFE8]" />
-            </div>
+          {/* Clean Brand Typography Logo */}
+          <Link to="/" className="flex items-center gap-2 shrink-0 group">
             <div className="flex flex-col">
-              <span className={`font-serif text-xl font-bold tracking-tight leading-none ${isScrolled ? 'text-[#062C22]' : 'text-white'}`}>
-                Lanka<span className="text-[#39A982]">Voyage</span>
+              <span className={`font-serif text-2xl font-bold tracking-tight leading-none ${isScrolled ? 'text-[#075E63]' : 'text-white'}`}>
+                Lanka<span className="text-[#E98B6B]">Voyage</span>
               </span>
-              <span className={`text-[9px] uppercase tracking-[0.22em] mt-0.5 font-medium ${isScrolled ? 'text-[#68736E]' : 'text-[#DDEFE8]'}`}>
+              <span className={`text-[8.5px] uppercase tracking-[0.24em] mt-0.5 font-medium ${isScrolled ? 'text-[#68736E]' : 'text-[#DDF5F0]'}`}>
                 Bespoke Sri Lanka
               </span>
             </div>
@@ -104,8 +100,8 @@ export const Navbar: React.FC = () => {
                 className={({ isActive }) => `
                   text-sm font-medium tracking-normal transition-colors duration-200
                   ${isActive 
-                    ? isScrolled ? 'text-[#176B52] font-semibold' : 'text-[#DDEFE8] font-semibold drop-shadow-xs'
-                    : isScrolled ? 'text-stone-700 hover:text-[#176B52]' : 'text-stone-200 hover:text-white'
+                    ? isScrolled ? 'text-[#0B7A75] font-bold' : 'text-[#DDF5F0] font-bold drop-shadow-xs'
+                    : isScrolled ? 'text-[#173238]/80 hover:text-[#0B7A75]' : 'text-stone-100 hover:text-white'
                   }
                 `}
               >
@@ -123,14 +119,14 @@ export const Navbar: React.FC = () => {
                 <Link
                   to="/login"
                   className={`text-xs font-medium transition-colors ${
-                    isScrolled ? 'text-stone-600 hover:text-[#176B52]' : 'text-stone-200 hover:text-white'
+                    isScrolled ? 'text-[#173238]/80 hover:text-[#0B7A75]' : 'text-stone-100 hover:text-white'
                   }`}
                 >
                   Sign In
                 </Link>
                 <Link
                   to="/customize"
-                  className="px-5 py-2.5 text-xs font-semibold rounded-xl bg-[#0B3D2E] hover:bg-[#176B52] text-white border border-white/20 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5"
+                  className="px-5 py-2.5 text-xs font-semibold rounded-xl bg-[#0B7A75] hover:bg-[#075E63] text-white shadow-xs hover:shadow-md transition-all transform hover:-translate-y-0.5"
                 >
                   Plan Your Trip
                 </Link>
@@ -143,7 +139,7 @@ export const Navbar: React.FC = () => {
                 <Link
                   to="/customer"
                   className={`flex items-center gap-1.5 text-xs font-medium transition-colors py-1 ${
-                    isScrolled ? 'text-stone-700 hover:text-[#176B52]' : 'text-stone-200 hover:text-[#DDEFE8]'
+                    isScrolled ? 'text-[#173238] hover:text-[#0B7A75]' : 'text-stone-100 hover:text-[#DDF5F0]'
                   }`}
                 >
                   <LayoutDashboard className="w-3.5 h-3.5" />
@@ -153,7 +149,7 @@ export const Navbar: React.FC = () => {
                 <Link
                   to="/customer/bookings"
                   className={`flex items-center gap-1.5 text-xs font-medium transition-colors py-1 ${
-                    isScrolled ? 'text-stone-700 hover:text-[#176B52]' : 'text-stone-200 hover:text-[#DDEFE8]'
+                    isScrolled ? 'text-[#173238] hover:text-[#0B7A75]' : 'text-stone-100 hover:text-[#DDF5F0]'
                   }`}
                 >
                   <Calendar className="w-3.5 h-3.5" />
@@ -164,7 +160,7 @@ export const Navbar: React.FC = () => {
                   to="/customer/profile"
                   className={`flex items-center gap-2 pl-2 pr-3 py-1 rounded-full text-xs transition-colors border ${
                     isScrolled
-                      ? 'bg-stone-100/80 hover:bg-stone-200/80 border-stone-200 text-[#17231F]'
+                      ? 'bg-stone-100/80 hover:bg-stone-200/80 border-stone-200 text-[#173238]'
                       : 'bg-white/15 hover:bg-white/20 border-white/20 text-white'
                   }`}
                 >
@@ -198,8 +194,8 @@ export const Navbar: React.FC = () => {
                   to="/admin"
                   className={`flex items-center gap-1.5 text-xs font-medium transition-colors py-1 ${
                     location.pathname === '/admin' 
-                      ? 'text-[#39A982] font-semibold' 
-                      : isScrolled ? 'text-stone-700 hover:text-[#176B52]' : 'text-stone-200 hover:text-white'
+                      ? 'text-[#55C7C1] font-semibold' 
+                      : isScrolled ? 'text-[#173238] hover:text-[#0B7A75]' : 'text-stone-100 hover:text-white'
                   }`}
                 >
                   <LayoutDashboard className="w-3.5 h-3.5" />
@@ -210,8 +206,8 @@ export const Navbar: React.FC = () => {
                   to="/admin/bookings"
                   className={`flex items-center gap-1.5 text-xs font-medium transition-colors py-1 ${
                     location.pathname === '/admin/bookings' 
-                      ? 'text-[#39A982] font-semibold' 
-                      : isScrolled ? 'text-stone-700 hover:text-[#176B52]' : 'text-stone-200 hover:text-white'
+                      ? 'text-[#55C7C1] font-semibold' 
+                      : isScrolled ? 'text-[#173238] hover:text-[#0B7A75]' : 'text-stone-100 hover:text-white'
                   }`}
                 >
                   <Calendar className="w-3.5 h-3.5" />
@@ -222,19 +218,19 @@ export const Navbar: React.FC = () => {
                   <button
                     onClick={() => setAdminMenuOpen(!adminMenuOpen)}
                     className={`flex items-center gap-1 text-xs font-medium transition-colors py-1 ${
-                      isScrolled ? 'text-stone-700 hover:text-[#176B52]' : 'text-stone-200 hover:text-white'
+                      isScrolled ? 'text-[#173238] hover:text-[#0B7A75]' : 'text-stone-100 hover:text-white'
                     }`}
                   >
                     <span>Management</span>
-                    <ChevronDown className="w-3 h-3 text-[#39A982]" />
+                    <ChevronDown className="w-3 h-3 text-[#E98B6B]" />
                   </button>
 
                   {adminMenuOpen && (
                     <div 
-                      className="absolute right-0 mt-2 w-52 bg-white/95 backdrop-blur-xl border border-stone-200 rounded-2xl shadow-xl py-2 z-50 animate-fadeIn text-xs text-[#17231F]"
+                      className="absolute right-0 mt-2 w-52 bg-[#FCFEFD]/95 backdrop-blur-xl border border-stone-200 rounded-2xl shadow-xl py-2 z-50 animate-fadeIn text-xs text-[#173238]"
                       onMouseLeave={() => setAdminMenuOpen(false)}
                     >
-                      <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#176B52] border-b border-stone-100">
+                      <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#0B7A75] border-b border-stone-100">
                         Admin Controls
                       </div>
                       {adminMgmtLinks.map((item) => (
@@ -242,9 +238,9 @@ export const Navbar: React.FC = () => {
                           key={item.name}
                           to={item.href}
                           onClick={() => setAdminMenuOpen(false)}
-                          className="flex items-center gap-2.5 px-3.5 py-2 hover:bg-[#F8F7F2] text-stone-700 hover:text-[#176B52] transition-colors"
+                          className="flex items-center gap-2.5 px-3.5 py-2 hover:bg-[#F6F1E7] text-stone-700 hover:text-[#0B7A75] transition-colors"
                         >
-                          <item.icon className="w-3.5 h-3.5 text-[#176B52]" />
+                          <item.icon className="w-3.5 h-3.5 text-[#0B7A75]" />
                           <span>{item.name}</span>
                         </Link>
                       ))}
@@ -267,16 +263,16 @@ export const Navbar: React.FC = () => {
 
           </div>
 
-          {/* Mobile Hamburger */}
+          {/* Mobile Hamburger Button */}
           <div className="flex lg:hidden items-center">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className={`p-2 rounded-xl focus:outline-none transition-colors ${
-                isScrolled ? 'text-[#062C22] hover:bg-stone-100' : 'text-white hover:bg-white/10'
+                isScrolled ? 'text-[#075E63] hover:bg-stone-100' : 'text-white hover:bg-white/10'
               }`}
               aria-label="Toggle Navigation Menu"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5 text-[#39A982]" /> : <Menu className="w-5 h-5 text-[#39A982]" />}
+              {mobileMenuOpen ? <X className="w-5 h-5 text-[#E98B6B]" /> : <Menu className="w-5 h-5 text-[#E98B6B]" />}
             </button>
           </div>
 
@@ -285,7 +281,7 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Glass Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-[#062C22]/95 backdrop-blur-2xl border-t border-white/10 px-4 pt-3 pb-6 space-y-3 shadow-2xl animate-fadeIn text-white">
+        <div className="lg:hidden bg-[#075E63]/95 backdrop-blur-2xl border-t border-white/10 px-4 pt-3 pb-6 space-y-3 shadow-2xl animate-fadeIn text-white">
           {!isAdmin && (
             <div className="space-y-1">
               {navLinks.map((link) => (
@@ -295,7 +291,7 @@ export const Navbar: React.FC = () => {
                   onClick={() => setMobileMenuOpen(false)}
                   className={({ isActive }) => `
                     block px-3 py-2 rounded-xl text-sm font-medium transition-colors
-                    ${isActive ? 'bg-white/15 text-[#DDEFE8] font-semibold' : 'text-stone-200 hover:text-white'}
+                    ${isActive ? 'bg-white/15 text-[#DDF5F0] font-bold' : 'text-stone-200 hover:text-white'}
                   `}
                 >
                   {link.name}
@@ -309,7 +305,7 @@ export const Navbar: React.FC = () => {
               <Link
                 to="/customize"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block w-full py-2.5 text-center text-xs font-semibold rounded-xl bg-[#176B52] text-white shadow-xs"
+                className="block w-full py-2.5 text-center text-xs font-semibold rounded-xl bg-[#0B7A75] text-white shadow-xs"
               >
                 Plan Your Trip
               </Link>
@@ -338,7 +334,7 @@ export const Navbar: React.FC = () => {
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white/10 text-stone-200"
               >
-                <LayoutDashboard className="w-4 h-4 text-[#39A982]" />
+                <LayoutDashboard className="w-4 h-4 text-[#55C7C1]" />
                 <span>Dashboard</span>
               </Link>
               <Link
@@ -346,7 +342,7 @@ export const Navbar: React.FC = () => {
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white/10 text-stone-200"
               >
-                <Calendar className="w-4 h-4 text-[#39A982]" />
+                <Calendar className="w-4 h-4 text-[#55C7C1]" />
                 <span>My Bookings</span>
               </Link>
               <button
@@ -361,7 +357,7 @@ export const Navbar: React.FC = () => {
 
           {isAuthenticated && isAdmin && (
             <div className="border-t border-white/10 pt-3 space-y-1 text-xs text-stone-200">
-              <div className="px-3 py-1 font-bold uppercase tracking-wider text-[#39A982] text-[10px]">
+              <div className="px-3 py-1 font-bold uppercase tracking-wider text-[#55C7C1] text-[10px]">
                 Admin Console
               </div>
               <Link
@@ -369,7 +365,7 @@ export const Navbar: React.FC = () => {
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white/10"
               >
-                <LayoutDashboard className="w-4 h-4 text-[#39A982]" />
+                <LayoutDashboard className="w-4 h-4 text-[#55C7C1]" />
                 <span>Overview</span>
               </Link>
               <Link
@@ -377,7 +373,7 @@ export const Navbar: React.FC = () => {
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white/10"
               >
-                <Calendar className="w-4 h-4 text-[#39A982]" />
+                <Calendar className="w-4 h-4 text-[#55C7C1]" />
                 <span>Bookings</span>
               </Link>
               <button

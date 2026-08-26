@@ -29,19 +29,19 @@ export const TripPlannerBar: React.FC = () => {
   };
 
   return (
-    <div className="bg-white/80 backdrop-blur-2xl rounded-3xl shadow-[0_20px_50px_-15px_rgba(6,44,34,0.12)] border border-white/90 p-5 sm:p-7 text-[#17231F]">
+    <div className="bg-[#FCFEFD]/85 backdrop-blur-2xl rounded-3xl shadow-[0_20px_50px_-15px_rgba(7,94,99,0.14)] border border-white/90 p-5 sm:p-7 text-[#173238]">
       <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
         
         {/* Destination Dropdown */}
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-[#17231F] flex items-center gap-1.5">
-            <MapPin className="w-3.5 h-3.5 text-[#176B52]" />
+          <label className="text-xs font-semibold text-[#173238] flex items-center gap-1.5">
+            <MapPin className="w-3.5 h-3.5 text-[#0B7A75]" />
             Destination
           </label>
           <select
             value={destination}
             onChange={(e) => setDestination(e.target.value)}
-            className="w-full bg-[#F8F7F2]/90 border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52] transition-colors"
+            className="w-full bg-[#F6F1E7]/85 border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-medium text-[#173238] focus:outline-none focus:ring-2 focus:ring-[#0B7A75] transition-colors"
           >
             <option value="All">All Sri Lanka (Islandwide)</option>
             {INITIAL_DESTINATIONS.map(d => (
@@ -52,32 +52,32 @@ export const TripPlannerBar: React.FC = () => {
 
         {/* Travel Duration */}
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-[#17231F] flex items-center gap-1.5">
-            <Calendar className="w-3.5 h-3.5 text-[#176B52]" />
+          <label className="text-xs font-semibold text-[#173238] flex items-center gap-1.5">
+            <Calendar className="w-3.5 h-3.5 text-[#0B7A75]" />
             Duration
           </label>
           <select
             value={duration}
             onChange={(e) => setDuration(e.target.value)}
-            className="w-full bg-[#F8F7F2]/90 border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52] transition-colors"
+            className="w-full bg-[#F6F1E7]/85 border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-medium text-[#173238] focus:outline-none focus:ring-2 focus:ring-[#0B7A75] transition-colors"
           >
             <option value="any">Any Duration</option>
             <option value="short">Short Getaway (1 - 5 Days)</option>
-            <option value="medium">Classic Ceylon (6 - 9 Days)</option>
+            <option value="medium">Classic Holiday (6 - 9 Days)</option>
             <option value="long">Grand Discovery (10+ Days)</option>
           </select>
         </div>
 
         {/* Number of Travelers */}
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-[#17231F] flex items-center gap-1.5">
-            <Users className="w-3.5 h-3.5 text-[#176B52]" />
+          <label className="text-xs font-semibold text-[#173238] flex items-center gap-1.5">
+            <Users className="w-3.5 h-3.5 text-[#0B7A75]" />
             Travelers
           </label>
           <select
             value={travelers}
             onChange={(e) => setTravelers(Number(e.target.value))}
-            className="w-full bg-[#F8F7F2]/90 border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52] transition-colors"
+            className="w-full bg-[#F6F1E7]/85 border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-medium text-[#173238] focus:outline-none focus:ring-2 focus:ring-[#0B7A75] transition-colors"
           >
             <option value={1}>1 Solo Explorer</option>
             <option value={2}>2 Adults (Couple / Honeymoon)</option>
@@ -88,17 +88,17 @@ export const TripPlannerBar: React.FC = () => {
 
         {/* Budget */}
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-[#17231F] flex items-center gap-1.5">
-            <DollarSign className="w-3.5 h-3.5 text-[#176B52]" />
+          <label className="text-xs font-semibold text-[#173238] flex items-center gap-1.5">
+            <DollarSign className="w-3.5 h-3.5 text-[#0B7A75]" />
             Tier & Style
           </label>
           <select
             value={budget}
             onChange={(e) => setBudget(e.target.value)}
-            className="w-full bg-[#F8F7F2]/90 border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52] transition-colors"
+            className="w-full bg-[#F6F1E7]/85 border border-stone-200 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-medium text-[#173238] focus:outline-none focus:ring-2 focus:ring-[#0B7A75] transition-colors"
           >
             <option value="any">All Styles</option>
-            <option value="luxury">Luxury Stays ($1,200+)</option>
+            <option value="luxury">Luxury Resorts ($1,200+)</option>
             <option value="mid">Boutique Comfort ($600 - $1,200)</option>
             <option value="budget">Classic Explorer (&lt; $600)</option>
           </select>
@@ -108,9 +108,9 @@ export const TripPlannerBar: React.FC = () => {
         <div>
           <button
             type="submit"
-            className="w-full py-3 px-4 rounded-xl bg-[#0B3D2E] hover:bg-[#176B52] text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs hover:shadow-md transition-all transform hover:-translate-y-0.5"
+            className="w-full py-3 px-4 rounded-xl bg-[#0B7A75] hover:bg-[#075E63] text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs hover:shadow-md transition-all transform hover:-translate-y-0.5"
           >
-            <Search className="w-4 h-4 text-[#DDEFE8]" />
+            <Search className="w-4 h-4 text-[#DDF5F0]" />
             <span>Plan My Trip</span>
           </button>
         </div>

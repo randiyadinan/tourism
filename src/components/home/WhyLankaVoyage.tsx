@@ -31,16 +31,16 @@ export const WhyLankaVoyage: React.FC = () => {
   ];
 
   return (
-    <section className="py-20 sm:py-28 bg-[#F8F7F2] border-y border-stone-200/80">
+    <section className="py-20 sm:py-28 bg-[#F6F1E7] border-y border-stone-200/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-14 sm:mb-16 space-y-3">
-          <span className="text-xs font-semibold text-[#176B52] uppercase tracking-wider">
-            Why Choose LankaVoyage
+          <span className="text-xs font-semibold text-[#0B7A75] uppercase tracking-wider">
+            WHY CHOOSE LANKAVOYAGE
           </span>
-          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#17231F]">
-            Travel Sri Lanka with Effortless Confidence
+          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal text-[#173238]">
+            Travel deeper. Feel more.
           </h2>
           <p className="text-sm sm:text-base text-[#68736E] leading-relaxed">
             We combine high-touch personal concierge planning with authentic local knowledge for seamless holidays.
@@ -52,12 +52,12 @@ export const WhyLankaVoyage: React.FC = () => {
           {features.map((f, i) => (
             <div 
               key={i} 
-              className="bg-white/85 backdrop-blur-xl rounded-3xl border border-white/80 p-7 space-y-3.5 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.05)] hover:shadow-[0_20px_40px_-10px_rgba(6,44,34,0.12)] transition-all hover:border-[#176B52]/40"
+              className="bg-[#FCFEFD]/85 backdrop-blur-xl rounded-3xl border border-white/80 p-7 space-y-3.5 shadow-[0_4px_20px_-4px_rgba(7,94,99,0.05)] hover:shadow-[0_20px_40px_-10px_rgba(7,94,99,0.12)] transition-all hover:border-[#0B7A75]/40"
             >
-              <div className="w-11 h-11 rounded-2xl bg-[#0B3D2E] text-[#DDEFE8] flex items-center justify-center shadow-xs">
+              <div className="w-11 h-11 rounded-2xl bg-[#075E63] text-[#DDF5F0] flex items-center justify-center shadow-xs">
                 <f.icon className="w-5 h-5" />
               </div>
-              <h3 className="font-serif text-lg font-bold text-[#17231F]">
+              <h3 className="font-serif text-lg font-bold text-[#173238]">
                 {f.title}
               </h3>
               <p className="text-xs sm:text-sm text-[#68736E] leading-relaxed">

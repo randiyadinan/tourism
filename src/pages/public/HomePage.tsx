@@ -21,19 +21,19 @@ export const HomePage: React.FC = () => {
   return (
     <div className="space-y-0">
       
-      {/* 1. Hero with Cinematic Sri Lankan Visuals & Liquid Glass Quick Trip Planner */}
+      {/* 1. Hero with Coastal Sri Lanka Visuals & Liquid Glass Quick Trip Planner */}
       <Hero />
 
-      {/* 2. Featured Signature Tours */}
-      <section className="py-20 sm:py-28 bg-white">
+      {/* 2. Featured Signature Tours on Warm White */}
+      <section className="py-20 sm:py-28 bg-[#FCFEFD]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6">
             <div className="space-y-2.5 max-w-2xl">
-              <span className="text-xs font-semibold text-[#176B52] uppercase tracking-wider">
-                Explore the Island
+              <span className="text-xs font-semibold text-[#0B7A75] uppercase tracking-wider">
+                EXPLORE THE ISLAND
               </span>
-              <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#17231F]">
+              <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal text-[#173238]">
                 Journeys worth remembering.
               </h2>
               <p className="text-sm sm:text-base text-[#68736E]">
@@ -43,10 +43,10 @@ export const HomePage: React.FC = () => {
 
             <Link
               to="/tours"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-[#F8F7F2] border border-stone-200 text-xs sm:text-sm font-semibold text-[#0B3D2E] hover:bg-[#DDEFE8] transition-all shrink-0 shadow-2xs"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#F6F1E7] border border-stone-200 text-xs sm:text-sm font-semibold text-[#075E63] hover:bg-[#DDF5F0] transition-all shrink-0 shadow-2xs"
             >
               <span>View All Tours</span>
-              <ArrowRight className="w-4 h-4 text-[#39A982]" />
+              <ArrowRight className="w-4 h-4 text-[#E98B6B]" />
             </Link>
           </div>
 
@@ -59,29 +59,29 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* 3. Popular Destinations (Instagram-style travel gallery) */}
-      <section className="py-20 sm:py-28 bg-[#F8F7F2]">
+      {/* 3. Popular Destinations on Soft Sand */}
+      <section className="py-20 sm:py-28 bg-[#F6F1E7]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6">
             <div className="space-y-2.5 max-w-2xl">
-              <span className="text-xs font-semibold text-[#176B52] uppercase tracking-wider">
-                Discover Sri Lanka
+              <span className="text-xs font-semibold text-[#0B7A75] uppercase tracking-wider">
+                DISCOVER SRI LANKA
               </span>
-              <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#17231F]">
+              <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal text-[#173238]">
                 Iconic Destinations
               </h2>
               <p className="text-sm sm:text-base text-[#68736E]">
-                From the ancient UNESCO rock citadel of Sigiriya to the misty tea country in Ella and wild coastlines in Yala.
+                From the ancient UNESCO rock citadel of Sigiriya to the turquoise surf in Mirissa and wild coastlines in Yala.
               </p>
             </div>
 
             <Link
               to="/destinations"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white border border-stone-200 text-xs sm:text-sm font-semibold text-[#0B3D2E] hover:bg-stone-50 transition-all shrink-0 shadow-2xs"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-stone-200 text-xs sm:text-sm font-semibold text-[#075E63] hover:bg-stone-50 transition-all shrink-0 shadow-2xs"
             >
               <span>Explore All Destinations</span>
-              <ArrowRight className="w-4 h-4 text-[#39A982]" />
+              <ArrowRight className="w-4 h-4 text-[#E98B6B]" />
             </Link>
           </div>
 
@@ -94,16 +94,16 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* 4. Featured Experiences (Wildlife, Train, Whale Watching) */}
-      <section className="py-20 sm:py-28 bg-white">
+      {/* 4. Featured Experiences on Warm White */}
+      <section className="py-20 sm:py-28 bg-[#FCFEFD]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6">
             <div className="space-y-2.5 max-w-2xl">
-              <span className="text-xs font-semibold text-[#176B52] uppercase tracking-wider">
-                Curated Encounters
+              <span className="text-xs font-semibold text-[#0B7A75] uppercase tracking-wider">
+                CURATED ENCOUNTERS
               </span>
-              <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#17231F]">
+              <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal text-[#173238]">
                 Unique Island Experiences
               </h2>
               <p className="text-sm sm:text-base text-[#68736E]">
@@ -113,10 +113,10 @@ export const HomePage: React.FC = () => {
 
             <Link
               to="/activities"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-[#F8F7F2] border border-stone-200 text-xs sm:text-sm font-semibold text-[#0B3D2E] hover:bg-[#DDEFE8] transition-all shrink-0 shadow-2xs"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#F6F1E7] border border-stone-200 text-xs sm:text-sm font-semibold text-[#075E63] hover:bg-[#DDF5F0] transition-all shrink-0 shadow-2xs"
             >
               <span>View All Experiences</span>
-              <ArrowRight className="w-4 h-4 text-[#39A982]" />
+              <ArrowRight className="w-4 h-4 text-[#E98B6B]" />
             </Link>
           </div>
 
@@ -129,16 +129,16 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* 5. Why Choose LankaVoyage */}
+      {/* 5. Why Choose LankaVoyage (Soft Sand) */}
       <WhyLankaVoyage />
 
-      {/* 6. Traveler Reviews */}
+      {/* 6. Traveler Reviews (Warm White) */}
       <VerifiedReviews />
 
-      {/* 7. Final Custom Journey CTA with Liquid Glass Panel */}
+      {/* 7. Final Custom Journey CTA (Deep Ocean Teal) */}
       <CustomTripCTA />
 
-      {/* 8. Newsletter */}
+      {/* 8. Newsletter (Tropical Teal) */}
       <Newsletter />
 
     </div>
