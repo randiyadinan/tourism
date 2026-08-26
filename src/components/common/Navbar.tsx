@@ -7,14 +7,13 @@ import {
   ChevronDown, 
   LayoutDashboard, 
   Calendar, 
-  User as UserIcon, 
-  Compass as CompassIcon, 
+  Compass, 
   MapPin, 
   Sparkles, 
   Car, 
   Users, 
   Star,
-  Palmtree
+  Leaf
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -29,13 +28,13 @@ export const Navbar: React.FC = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      setIsScrolled(window.scrollY > 25);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile drawer on route change
+  // Close mobile menu on route changes
   useEffect(() => {
     setMobileMenuOpen(false);
     setAdminMenuOpen(false);
@@ -51,14 +50,14 @@ export const Navbar: React.FC = () => {
     { name: 'Home', href: '/' },
     { name: 'Tours', href: '/tours' },
     { name: 'Destinations', href: '/destinations' },
-    { name: 'Experiences', href: '/activities' },
+    { name: 'Activities', href: '/activities' },
     { name: 'Customize', href: '/customize' },
     { name: 'Reviews', href: '/reviews' },
     { name: 'About', href: '/about' },
   ];
 
   const adminMgmtLinks = [
-    { name: 'Tours Management', href: '/admin/tours', icon: CompassIcon },
+    { name: 'Tours Management', href: '/admin/tours', icon: Compass },
     { name: 'Destinations', href: '/admin/destinations', icon: MapPin },
     { name: 'Experiences', href: '/admin/activities', icon: Sparkles },
     { name: 'Airport Transfers', href: '/transfers', icon: Car },
@@ -72,41 +71,41 @@ export const Navbar: React.FC = () => {
     <header 
       className={`sticky top-0 z-50 transition-all duration-300 ${
         isScrolled 
-          ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-stone-200/80 py-3 text-[#193238]' 
+          ? 'bg-white/80 backdrop-blur-xl border-b border-white/60 shadow-[0_10px_30px_-10px_rgba(6,44,34,0.06)] py-3 text-[#17231F]' 
           : isHome
-            ? 'bg-[#075E67]/90 backdrop-blur-xs border-b border-white/15 py-4 text-white'
-            : 'bg-[#075E67] border-b border-white/15 py-4 text-white'
+            ? 'bg-[#062C22]/40 backdrop-blur-md border-b border-white/10 py-4 text-white'
+            : 'bg-[#062C22]/95 backdrop-blur-xl border-b border-white/10 py-4 text-white'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-11">
           
-          {/* Brand Logo */}
+          {/* Brand Logo with Soft Mint & Emerald accents */}
           <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#087F8C] to-[#3E8E5B] flex items-center justify-center shadow-xs transition-transform group-hover:scale-105">
-              <Palmtree className="w-4 h-4 text-[#F3D6A4]" />
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#176B52] to-[#0B3D2E] border border-white/20 flex items-center justify-center shadow-xs transition-transform group-hover:scale-105">
+              <Leaf className="w-4 h-4 text-[#DDEFE8]" />
             </div>
             <div className="flex flex-col">
-              <span className={`font-serif text-xl font-bold tracking-tight leading-none ${isScrolled ? 'text-[#075E67]' : 'text-white'}`}>
-                Lanka<span className="text-[#E7B85C]">Voyage</span>
+              <span className={`font-serif text-xl font-bold tracking-tight leading-none ${isScrolled ? 'text-[#062C22]' : 'text-white'}`}>
+                Lanka<span className="text-[#39A982]">Voyage</span>
               </span>
-              <span className={`text-[9px] uppercase tracking-[0.2em] mt-0.5 font-medium ${isScrolled ? 'text-stone-500' : 'text-[#F3D6A4]'}`}>
-                Tropical Sri Lanka
+              <span className={`text-[9px] uppercase tracking-[0.22em] mt-0.5 font-medium ${isScrolled ? 'text-[#68736E]' : 'text-[#DDEFE8]'}`}>
+                Bespoke Sri Lanka
               </span>
             </div>
           </Link>
 
-          {/* Desktop Navigation Links */}
+          {/* Desktop Nav Links */}
           <nav className="hidden lg:flex items-center gap-7">
             {navLinks.map((link) => (
               <NavLink
                 key={link.name}
                 to={link.href}
                 className={({ isActive }) => `
-                  text-sm font-medium tracking-normal transition-colors duration-150
+                  text-sm font-medium tracking-normal transition-colors duration-200
                   ${isActive 
-                    ? isScrolled ? 'text-[#087F8C] font-semibold' : 'text-[#F3D6A4] font-semibold'
-                    : isScrolled ? 'text-stone-700 hover:text-[#087F8C]' : 'text-stone-100 hover:text-white'
+                    ? isScrolled ? 'text-[#176B52] font-semibold' : 'text-[#DDEFE8] font-semibold drop-shadow-xs'
+                    : isScrolled ? 'text-stone-700 hover:text-[#176B52]' : 'text-stone-200 hover:text-white'
                   }
                 `}
               >
@@ -115,7 +114,7 @@ export const Navbar: React.FC = () => {
             ))}
           </nav>
 
-          {/* Right Controls & Primary CTA */}
+          {/* Right Action Controls & Primary CTA */}
           <div className="hidden lg:flex items-center gap-4">
             
             {/* Guest View */}
@@ -124,27 +123,27 @@ export const Navbar: React.FC = () => {
                 <Link
                   to="/login"
                   className={`text-xs font-medium transition-colors ${
-                    isScrolled ? 'text-stone-600 hover:text-[#087F8C]' : 'text-stone-100 hover:text-white'
+                    isScrolled ? 'text-stone-600 hover:text-[#176B52]' : 'text-stone-200 hover:text-white'
                   }`}
                 >
                   Sign In
                 </Link>
                 <Link
                   to="/customize"
-                  className="px-4 py-2 text-xs font-semibold rounded-xl bg-[#087F8C] hover:bg-[#075E67] text-white shadow-xs transition-all hover:shadow-md transform hover:-translate-y-0.5"
+                  className="px-5 py-2.5 text-xs font-semibold rounded-xl bg-[#0B3D2E] hover:bg-[#176B52] text-white border border-white/20 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5"
                 >
                   Plan Your Trip
                 </Link>
               </div>
             )}
 
-            {/* Customer View */}
+            {/* Customer Logged In */}
             {isAuthenticated && !isAdmin && user && (
               <div className="flex items-center gap-3">
                 <Link
                   to="/customer"
                   className={`flex items-center gap-1.5 text-xs font-medium transition-colors py-1 ${
-                    isScrolled ? 'text-stone-700 hover:text-[#087F8C]' : 'text-stone-100 hover:text-[#F3D6A4]'
+                    isScrolled ? 'text-stone-700 hover:text-[#176B52]' : 'text-stone-200 hover:text-[#DDEFE8]'
                   }`}
                 >
                   <LayoutDashboard className="w-3.5 h-3.5" />
@@ -154,7 +153,7 @@ export const Navbar: React.FC = () => {
                 <Link
                   to="/customer/bookings"
                   className={`flex items-center gap-1.5 text-xs font-medium transition-colors py-1 ${
-                    isScrolled ? 'text-stone-700 hover:text-[#087F8C]' : 'text-stone-100 hover:text-[#F3D6A4]'
+                    isScrolled ? 'text-stone-700 hover:text-[#176B52]' : 'text-stone-200 hover:text-[#DDEFE8]'
                   }`}
                 >
                   <Calendar className="w-3.5 h-3.5" />
@@ -165,7 +164,7 @@ export const Navbar: React.FC = () => {
                   to="/customer/profile"
                   className={`flex items-center gap-2 pl-2 pr-3 py-1 rounded-full text-xs transition-colors border ${
                     isScrolled
-                      ? 'bg-stone-100 hover:bg-stone-200 border-stone-200 text-[#193238]'
+                      ? 'bg-stone-100/80 hover:bg-stone-200/80 border-stone-200 text-[#17231F]'
                       : 'bg-white/15 hover:bg-white/20 border-white/20 text-white'
                   }`}
                 >
@@ -182,7 +181,7 @@ export const Navbar: React.FC = () => {
                 <button
                   onClick={handleLogout}
                   className={`p-1.5 rounded-lg transition-colors ${
-                    isScrolled ? 'text-stone-500 hover:text-rose-600 hover:bg-stone-100' : 'text-stone-200 hover:text-rose-300 hover:bg-white/10'
+                    isScrolled ? 'text-stone-500 hover:text-rose-600 hover:bg-stone-100' : 'text-stone-300 hover:text-rose-300 hover:bg-white/10'
                   }`}
                   title="Sign Out"
                   aria-label="Sign Out"
@@ -192,15 +191,15 @@ export const Navbar: React.FC = () => {
               </div>
             )}
 
-            {/* Admin View */}
+            {/* Admin Logged In */}
             {isAuthenticated && isAdmin && user && (
               <div className="flex items-center gap-3">
                 <Link
                   to="/admin"
                   className={`flex items-center gap-1.5 text-xs font-medium transition-colors py-1 ${
                     location.pathname === '/admin' 
-                      ? 'text-[#E7B85C] font-semibold' 
-                      : isScrolled ? 'text-stone-700 hover:text-[#087F8C]' : 'text-stone-100 hover:text-white'
+                      ? 'text-[#39A982] font-semibold' 
+                      : isScrolled ? 'text-stone-700 hover:text-[#176B52]' : 'text-stone-200 hover:text-white'
                   }`}
                 >
                   <LayoutDashboard className="w-3.5 h-3.5" />
@@ -211,32 +210,31 @@ export const Navbar: React.FC = () => {
                   to="/admin/bookings"
                   className={`flex items-center gap-1.5 text-xs font-medium transition-colors py-1 ${
                     location.pathname === '/admin/bookings' 
-                      ? 'text-[#E7B85C] font-semibold' 
-                      : isScrolled ? 'text-stone-700 hover:text-[#087F8C]' : 'text-stone-100 hover:text-white'
+                      ? 'text-[#39A982] font-semibold' 
+                      : isScrolled ? 'text-stone-700 hover:text-[#176B52]' : 'text-stone-200 hover:text-white'
                   }`}
                 >
                   <Calendar className="w-3.5 h-3.5" />
                   <span>Bookings</span>
                 </Link>
 
-                {/* Management Dropdown */}
                 <div className="relative">
                   <button
                     onClick={() => setAdminMenuOpen(!adminMenuOpen)}
                     className={`flex items-center gap-1 text-xs font-medium transition-colors py-1 ${
-                      isScrolled ? 'text-stone-700 hover:text-[#087F8C]' : 'text-stone-100 hover:text-white'
+                      isScrolled ? 'text-stone-700 hover:text-[#176B52]' : 'text-stone-200 hover:text-white'
                     }`}
                   >
                     <span>Management</span>
-                    <ChevronDown className="w-3 h-3 text-[#E7B85C]" />
+                    <ChevronDown className="w-3 h-3 text-[#39A982]" />
                   </button>
 
                   {adminMenuOpen && (
                     <div 
-                      className="absolute right-0 mt-2 w-52 bg-white border border-stone-200 rounded-2xl shadow-xl py-2 z-50 animate-fadeIn text-xs text-[#193238]"
+                      className="absolute right-0 mt-2 w-52 bg-white/95 backdrop-blur-xl border border-stone-200 rounded-2xl shadow-xl py-2 z-50 animate-fadeIn text-xs text-[#17231F]"
                       onMouseLeave={() => setAdminMenuOpen(false)}
                     >
-                      <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#087F8C] border-b border-stone-100">
+                      <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#176B52] border-b border-stone-100">
                         Admin Controls
                       </div>
                       {adminMgmtLinks.map((item) => (
@@ -244,9 +242,9 @@ export const Navbar: React.FC = () => {
                           key={item.name}
                           to={item.href}
                           onClick={() => setAdminMenuOpen(false)}
-                          className="flex items-center gap-2.5 px-3.5 py-2 hover:bg-[#FFF9EF] text-stone-700 hover:text-[#087F8C] transition-colors"
+                          className="flex items-center gap-2.5 px-3.5 py-2 hover:bg-[#F8F7F2] text-stone-700 hover:text-[#176B52] transition-colors"
                         >
-                          <item.icon className="w-3.5 h-3.5 text-[#087F8C]" />
+                          <item.icon className="w-3.5 h-3.5 text-[#176B52]" />
                           <span>{item.name}</span>
                         </Link>
                       ))}
@@ -257,7 +255,7 @@ export const Navbar: React.FC = () => {
                 <button
                   onClick={handleLogout}
                   className={`p-1.5 rounded-lg transition-colors ${
-                    isScrolled ? 'text-stone-500 hover:text-rose-600 hover:bg-stone-100' : 'text-stone-200 hover:text-rose-300 hover:bg-white/10'
+                    isScrolled ? 'text-stone-500 hover:text-rose-600 hover:bg-stone-100' : 'text-stone-300 hover:text-rose-300 hover:bg-white/10'
                   }`}
                   title="Sign Out"
                   aria-label="Sign Out"
@@ -269,27 +267,25 @@ export const Navbar: React.FC = () => {
 
           </div>
 
-          {/* Mobile Hamburger Button */}
+          {/* Mobile Hamburger */}
           <div className="flex lg:hidden items-center">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className={`p-2 rounded-xl focus:outline-none transition-colors ${
-                isScrolled ? 'text-[#075E67] hover:bg-stone-100' : 'text-white hover:bg-white/10'
+                isScrolled ? 'text-[#062C22] hover:bg-stone-100' : 'text-white hover:bg-white/10'
               }`}
               aria-label="Toggle Navigation Menu"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5 text-[#E7B85C]" /> : <Menu className="w-5 h-5 text-[#E7B85C]" />}
+              {mobileMenuOpen ? <X className="w-5 h-5 text-[#39A982]" /> : <Menu className="w-5 h-5 text-[#39A982]" />}
             </button>
           </div>
 
         </div>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Glass Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-[#075E67] border-t border-white/10 px-4 pt-3 pb-6 space-y-3 shadow-xl animate-fadeIn">
-          
-          {/* Public Nav Links */}
+        <div className="lg:hidden bg-[#062C22]/95 backdrop-blur-2xl border-t border-white/10 px-4 pt-3 pb-6 space-y-3 shadow-2xl animate-fadeIn text-white">
           {!isAdmin && (
             <div className="space-y-1">
               {navLinks.map((link) => (
@@ -299,7 +295,7 @@ export const Navbar: React.FC = () => {
                   onClick={() => setMobileMenuOpen(false)}
                   className={({ isActive }) => `
                     block px-3 py-2 rounded-xl text-sm font-medium transition-colors
-                    ${isActive ? 'bg-white/15 text-[#F3D6A4] font-semibold' : 'text-stone-100 hover:text-white'}
+                    ${isActive ? 'bg-white/15 text-[#DDEFE8] font-semibold' : 'text-stone-200 hover:text-white'}
                   `}
                 >
                   {link.name}
@@ -308,13 +304,12 @@ export const Navbar: React.FC = () => {
             </div>
           )}
 
-          {/* Guest Mobile Links */}
           {!isAuthenticated && (
             <div className="border-t border-white/10 pt-3 space-y-2">
               <Link
                 to="/customize"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block w-full py-2.5 text-center text-xs font-semibold rounded-xl bg-[#087F8C] text-white shadow-xs"
+                className="block w-full py-2.5 text-center text-xs font-semibold rounded-xl bg-[#176B52] text-white shadow-xs"
               >
                 Plan Your Trip
               </Link>
@@ -328,9 +323,8 @@ export const Navbar: React.FC = () => {
             </div>
           )}
 
-          {/* Customer Mobile Links */}
           {isAuthenticated && !isAdmin && user && (
-            <div className="border-t border-white/10 pt-3 space-y-1.5 text-xs text-stone-100">
+            <div className="border-t border-white/10 pt-3 space-y-1.5 text-xs text-stone-200">
               <div className="px-3 py-1 flex items-center gap-2 border-b border-white/10 mb-2">
                 <img
                   src={user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'}
@@ -342,26 +336,18 @@ export const Navbar: React.FC = () => {
               <Link
                 to="/customer"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white/10 text-stone-100"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white/10 text-stone-200"
               >
-                <LayoutDashboard className="w-4 h-4 text-[#F3D6A4]" />
-                <span>Dashboard Overview</span>
+                <LayoutDashboard className="w-4 h-4 text-[#39A982]" />
+                <span>Dashboard</span>
               </Link>
               <Link
                 to="/customer/bookings"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white/10 text-stone-100"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white/10 text-stone-200"
               >
-                <Calendar className="w-4 h-4 text-[#F3D6A4]" />
+                <Calendar className="w-4 h-4 text-[#39A982]" />
                 <span>My Bookings</span>
-              </Link>
-              <Link
-                to="/customer/profile"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white/10 text-stone-100"
-              >
-                <UserIcon className="w-4 h-4 text-[#F3D6A4]" />
-                <span>My Profile</span>
               </Link>
               <button
                 onClick={handleLogout}
@@ -373,39 +359,27 @@ export const Navbar: React.FC = () => {
             </div>
           )}
 
-          {/* Admin Mobile Links */}
           {isAuthenticated && isAdmin && (
-            <div className="border-t border-white/10 pt-3 space-y-1 text-xs text-stone-100">
-              <div className="px-3 py-1 font-bold uppercase tracking-wider text-[#F3D6A4] text-[10px]">
+            <div className="border-t border-white/10 pt-3 space-y-1 text-xs text-stone-200">
+              <div className="px-3 py-1 font-bold uppercase tracking-wider text-[#39A982] text-[10px]">
                 Admin Console
               </div>
               <Link
                 to="/admin"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white/10 text-stone-100"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white/10"
               >
-                <LayoutDashboard className="w-4 h-4 text-[#F3D6A4]" />
-                <span>Dashboard Overview</span>
+                <LayoutDashboard className="w-4 h-4 text-[#39A982]" />
+                <span>Overview</span>
               </Link>
               <Link
                 to="/admin/bookings"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white/10 text-stone-100"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white/10"
               >
-                <Calendar className="w-4 h-4 text-[#F3D6A4]" />
-                <span>All Tour Bookings</span>
+                <Calendar className="w-4 h-4 text-[#39A982]" />
+                <span>Bookings</span>
               </Link>
-              {adminMgmtLinks.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white/10 text-stone-100"
-                >
-                  <item.icon className="w-4 h-4 text-[#F3D6A4]" />
-                  <span>{item.name}</span>
-                </Link>
-              ))}
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 px-3 py-2 text-rose-300 w-full text-left rounded-xl hover:bg-white/10"
@@ -415,7 +389,6 @@ export const Navbar: React.FC = () => {
               </button>
             </div>
           )}
-
         </div>
       )}
     </header>

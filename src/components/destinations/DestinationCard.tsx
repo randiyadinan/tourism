@@ -28,7 +28,7 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({ destination })
   };
 
   return (
-    <div className="group relative bg-white rounded-3xl overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between h-[360px] border border-stone-200/80 transform hover:-translate-y-1">
+    <div className="group relative bg-white rounded-3xl overflow-hidden shadow-[0_4px_20px_-4px_rgba(6,44,34,0.08)] hover:shadow-[0_20px_40px_-10px_rgba(6,44,34,0.18)] transition-all duration-300 flex flex-col justify-between h-[360px] border border-stone-200/80 transform hover:-translate-y-1">
       {/* Background Image */}
       <img
         src={destination.heroImage}
@@ -37,12 +37,12 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({ destination })
         loading="lazy"
       />
       
-      {/* Tropical Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+      {/* Liquid Glass Overlay Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#062C22]/90 via-[#062C22]/30 to-transparent" />
 
       {/* Top Details */}
       <div className="relative z-10 p-5 flex items-center justify-between">
-        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-white/90 text-[#075E67] backdrop-blur-xs shadow-xs">
+        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-white/80 backdrop-blur-md text-[#062C22] shadow-xs border border-white/60">
           {destination.province}
         </span>
 
@@ -61,9 +61,9 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({ destination })
         </button>
       </div>
 
-      {/* Bottom Content on Image */}
+      {/* Bottom Content on Image with Liquid Glass backdrop pill */}
       <div className="relative z-10 p-6 space-y-2 text-white">
-        <div className="flex items-center gap-1 text-[#E7B85C] text-xs font-semibold">
+        <div className="flex items-center gap-1 text-[#39A982] text-xs font-semibold">
           <Star className="w-3.5 h-3.5 fill-current" />
           <span>{destination.rating.toFixed(1)}</span>
           <span className="text-stone-300 font-normal">({destination.recommendedDuration})</span>
@@ -78,12 +78,12 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({ destination })
         </p>
 
         <div className="pt-2 flex items-center justify-between">
-          <span className="text-xs font-medium text-[#F3D6A4]">
-            {destination.popularActivities.length} Island Highlights
+          <span className="text-xs font-medium text-[#DDEFE8]">
+            {destination.popularActivities.length} Key Highlights
           </span>
           <Link
             to={`/destinations/${destination.slug}`}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/20 hover:bg-white text-white hover:text-[#075E67] text-xs font-semibold backdrop-blur-md transition-colors"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/20 hover:bg-white text-white hover:text-[#062C22] text-xs font-semibold backdrop-blur-md transition-colors border border-white/30"
           >
             <span>Explore</span>
             <ArrowRight className="w-3.5 h-3.5" />

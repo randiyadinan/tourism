@@ -28,7 +28,7 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
   };
 
   return (
-    <div className="group bg-white rounded-3xl border border-stone-200/80 overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between transform hover:-translate-y-1">
+    <div className="group bg-white rounded-3xl border border-stone-200/80 overflow-hidden shadow-[0_4px_20px_-4px_rgba(6,44,34,0.05)] hover:shadow-[0_20px_40px_-10px_rgba(6,44,34,0.12)] transition-all duration-300 flex flex-col justify-between transform hover:-translate-y-1">
       {/* Image Container */}
       <div className="relative h-56 overflow-hidden">
         <img
@@ -37,11 +37,11 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#062C22]/80 via-transparent to-transparent" />
 
         {/* Category Badge */}
         <div className="absolute top-3.5 left-3.5">
-          <span className="px-3 py-1 rounded-full text-[11px] font-semibold bg-[#087F8C]/90 text-white backdrop-blur-xs shadow-xs">
+          <span className="px-3 py-1 rounded-full text-[11px] font-semibold bg-[#0B3D2E]/85 text-[#DDEFE8] backdrop-blur-md border border-white/20 shadow-xs">
             {activity.category}
           </span>
         </div>
@@ -62,7 +62,7 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
 
         {/* Location on image */}
         <div className="absolute bottom-3.5 left-3.5 flex items-center gap-1.5 text-white text-xs font-semibold drop-shadow-xs">
-          <MapPin className="w-3.5 h-3.5 text-[#F3D6A4]" />
+          <MapPin className="w-3.5 h-3.5 text-[#39A982]" />
           <span>{activity.destination}</span>
         </div>
       </div>
@@ -70,22 +70,22 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
       {/* Body Content */}
       <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs text-stone-500">
-            <span className="flex items-center gap-1 font-medium text-[#3E8E5B]">
+          <div className="flex items-center justify-between text-xs text-[#68736E]">
+            <span className="flex items-center gap-1 font-medium text-[#176B52]">
               <Clock className="w-3.5 h-3.5" />
               {activity.duration}
             </span>
-            <div className="flex items-center gap-1 font-semibold text-[#193238]">
-              <Star className="w-3.5 h-3.5 fill-[#E7B85C] text-[#E7B85C]" />
+            <div className="flex items-center gap-1 font-semibold text-[#17231F]">
+              <Star className="w-3.5 h-3.5 fill-[#39A982] text-[#39A982]" />
               <span>{activity.rating.toFixed(1)}</span>
-              <span className="text-stone-400 font-normal">({activity.reviewCount})</span>
+              <span className="text-[#68736E] font-normal">({activity.reviewCount})</span>
             </div>
           </div>
 
-          <h3 className="font-serif text-lg font-bold text-[#193238] group-hover:text-[#087F8C] transition-colors leading-snug line-clamp-1">
+          <h3 className="font-serif text-lg font-bold text-[#17231F] group-hover:text-[#176B52] transition-colors leading-snug line-clamp-1">
             {activity.title}
           </h3>
-          <p className="text-xs sm:text-sm text-stone-600 line-clamp-2 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[#68736E] line-clamp-2 leading-relaxed">
             {activity.shortDescription}
           </p>
         </div>
@@ -93,18 +93,18 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
         {/* Price & Action */}
         <div className="pt-3 border-t border-stone-100 flex items-center justify-between">
           <div>
-            <span className="text-[10px] text-stone-400 block font-medium uppercase tracking-wider">From</span>
+            <span className="text-[10px] text-[#68736E] block font-medium uppercase tracking-wider">From</span>
             <div className="flex items-baseline gap-1">
-              <span className="font-serif text-xl font-bold text-[#087F8C]">
+              <span className="font-serif text-xl font-bold text-[#0B3D2E]">
                 ${activity.pricePerPerson}
               </span>
-              <span className="text-[11px] text-stone-500">/ person</span>
+              <span className="text-[11px] text-[#68736E]">/ person</span>
             </div>
           </div>
 
-          <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#087F8C] group-hover:text-[#075E67] transition-colors">
+          <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#176B52] group-hover:text-[#0B3D2E] transition-colors">
             <span>Experience</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <ArrowRight className="w-3.5 h-3.5 text-[#39A982]" />
           </span>
         </div>
       </div>

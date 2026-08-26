@@ -5,14 +5,7 @@ import {
   Sparkles, 
   ArrowRight, 
   ArrowLeft, 
-  Check, 
-  Calendar, 
-  Users, 
-  Plane, 
-  MapPin, 
-  Car, 
-  ClipboardCheck, 
-  CreditCard
+  Check
 } from 'lucide-react';
 import type { CustomTripState } from '../../types';
 import { 
@@ -40,7 +33,7 @@ export const CustomTripPage: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  // Initial Custom Trip State (No hotels, no meals)
+  // Initial Custom Trip State
   const [tripState, setTripState] = useState<CustomTripState>(() => {
     const destParam = searchParams.get('destId');
     const actParam = searchParams.get('activityId');
@@ -58,62 +51,44 @@ export const CustomTripPage: React.FC = () => {
       flightNumber: 'UL 504',
       arrivalTime: '14:30',
       airportPickup: true,
-      airportTransferOption: 'both',
-      airportTransferDetails: {
-        airport: 'Bandaranaike Intl Airport (CMB) - Colombo',
-        flightNumber: 'UL 504',
-        arrivalTime: '14:30',
-        passengers: 2,
-        priceUSD: 75
-      },
+      airportTransferOption: 'pickup',
       selectedDestinations: defaultDests,
       selectedActivities: defaultActs,
-      transportType: 'Private Van',
+      transportType: 'Private Car',
+      accommodationLevel: 'Premium 4-Star',
+      mealPlan: 'Breakfast Included',
       specialRequests: ''
     };
   });
 
-  // Step 8: Traveler details & payment selection
+  // Final Step 8 Form State
   const [contactName, setContactName] = useState(user?.name || '');
   const [contactEmail, setContactEmail] = useState(user?.email || '');
   const [contactPhone, setContactPhone] = useState(user?.phone || '');
-  const [paymentMethod, setPaymentMethod] = useState<'Credit / Debit Card' | 'PayPal' | 'Bank Wire Transfer' | 'Pay on Arrival / Deposit'>('Credit / Debit Card');
-
-  React.useEffect(() => {
-    if (user) {
-      if (!contactName) setContactName(user.name);
-      if (!contactEmail) setContactEmail(user.email);
-      if (!contactPhone && user.phone) setContactPhone(user.phone);
-    }
-  }, [user]);
+  const [contactCountry, setContactCountry] = useState(user?.country || 'United Kingdom');
+  const [paymentMethod, setPaymentMethod] = useState<'PayHere Online Card' | 'Bank Wire Transfer' | 'Pay Later on Arrival'>('PayHere Online Card');
 
   const updateTrip = (updates: Partial<CustomTripState>) => {
     setTripState(prev => ({ ...prev, ...updates }));
   };
 
   const stepsList = [
-    { num: 1, label: 'Dates', icon: Calendar },
-    { num: 2, label: 'Travelers', icon: Users },
-    { num: 3, label: 'Arrival', icon: Plane },
-    { num: 4, label: 'Destinations', icon: MapPin },
-    { num: 5, label: 'Activities', icon: Sparkles },
-    { num: 6, label: 'Transport', icon: Car },
-    { num: 7, label: 'Review', icon: ClipboardCheck },
-    { num: 8, label: 'Book', icon: CreditCard }
+    { num: 1, label: 'Dates' },
+    { num: 2, label: 'Travelers' },
+    { num: 3, label: 'Arrival' },
+    { num: 4, label: 'Destinations' },
+    { num: 5, label: 'Activities' },
+    { num: 6, label: 'Vehicle' },
+    { num: 7, label: 'Review' },
+    { num: 8, label: 'Confirm' }
   ];
 
   const handleNext = () => {
-    if (currentStep < 8) {
-      setCurrentStep(currentStep + 1);
-      window.scrollTo({ top: 120, behavior: 'smooth' });
-    }
+    if (currentStep < 8) setCurrentStep(prev => prev + 1);
   };
 
   const handlePrev = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-      window.scrollTo({ top: 120, behavior: 'smooth' });
-    }
+    if (currentStep > 1) setCurrentStep(prev => prev - 1);
   };
 
   const handleFinalBooking = async (e: React.FormEvent) => {
@@ -121,42 +96,34 @@ export const CustomTripPage: React.FC = () => {
     setIsSubmitting(true);
 
     const cost = calculateCustomTripCost(tripState);
-    const destNames = tripState.selectedDestinations.map(id => INITIAL_DESTINATIONS.find(d => d.id === id)?.name || id);
-    const actNames = tripState.selectedActivities.map(id => INITIAL_ACTIVITIES.find(a => a.id === id)?.title || id);
 
-    // Create provisional booking
+    const destNames = tripState.selectedDestinations.map(dId => {
+      const found = INITIAL_DESTINATIONS.find(d => d.id === dId);
+      return found ? found.name : dId;
+    });
+
+    const actNames = tripState.selectedActivities.map(aId => {
+      const found = INITIAL_ACTIVITIES.find(a => a.id === aId);
+      return found ? found.title : aId;
+    });
+
     const newBooking = bookingService.createBooking({
-      userId: user?.id || 'user-customer-1',
+      type: 'custom_trip',
+      userId: user?.id || 'guest-user',
       customerName: contactName,
       customerEmail: contactEmail,
       customerPhone: contactPhone,
-      type: 'custom_trip',
-      tourTitle: `${cost.daysCount}-Day Bespoke Sri Lanka Expedition`,
-      tourImage: 'https://images.unsplash.com/photo-1546708973-b339540b5162?auto=format&fit=crop&w=800&q=80',
       startDate: tripState.arrivalDate,
       endDate: tripState.departureDate,
       adultsCount: tripState.adults,
       childrenCount: tripState.children,
       infantsCount: tripState.infants,
       destinationsCovered: destNames,
-      vehicleType: tripState.transportType,
       activitiesSelected: actNames,
+      vehicleType: tripState.transportType,
       airportPickup: tripState.airportPickup,
-      airportTransferOption: tripState.airportTransferOption,
-      airportTransferDetails: tripState.airportTransferDetails,
       flightNumber: tripState.flightNumber,
       flightArrivalTime: tripState.arrivalTime,
-      travelers: [
-        {
-          title: 'Mr',
-          fullName: contactName,
-          email: contactEmail,
-          phone: contactPhone,
-          nationality: 'International',
-          isLead: true,
-          specialRequirements: tripState.specialRequests
-        }
-      ],
       basePrice: cost.baseTourTotal,
       customizationTotal: cost.vehicleCost + cost.airportPickupCost,
       discountAmount: cost.discount,
@@ -165,11 +132,21 @@ export const CustomTripPage: React.FC = () => {
       amountPaid: 0,
       bookingStatus: 'Pending',
       paymentStatus: 'Unpaid',
-      paymentMethod: paymentMethod,
-      notes: tripState.specialRequests
+      paymentMethod: paymentMethod === 'PayHere Online Card' ? 'Credit / Debit Card' : 'Bank Wire Transfer',
+      notes: tripState.specialRequests,
+      travelers: [
+        {
+          title: 'Mr',
+          fullName: contactName,
+          email: contactEmail,
+          phone: contactPhone,
+          nationality: contactCountry,
+          isLead: true
+        }
+      ]
     });
 
-    if (paymentMethod === 'Credit / Debit Card') {
+    if (paymentMethod === 'PayHere Online Card') {
       try {
         const payhereData = await payhereService.initiatePayment({
           orderId: newBooking.bookingCode,
@@ -195,7 +172,7 @@ export const CustomTripPage: React.FC = () => {
 
             const txnRef = `PAYHERE-TXN-${orderId}`;
             paymentService.recordTransaction({
-              userId: user?.id,
+              userId: user?.id || 'guest',
               bookingId: newBooking.id,
               bookingCode: newBooking.bookingCode,
               customerName: contactName,
@@ -222,7 +199,6 @@ export const CustomTripPage: React.FC = () => {
         });
       } catch (err: any) {
         console.error('Failed to initiate PayHere for custom trip:', err);
-        // Fallback navigation
         setIsSubmitting(false);
         navigate(`/customer/bookings/${newBooking.id}`);
       }
@@ -236,25 +212,26 @@ export const CustomTripPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#FAF8F3] min-h-screen py-10 sm:py-12">
+    <div className="bg-[#F8F7F2] min-h-screen py-10 sm:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
         {/* Header Title */}
         <div className="text-center max-w-2xl mx-auto space-y-2.5">
-          <span className="text-xs font-semibold text-[#1F6B50] uppercase tracking-wider">
-            Custom Itinerary Wizard
-          </span>
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#0D3B2E]">
-            Design Your Bespoke Sri Lankan Journey
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-[#176B52] border border-stone-200 text-xs font-semibold uppercase tracking-wider shadow-2xs">
+            <Sparkles className="w-3.5 h-3.5 text-[#39A982]" />
+            <span>Bespoke Holiday Designer</span>
+          </div>
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#17231F]">
+            Design Your Tailor-Made Journey
           </h1>
-          <p className="text-sm sm:text-base text-[#66716C]">
-            Customize dates, group size, private vehicle, destinations, and activities with real-time price updates.
+          <p className="text-sm sm:text-base text-[#68736E]">
+            Customize dates, group size, private chauffeur vehicle, destinations, and experiences with real-time price estimation.
           </p>
         </div>
 
-        {/* 8-Step Progress Stepper Bar */}
-        <div className="bg-white p-4 rounded-xl border border-stone-200/80 shadow-xs overflow-x-auto">
-          <div className="flex items-center justify-between min-w-[650px] gap-2">
+        {/* 8-Step Stepper Bar in Liquid Glass */}
+        <div className="bg-white/85 backdrop-blur-xl p-4 rounded-2xl border border-white/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.06)] overflow-x-auto">
+          <div className="flex items-center justify-between min-w-[620px] gap-2">
             {stepsList.map((st) => {
               const isPast = st.num < currentStep;
               const isCurrent = st.num === currentStep;
@@ -263,9 +240,9 @@ export const CustomTripPage: React.FC = () => {
                 <div 
                   key={st.num}
                   onClick={() => setCurrentStep(st.num)}
-                  className={`flex items-center gap-2 cursor-pointer transition-all ${
+                  className={`flex items-center gap-2 cursor-pointer transition-colors ${
                     isCurrent 
-                      ? 'text-[#0D3B2E] font-bold' 
+                      ? 'text-[#0B3D2E] font-bold' 
                       : isPast 
                         ? 'text-stone-700 font-medium' 
                         : 'text-stone-400 opacity-60'
@@ -273,9 +250,9 @@ export const CustomTripPage: React.FC = () => {
                 >
                   <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                     isCurrent 
-                      ? 'bg-[#0D3B2E] text-white shadow-xs' 
+                      ? 'bg-[#0B3D2E] text-white shadow-xs' 
                       : isPast 
-                        ? 'bg-[#EEF5F1] text-[#1F6B50]' 
+                        ? 'bg-[#DDEFE8] text-[#176B52]' 
                         : 'bg-stone-100 text-stone-500'
                   }`}>
                     {isPast ? <Check className="w-3.5 h-3.5" /> : st.num}
@@ -291,7 +268,7 @@ export const CustomTripPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           {/* Left Column: Active Step (8 Cols) */}
-          <div className="lg:col-span-8 bg-white p-6 sm:p-10 rounded-3xl border border-stone-200 shadow-sm space-y-8 min-h-[500px] flex flex-col justify-between">
+          <div className="lg:col-span-8 bg-white rounded-3xl p-6 sm:p-8 border border-stone-200/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.05)] space-y-8 min-h-[480px] flex flex-col justify-between">
             
             {/* Step Components Render */}
             <div>
@@ -305,83 +282,84 @@ export const CustomTripPage: React.FC = () => {
 
               {/* STEP 8: BOOKING & CONFIRMATION FORM */}
               {currentStep === 8 && (
-                <form onSubmit={handleFinalBooking} className="space-y-6">
+                <form onSubmit={handleFinalBooking} className="space-y-5 text-xs sm:text-sm">
                   <div>
-                    <h3 className="font-serif text-2xl font-bold text-[#082F24]">Lead Traveler Details & Confirmation</h3>
-                    <p className="text-sm text-stone-600">Enter your details to finalize the custom trip and generate your travel voucher.</p>
+                    <h2 className="font-serif text-xl sm:text-2xl font-bold text-[#17231F]">Lead Traveler Details & Confirmation</h2>
+                    <p className="text-xs text-[#68736E] mt-1">Enter your contact details to finalize the custom trip and generate your travel voucher.</p>
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="space-y-3.5">
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-stone-700">Full Legal Name (as on Passport)</label>
+                      <label className="font-semibold text-[#17231F]">Full Legal Name (as on Passport) *</label>
                       <input
                         type="text"
                         required
                         value={contactName}
                         onChange={(e) => setContactName(e.target.value)}
-                        className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-4 py-2.5 text-sm font-semibold text-[#082F24]"
+                        placeholder="e.g. Eleanor Vance"
+                        className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-2.5 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                       <div className="space-y-1">
-                        <label className="text-xs font-bold text-stone-700">Email Address (for Digital Voucher)</label>
+                        <label className="font-semibold text-[#17231F]">Email Address *</label>
                         <input
                           type="email"
                           required
                           value={contactEmail}
                           onChange={(e) => setContactEmail(e.target.value)}
-                          className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-4 py-2.5 text-sm font-semibold text-[#082F24]"
+                          placeholder="eleanor@example.com"
+                          className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-2.5 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
                         />
                       </div>
-
                       <div className="space-y-1">
-                        <label className="text-xs font-bold text-stone-700">WhatsApp / Phone Number</label>
+                        <label className="font-semibold text-[#17231F]">Phone / WhatsApp *</label>
                         <input
                           type="tel"
                           required
                           value={contactPhone}
                           onChange={(e) => setContactPhone(e.target.value)}
-                          className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-4 py-2.5 text-sm font-semibold text-[#082F24]"
+                          placeholder="+44 7911 123456"
+                          className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-2.5 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
                         />
                       </div>
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-stone-700">Special Notes / Requests</label>
-                      <textarea
-                        rows={2}
-                        value={tripState.specialRequests}
-                        onChange={(e) => updateTrip({ specialRequests: e.target.value })}
-                        placeholder="e.g. Extra child seat, celebration surprise for anniversary, specific photo stops..."
-                        className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-4 py-2.5 text-xs text-[#082F24]"
+                      <label className="font-semibold text-[#17231F]">Country of Residence</label>
+                      <input
+                        type="text"
+                        value={contactCountry}
+                        onChange={(e) => setContactCountry(e.target.value)}
+                        placeholder="United Kingdom"
+                        className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-2.5 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
                       />
                     </div>
 
-                    {/* Payment Selector */}
-                    <div className="space-y-2 pt-2">
-                      <label className="text-xs font-bold text-stone-700 block">Payment Preference</label>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* Payment Method Selector */}
+                    <div className="space-y-1.5 pt-2">
+                      <label className="font-semibold text-[#17231F] block">Select Payment Method</label>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                         {[
-                          { id: 'Credit / Debit Card' as const, label: 'Credit / Debit Card (Instant)' },
-                          { id: 'PayPal' as const, label: 'PayPal Checkout' },
-                          { id: 'Bank Wire Transfer' as const, label: 'Bank Wire (Invoice)' },
-                          { id: 'Pay on Arrival / Deposit' as const, label: '20% Deposit (Balance on Arrival)' }
+                          { id: 'PayHere Online Card', label: 'Credit / Debit Card (PayHere)' },
+                          { id: 'Bank Wire Transfer', label: 'Bank Wire Transfer' },
+                          { id: 'Pay Later on Arrival', label: 'Pay Later on Arrival' }
                         ].map((m) => (
                           <label
                             key={m.id}
-                            className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                            className={`p-3 rounded-xl border flex items-center gap-2 cursor-pointer transition-colors ${
                               paymentMethod === m.id
-                                ? 'border-[#0D3B2E] bg-[#0D3B2E]/5 font-bold text-[#082F24]'
-                                : 'border-stone-200 bg-[#FAF8F5] text-stone-600'
+                                ? 'bg-[#DDEFE8] border-[#176B52] text-[#0B3D2E] font-semibold'
+                                : 'bg-[#F8F7F2] border-stone-200 text-stone-600'
                             }`}
                           >
                             <input
                               type="radio"
                               name="paymentMethod"
                               checked={paymentMethod === m.id}
-                              onChange={() => setPaymentMethod(m.id)}
-                              className="text-[#0D3B2E] focus:ring-[#C5A059]"
+                              onChange={() => setPaymentMethod(m.id as any)}
+                              className="text-[#176B52] focus:ring-[#176B52]"
                             />
                             <span className="text-xs">{m.label}</span>
                           </label>
@@ -393,14 +371,14 @@ export const CustomTripPage: React.FC = () => {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full py-4 bg-gradient-to-r from-[#C5A059] to-[#8C6D2B] text-[#082F24] hover:from-[#E5C378] hover:to-[#C5A059] font-bold text-sm rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
+                    className="w-full py-3.5 px-4 bg-[#0B3D2E] hover:bg-[#176B52] text-white font-semibold text-xs sm:text-sm rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 border border-white/20"
                   >
                     {isSubmitting ? (
                       <span>Submitting Custom Itinerary...</span>
                     ) : (
                       <>
-                        <span>Submit Booking (Awaiting Admin Confirmation)</span>
-                        <ArrowRight className="w-4 h-4" />
+                        <span>Submit Booking & Reserve Itinerary</span>
+                        <ArrowRight className="w-4 h-4 text-[#DDEFE8]" />
                       </>
                     )}
                   </button>
@@ -410,12 +388,12 @@ export const CustomTripPage: React.FC = () => {
 
             {/* Bottom Nav Controls (Prev / Next) */}
             {currentStep < 8 && (
-              <div className="flex items-center justify-between pt-8 border-t border-stone-100">
+              <div className="flex items-center justify-between pt-6 border-t border-stone-100">
                 <button
                   type="button"
                   onClick={handlePrev}
                   disabled={currentStep === 1}
-                  className={`flex items-center gap-1.5 text-xs font-bold px-4 py-2.5 rounded-xl border border-stone-200 transition-all ${
+                  className={`flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-xl border border-stone-200 transition-colors ${
                     currentStep === 1
                       ? 'text-stone-300 border-stone-100 cursor-not-allowed'
                       : 'text-stone-700 hover:bg-stone-50'
@@ -428,10 +406,10 @@ export const CustomTripPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleNext}
-                  className="flex items-center gap-1.5 text-xs font-bold px-6 py-2.5 rounded-xl bg-[#0D3B2E] text-white hover:bg-[#134E3F] shadow-sm transition-all"
+                  className="flex items-center gap-1.5 text-xs font-semibold px-5 py-2 rounded-xl bg-[#0B3D2E] text-white hover:bg-[#176B52] shadow-xs transition-colors"
                 >
                   <span>{currentStep === 7 ? 'Proceed to Confirmation' : 'Continue'}</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-[#E5C378]" />
+                  <ArrowRight className="w-3.5 h-3.5 text-[#DDEFE8]" />
                 </button>
               </div>
             )}
@@ -439,7 +417,7 @@ export const CustomTripPage: React.FC = () => {
           </div>
 
           {/* Right Column: Dynamic Price Summary (4 Cols) */}
-          <div className="lg:col-span-4 sticky top-28">
+          <div className="lg:col-span-4 sticky top-24">
             <DynamicPriceReceipt customTrip={tripState} />
           </div>
 

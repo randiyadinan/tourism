@@ -1,51 +1,69 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: 'Poppins', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   --font-serif: 'Playfair Display', Georgia, Cambria, 'Times New Roman', Times, serif;
 
-  /* Tropical Beach Palette */
-  --color-ocean: #087F8C;
-  --color-ocean-deep: #075E67;
-  --color-tropical-green: #3E8E5B;
-  --color-palm: #6FAF6A;
-  --color-sand: #F3D6A4;
-  --color-cream: #FFF9EF;
-  --color-coral: #E9785B;
-  --color-sun: #E7B85C;
-  --color-dark: #193238;
+  /* Deep Forest + Emerald Palette */
+  --color-primary-forest: #0B3D2E;
+  --color-deep-forest: #062C22;
+  --color-emerald: #176B52;
+  --color-fresh-emerald: #39A982;
+  --color-soft-mint: #DDEFE8;
+  --color-ivory: #F8F7F2;
+  --color-dark: #17231F;
+  --color-muted: #68736E;
 }
 
-/* Custom tropical scrollbar */
+/* Custom Forest Scrollbar */
 ::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #FFF9EF;
+  background: #F8F7F2;
 }
 ::-webkit-scrollbar-thumb {
-  background: #087F8C;
-  border-radius: 4px;
+  background: #176B52;
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #075E67;
+  background: #0B3D2E;
 }
 
-/* Base typography */
+/* Liquid Glass Utilities */
+.liquid-glass-card {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 20px 40px -15px rgba(6, 44, 34, 0.07), 0 0 1px 1px rgba(255, 255, 255, 0.8) inset;
+}
+
+.liquid-glass-dark {
+  background: rgba(6, 44, 34, 0.65);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 1px 1px rgba(255, 255, 255, 0.1) inset;
+}
+
+.liquid-glass-nav {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 10px 30px -10px rgba(6, 44, 34, 0.05);
+}
+
+.liquid-glass-pill {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+/* Typography refinements */
 h1, h2, h3, h4, .font-serif {
   font-feature-settings: "kern" 1, "liga" 1;
-}
-
-/* Subtle image hover zoom */
-.img-zoom {
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.img-zoom:hover {
-  transform: scale(1.04);
-}
-
-/* Smooth transitions */
-.transition-smooth {
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }

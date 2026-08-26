@@ -46,9 +46,9 @@ export const TourDetailPage: React.FC = () => {
   if (!tour) {
     return (
       <div className="max-w-4xl mx-auto py-20 px-4 text-center">
-        <h2 className="font-serif text-3xl font-bold text-[#193238] mb-4">Tour Not Found</h2>
-        <p className="text-stone-600 mb-6">We could not find the requested tour itinerary.</p>
-        <Link to="/tours" className="px-6 py-3 bg-[#087F8C] text-white font-semibold rounded-2xl">
+        <h2 className="font-serif text-3xl font-bold text-[#17231F] mb-4">Tour Not Found</h2>
+        <p className="text-[#68736E] mb-6">We could not find the requested tour itinerary.</p>
+        <Link to="/tours" className="px-6 py-3 bg-[#0B3D2E] text-white font-semibold rounded-2xl">
           Browse All Tours
         </Link>
       </div>
@@ -92,17 +92,17 @@ export const TourDetailPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#FFF9EF] min-h-screen py-8 sm:py-12">
+    <div className="bg-[#F8F7F2] min-h-screen py-8 sm:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
         {/* Breadcrumbs & Actions Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-stone-200/80 pb-4">
-          <div className="flex items-center gap-2 text-xs text-stone-500 font-medium flex-wrap">
-            <Link to="/" className="hover:text-[#087F8C]">Home</Link>
+          <div className="flex items-center gap-2 text-xs text-[#68736E] font-medium flex-wrap">
+            <Link to="/" className="hover:text-[#176B52]">Home</Link>
             <span>/</span>
-            <Link to="/tours" className="hover:text-[#087F8C]">Tours</Link>
+            <Link to="/tours" className="hover:text-[#176B52]">Tours</Link>
             <span>/</span>
-            <span className="text-[#087F8C] font-semibold">{tour.title}</span>
+            <span className="text-[#176B52] font-semibold">{tour.title}</span>
           </div>
 
           <div className="flex items-center gap-2.5">
@@ -131,33 +131,33 @@ export const TourDetailPage: React.FC = () => {
         {/* Title & Key Meta */}
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#087F8C] text-white">
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#0B3D2E] text-white">
               {tour.category}
             </span>
             <span className="px-3 py-1 rounded-full text-xs font-medium bg-white border border-stone-200 text-stone-700">
               {tour.difficulty} Pace
             </span>
-            <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-white border border-stone-200 text-xs font-semibold text-[#193238]">
+            <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-white border border-stone-200 text-xs font-semibold text-[#17231F]">
               <StarRating rating={tour.rating} reviewCount={tour.reviewCount} size="sm" />
             </div>
           </div>
 
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#193238] leading-tight">
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#17231F] leading-tight">
             {tour.title}
           </h1>
-          <p className="text-sm sm:text-base text-stone-600 font-medium">{tour.subtitle}</p>
+          <p className="text-sm sm:text-base text-[#68736E] font-medium">{tour.subtitle}</p>
 
-          <div className="flex flex-wrap items-center gap-6 pt-1 text-xs font-medium text-stone-600">
+          <div className="flex flex-wrap items-center gap-6 pt-1 text-xs font-medium text-[#68736E]">
             <div className="flex items-center gap-1.5">
-              <Clock className="w-4 h-4 text-[#087F8C]" />
+              <Clock className="w-4 h-4 text-[#176B52]" />
               <span>{tour.durationDays} Days / {tour.durationNights} Nights</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <MapPin className="w-4 h-4 text-[#087F8C]" />
+              <MapPin className="w-4 h-4 text-[#176B52]" />
               <span>Starts & Ends in {tour.startLocation}</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-[#087F8C]" />
+              <ShieldCheck className="w-4 h-4 text-[#176B52]" />
               <span>Private Chauffeur Included</span>
             </div>
           </div>
@@ -177,17 +177,17 @@ export const TourDetailPage: React.FC = () => {
           <div className="lg:col-span-8 space-y-8">
             
             {/* Overview */}
-            <div className="bg-white rounded-3xl p-7 sm:p-8 border border-stone-200/80 shadow-xs space-y-4">
-              <h2 className="font-serif text-2xl font-bold text-[#193238]">Tour Overview</h2>
-              <p className="text-sm sm:text-base text-stone-600 leading-relaxed">{tour.overview}</p>
+            <div className="bg-white rounded-3xl p-7 sm:p-8 border border-stone-200/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.05)] space-y-4">
+              <h2 className="font-serif text-2xl font-bold text-[#17231F]">Tour Overview</h2>
+              <p className="text-sm sm:text-base text-[#68736E] leading-relaxed">{tour.overview}</p>
 
               {/* Key Highlights Bullets */}
               <div className="pt-3 space-y-2.5">
-                <h3 className="font-serif font-bold text-base text-[#193238]">Experience Highlights</h3>
+                <h3 className="font-serif font-bold text-base text-[#17231F]">Experience Highlights</h3>
                 <div className="grid grid-cols-1 gap-2.5">
                   {tour.highlights.map((h, i) => (
                     <div key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-stone-700">
-                      <div className="w-5 h-5 rounded-full bg-[#FFF9EF] border border-[#F3D6A4] flex items-center justify-center text-[#087F8C] shrink-0 mt-0.5">
+                      <div className="w-5 h-5 rounded-full bg-[#DDEFE8] flex items-center justify-center text-[#176B52] shrink-0 mt-0.5">
                         <Check className="w-3.5 h-3.5" />
                       </div>
                       <span>{h}</span>
@@ -198,18 +198,18 @@ export const TourDetailPage: React.FC = () => {
             </div>
 
             {/* Day-by-Day Detailed Itinerary */}
-            <div className="bg-white rounded-3xl p-7 sm:p-8 border border-stone-200/80 shadow-xs space-y-6">
+            <div className="bg-white rounded-3xl p-7 sm:p-8 border border-stone-200/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.05)] space-y-6">
               <div className="flex items-center justify-between border-b border-stone-100 pb-4">
-                <h2 className="font-serif text-2xl font-bold text-[#193238]">Day-by-Day Itinerary</h2>
-                <span className="text-xs text-stone-500 font-medium">{tour.durationDays} Days Complete Plan</span>
+                <h2 className="font-serif text-2xl font-bold text-[#17231F]">Day-by-Day Itinerary</h2>
+                <span className="text-xs text-[#68736E] font-medium">{tour.durationDays} Days Complete Plan</span>
               </div>
 
               <ItineraryTimeline days={tour.itinerary} />
             </div>
 
             {/* Inclusions & Exclusions */}
-            <div className="bg-white rounded-3xl p-7 sm:p-8 border border-stone-200/80 shadow-xs space-y-6">
-              <h2 className="font-serif text-2xl font-bold text-[#193238]">What’s Included</h2>
+            <div className="bg-white rounded-3xl p-7 sm:p-8 border border-stone-200/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.05)] space-y-6">
+              <h2 className="font-serif text-2xl font-bold text-[#17231F]">What’s Included</h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Inclusions */}
@@ -247,32 +247,32 @@ export const TourDetailPage: React.FC = () => {
             </div>
 
             {/* Accommodation & Vehicle Summary */}
-            <div className="bg-white rounded-3xl p-7 sm:p-8 border border-stone-200/80 shadow-xs space-y-4">
-              <h2 className="font-serif text-2xl font-bold text-[#193238]">Transport & Stays</h2>
+            <div className="bg-white rounded-3xl p-7 sm:p-8 border border-stone-200/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.05)] space-y-4">
+              <h2 className="font-serif text-2xl font-bold text-[#17231F]">Transport & Stays</h2>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
-                <div className="p-4 bg-[#FFF9EF] rounded-2xl border border-stone-200/70 space-y-1.5">
-                  <div className="flex items-center gap-2 font-semibold text-[#193238]">
-                    <Hotel className="w-4 h-4 text-[#087F8C]" />
+                <div className="p-4 bg-[#F8F7F2] rounded-2xl border border-stone-200/70 space-y-1.5">
+                  <div className="flex items-center gap-2 font-semibold text-[#17231F]">
+                    <Hotel className="w-4 h-4 text-[#176B52]" />
                     <span>Accommodation Style</span>
                   </div>
-                  <p className="text-xs text-stone-600">{tour.accommodationType}</p>
+                  <p className="text-xs text-[#68736E]">{tour.accommodationType}</p>
                 </div>
 
-                <div className="p-4 bg-[#FFF9EF] rounded-2xl border border-stone-200/70 space-y-1.5">
-                  <div className="flex items-center gap-2 font-semibold text-[#193238]">
-                    <Car className="w-4 h-4 text-[#087F8C]" />
+                <div className="p-4 bg-[#F8F7F2] rounded-2xl border border-stone-200/70 space-y-1.5">
+                  <div className="flex items-center gap-2 font-semibold text-[#17231F]">
+                    <Car className="w-4 h-4 text-[#176B52]" />
                     <span>Private Chauffeur Fleet</span>
                   </div>
-                  <p className="text-xs text-stone-600">{tour.transportType}</p>
+                  <p className="text-xs text-[#68736E]">{tour.transportType}</p>
                 </div>
               </div>
             </div>
 
             {/* FAQs Accordion */}
             {tour.faqs && tour.faqs.length > 0 && (
-              <div className="bg-white rounded-3xl p-7 sm:p-8 border border-stone-200/80 shadow-xs space-y-4">
-                <h2 className="font-serif text-2xl font-bold text-[#193238]">Frequently Asked Questions</h2>
+              <div className="bg-white rounded-3xl p-7 sm:p-8 border border-stone-200/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.05)] space-y-4">
+                <h2 className="font-serif text-2xl font-bold text-[#17231F]">Frequently Asked Questions</h2>
 
                 <div className="divide-y divide-stone-100">
                   {tour.faqs.map((faq, idx) => {
@@ -281,16 +281,16 @@ export const TourDetailPage: React.FC = () => {
                       <div key={idx} className="py-3.5">
                         <button
                           onClick={() => setOpenFaqIdx(isOpen ? null : idx)}
-                          className="flex items-center justify-between w-full text-left font-semibold text-xs sm:text-sm text-[#193238] hover:text-[#087F8C] transition-colors"
+                          className="flex items-center justify-between w-full text-left font-semibold text-xs sm:text-sm text-[#17231F] hover:text-[#176B52] transition-colors"
                         >
                           <span className="flex items-center gap-2">
-                            <HelpCircle className="w-4 h-4 text-[#087F8C] shrink-0" />
+                            <HelpCircle className="w-4 h-4 text-[#176B52] shrink-0" />
                             {faq.question}
                           </span>
                           <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                         </button>
                         {isOpen && (
-                          <p className="pt-2 text-xs sm:text-sm text-stone-600 leading-relaxed pl-6">
+                          <p className="pt-2 text-xs sm:text-sm text-[#68736E] leading-relaxed pl-6">
                             {faq.answer}
                           </p>
                         )}
@@ -301,38 +301,38 @@ export const TourDetailPage: React.FC = () => {
               </div>
             )}
 
-            {/* Verified Customer Reviews for this tour */}
+            {/* Verified Customer Reviews */}
             {reviews.length > 0 && (
-              <div className="bg-white rounded-3xl p-7 sm:p-8 border border-stone-200/80 shadow-xs space-y-4">
+              <div className="bg-white rounded-3xl p-7 sm:p-8 border border-stone-200/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.05)] space-y-4">
                 <div className="flex items-center justify-between border-b border-stone-100 pb-4">
-                  <h2 className="font-serif text-2xl font-bold text-[#193238]">Guest Reviews for this Tour</h2>
-                  <div className="flex items-center gap-1 font-semibold text-[#193238] text-xs sm:text-sm">
-                    <Star className="w-4 h-4 fill-[#E7B85C] text-[#E7B85C]" />
+                  <h2 className="font-serif text-2xl font-bold text-[#17231F]">Guest Reviews for this Tour</h2>
+                  <div className="flex items-center gap-1 font-semibold text-[#17231F] text-xs sm:text-sm">
+                    <Star className="w-4 h-4 fill-[#39A982] text-[#39A982]" />
                     <span>{tour.rating.toFixed(1)} / 5</span>
                   </div>
                 </div>
 
                 <div className="space-y-3.5">
                   {reviews.map((r) => (
-                    <div key={r.id} className="p-4 bg-[#FFF9EF] rounded-2xl border border-stone-200/70 space-y-2">
+                    <div key={r.id} className="p-4 bg-[#F8F7F2] rounded-2xl border border-stone-200/70 space-y-2">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <img
                             src={r.authorAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&q=80'}
                             alt={r.authorName}
-                            className="w-8 h-8 rounded-full object-cover border border-[#F3D6A4]"
+                            className="w-8 h-8 rounded-full object-cover border border-[#DDEFE8]"
                           />
-                          <span className="font-semibold text-xs text-[#193238]">{r.authorName}</span>
+                          <span className="font-semibold text-xs text-[#17231F]">{r.authorName}</span>
                           <span className="text-[11px] text-stone-400">({r.authorCountry})</span>
                         </div>
-                        <div className="flex items-center gap-0.5 text-[#E7B85C]">
+                        <div className="flex items-center gap-0.5 text-[#39A982]">
                           {[...Array(r.rating)].map((_, i) => (
                             <Star key={i} className="w-3.5 h-3.5 fill-current" />
                           ))}
                         </div>
                       </div>
-                      <p className="text-xs font-semibold text-[#193238]">"{r.title}"</p>
-                      <p className="text-xs text-stone-600 leading-relaxed">{r.content}</p>
+                      <p className="text-xs font-semibold text-[#17231F]">"{r.title}"</p>
+                      <p className="text-xs text-[#68736E] leading-relaxed">{r.content}</p>
                     </div>
                   ))}
                 </div>
