@@ -4,9 +4,9 @@ import {
   AIRPORT_COORDINATES, 
   type PlaceResult, 
   type RouteResult, 
-  loadGoogleMapsScript 
+  loadGoogleMapsScript,
+  searchGooglePlaces
 } from '../../services/googleMapsService';
-import { DESTINATION_DISTANCES } from '../../data/destinationDistances';
 
 interface GoogleMapDestinationSelectorProps {
   selectedDestination: PlaceResult;
@@ -14,88 +14,6 @@ interface GoogleMapDestinationSelectorProps {
   isLoadingRoute: boolean;
   onSelectPlace: (place: PlaceResult) => void;
 }
-
-// Popular Sri Lankan Search Database for quick suggestions + autocomplete
-const POPULAR_SEARCH_PLACES: PlaceResult[] = [
-  {
-    name: 'Sigiriya Rock Fortress',
-    formattedAddress: 'Sigiriya Ancient City, Central Province, Sri Lanka',
-    lat: 7.9570,
-    lng: 80.7603
-  },
-  {
-    name: 'Temple of the Sacred Tooth Relic',
-    formattedAddress: 'Sri Dalada Veediya, Kandy 20000, Sri Lanka',
-    lat: 7.2936,
-    lng: 80.6413
-  },
-  {
-    name: 'Demodara Nine Arches Bridge',
-    formattedAddress: 'Nine Arch Bridge Road, Ella 90090, Sri Lanka',
-    lat: 6.8768,
-    lng: 81.0608
-  },
-  {
-    name: 'Galle Dutch Fort Lighthouse',
-    formattedAddress: 'Rampart St, Galle 80000, Sri Lanka',
-    lat: 6.0267,
-    lng: 80.2170
-  },
-  {
-    name: 'Mirissa Whale Watching Harbour',
-    formattedAddress: 'Harbour Rd, Mirissa 81740, Sri Lanka',
-    lat: 5.9483,
-    lng: 80.4578
-  },
-  {
-    name: 'Nuwara Eliya Tea Hills & Gregory Lake',
-    formattedAddress: 'Peradeniya-Badulla-Chenkaladi Hwy, Nuwara Eliya, Sri Lanka',
-    lat: 6.9497,
-    lng: 80.7891
-  },
-  {
-    name: 'Yala National Park Safari Center',
-    formattedAddress: 'Palatupana, Yala, Southern Province, Sri Lanka',
-    lat: 6.3725,
-    lng: 81.5186
-  },
-  {
-    name: 'Colombo Galle Face Green & Port City',
-    formattedAddress: 'Galle Face Center Rd, Colombo 00300, Sri Lanka',
-    lat: 6.9271,
-    lng: 79.8443
-  },
-  {
-    name: 'Bentota Golden Beach & Water Sports',
-    formattedAddress: 'Bentota Beach, Southern Province, Sri Lanka',
-    lat: 6.4258,
-    lng: 79.9964
-  },
-  {
-    name: 'Negombo Coastal Resort Strip',
-    formattedAddress: 'Lewis Place, Negombo, Sri Lanka',
-    lat: 7.2343,
-    lng: 79.8427
-  },
-  {
-    name: 'Trincomalee Nilaveli Beach & Pigeon Island',
-    formattedAddress: 'Nilaveli Beach Rd, Trincomalee 31010, Sri Lanka',
-    lat: 8.6833,
-    lng: 81.1894
-  },
-  {
-    name: 'Arugam Bay Surf Point',
-    formattedAddress: 'Main St, Arugam Bay 32500, Sri Lanka',
-    lat: 6.8421,
-    lng: 81.8340
-  },
-  {
-    name: 'Jaffna Nallur Kandaswamy Temple',
-    formattedAddress: 'Nallur, Jaffna 40000, Sri Lanka',
-    lat: 9.6747,
-    lng: 80.0298
-  }
-];
 
 export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelectorProps> = ({
   selectedDestination,
@@ -105,6 +23,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState<PlaceResult[]>([]);
+  const [isSearchingPlaces, setIsSearchingPlaces] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isGoogleSdkReady, setIsGoogleSdkReady] = useState(false);
 
@@ -127,8 +46,8 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
 
           // Initialize Map
           const map = new googleObj.maps.Map(mapContainerRef.current, {
-            center: { lat: 7.5, lng: 80.5 },
-            zoom: 8,
+            center: { lat: selectedDestination.lat || 7.5, lng: selectedDestination.lng || 80.5 },
+            zoom: 9,
             styles: [
               {
                 featureType: 'water',
@@ -177,7 +96,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
           });
           directionsRendererRef.current = directionsRenderer;
 
-          // Google Places Autocomplete on the input
+          // Google Places Autocomplete on the input (Unrestricted search across Sri Lanka)
           if (searchBoxRef.current && googleObj.maps.places) {
             const autocomplete = new googleObj.maps.places.Autocomplete(searchBoxRef.current, {
               componentRestrictions: { country: 'lk' },
@@ -201,7 +120,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
             });
           }
         } catch (err: any) {
-          console.warn('Could not initialize interactive Google Map JS SDK:', err);
+          console.warn('Could not initialize Google Map JS SDK:', err);
         }
       }
     });
@@ -232,51 +151,30 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
     }
   }, [selectedDestination, routeData, isGoogleSdkReady]);
 
-  // Autocomplete fallback search matching (Search any place/city in Sri Lanka)
+  // Live Unrestricted Places Search as customer types
   useEffect(() => {
-    if (!searchQuery.trim()) {
+    let active = true;
+    if (!searchQuery || searchQuery.trim().length < 2) {
       setSuggestions([]);
+      setIsSearchingPlaces(false);
       return;
     }
 
-    const q = searchQuery.toLowerCase();
-    const matches = POPULAR_SEARCH_PLACES.filter(p => 
-      p.name.toLowerCase().includes(q) || 
-      p.formattedAddress.toLowerCase().includes(q)
-    );
+    setIsSearchingPlaces(true);
+    const delayTimer = setTimeout(() => {
+      searchGooglePlaces(searchQuery).then((results) => {
+        if (active) {
+          setSuggestions(results);
+          setIsSearchingPlaces(false);
+          setShowSuggestions(true);
+        }
+      });
+    }, 280);
 
-    // Also check destination distances
-    DESTINATION_DISTANCES.forEach(d => {
-      if (
-        (d.name.toLowerCase().includes(q) || d.shortName.toLowerCase().includes(q) || d.popularFor.toLowerCase().includes(q)) &&
-        !matches.some(m => m.name.toLowerCase().includes(d.shortName.toLowerCase()))
-      ) {
-        const approxCoords: Record<string, { lat: number; lng: number }> = {
-          'dest-sigiriya': { lat: 7.9570, lng: 80.7603 },
-          'dest-kandy': { lat: 7.2936, lng: 80.6413 },
-          'dest-ella': { lat: 6.8768, lng: 81.0608 },
-          'dest-galle': { lat: 6.0267, lng: 80.2170 },
-          'dest-mirissa': { lat: 5.9483, lng: 80.4578 },
-          'dest-nuwara-eliya': { lat: 6.9497, lng: 80.7891 },
-          'dest-bentota': { lat: 6.4258, lng: 79.9964 },
-          'dest-yala': { lat: 6.3725, lng: 81.5186 },
-          'dest-colombo': { lat: 6.9271, lng: 79.8443 },
-          'dest-negombo': { lat: 7.2343, lng: 79.8427 },
-          'dest-trincomalee': { lat: 8.6833, lng: 81.1894 },
-          'dest-arugam-bay': { lat: 6.8421, lng: 81.8340 },
-          'dest-jaffna': { lat: 9.6747, lng: 80.0298 }
-        };
-        const coords = approxCoords[d.id] || { lat: 7.9570, lng: 80.7603 };
-        matches.push({
-          name: d.name,
-          formattedAddress: `${d.region}, Sri Lanka`,
-          lat: coords.lat,
-          lng: coords.lng
-        });
-      }
-    });
-
-    setSuggestions(matches);
+    return () => {
+      active = false;
+      clearTimeout(delayTimer);
+    };
   }, [searchQuery]);
 
   // Click outside to close dropdown
@@ -296,13 +194,23 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
     setShowSuggestions(false);
   };
 
+  const handleExplicitSearch = () => {
+    if (!searchQuery.trim()) return;
+    setIsSearchingPlaces(true);
+    searchGooglePlaces(searchQuery).then((results) => {
+      setSuggestions(results);
+      setIsSearchingPlaces(false);
+      setShowSuggestions(true);
+    });
+  };
+
   return (
     <div className="bg-white rounded-3xl border border-stone-200/90 shadow-[0_10px_35px_-10px_rgba(6,44,34,0.08)] overflow-hidden space-y-0">
       
-      {/* 1. Google Places Autocomplete Search Bar */}
+      {/* 1. Google Places Search Bar (Unrestricted for any Sri Lanka address, hotel, attraction or street) */}
       <div className="p-4 sm:p-5 bg-white border-b border-stone-100 relative z-30" ref={searchContainerRef}>
         <label className="text-xs font-bold text-[#176B52] uppercase tracking-wider block mb-2">
-          Where are you going? (Search Google Maps)
+          Where are you going?
         </label>
 
         <div className="relative">
@@ -316,49 +224,85 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
               setShowSuggestions(true);
             }}
             onFocus={() => {
-              if (searchQuery.trim() || suggestions.length > 0) setShowSuggestions(true);
+              if (searchQuery.trim().length >= 2 || suggestions.length > 0) setShowSuggestions(true);
             }}
-            placeholder="Search any hotel, city, attraction or address in Sri Lanka (e.g. Kandy, Ella, Sigiriya)..."
-            className="w-full pl-11 pr-10 py-3.5 bg-[#F8F7F2] border border-stone-300 rounded-2xl text-xs sm:text-sm font-semibold text-[#17231F] placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#176B52] shadow-2xs"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleExplicitSearch();
+              }
+            }}
+            placeholder="Search any place, hotel, attraction or address in Sri Lanka..."
+            className="w-full pl-11 pr-24 py-3.5 bg-[#F8F7F2] border border-stone-300 rounded-2xl text-xs sm:text-sm font-semibold text-[#17231F] placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#176B52] shadow-2xs"
           />
 
-          {searchQuery && (
-            <button
-              onClick={() => {
-                setSearchQuery('');
-                setSuggestions([]);
-              }}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 p-1"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+            {isSearchingPlaces && (
+              <Loader2 className="w-4 h-4 text-[#176B52] animate-spin" />
+            )}
+            {searchQuery && (
+              <button
+                onClick={() => {
+                  setSearchQuery('');
+                  setSuggestions([]);
+                }}
+                className="text-stone-400 hover:text-stone-700 p-1"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
 
-        {/* Autocomplete Suggestions Panel in Liquid Glass */}
-        {showSuggestions && suggestions.length > 0 && (
-          <div className="absolute left-4 right-4 mt-2 bg-white/95 backdrop-blur-2xl border border-stone-200 rounded-2xl shadow-2xl py-2 max-h-72 overflow-y-auto animate-fadeIn z-50">
-            <div className="px-3.5 py-1 text-[10px] font-bold text-[#176B52] uppercase tracking-wider border-b border-stone-100">
-              Google Maps Suggestions
+        {/* Live Suggestions Panel in Liquid Glass (Unrestricted) */}
+        {showSuggestions && (
+          <div className="absolute left-4 right-4 mt-2 bg-white/95 backdrop-blur-2xl border border-stone-200 rounded-2xl shadow-2xl py-2 max-h-80 overflow-y-auto animate-fadeIn z-50">
+            <div className="px-3.5 py-1.5 text-[10px] font-bold text-[#176B52] uppercase tracking-wider border-b border-stone-100 flex items-center justify-between">
+              <span>Google Maps Places Results</span>
+              <span className="text-[10px] text-[#68736E] font-normal">Islandwide Search</span>
             </div>
-            {suggestions.map((item, idx) => (
-              <div
-                key={idx}
-                onClick={() => handleSelectPlace(item)}
-                className="px-4 py-3 hover:bg-[#DDEFE8]/70 cursor-pointer flex items-center justify-between transition-colors border-b border-stone-100/60 last:border-0"
-              >
-                <div className="flex items-center gap-3">
-                  <MapPin className="w-4 h-4 text-[#176B52] shrink-0" />
-                  <div>
-                    <span className="font-bold text-xs sm:text-sm text-[#17231F] block">{item.name}</span>
-                    <span className="text-[11px] text-[#68736E] line-clamp-1">{item.formattedAddress}</span>
-                  </div>
-                </div>
-                <span className="text-[10px] font-bold text-[#176B52] bg-white px-2 py-0.5 rounded-full border border-stone-200 shrink-0">
-                  Select
-                </span>
+
+            {suggestions.length === 0 && !isSearchingPlaces ? (
+              <div className="p-4 text-center text-xs text-[#68736E] space-y-2">
+                <p>No direct match for "{searchQuery}".</p>
+                <button
+                  onClick={handleExplicitSearch}
+                  className="px-4 py-1.5 rounded-xl bg-[#0B3D2E] text-white text-xs font-semibold hover:bg-[#176B52]"
+                >
+                  Search Google Maps for "{searchQuery}"
+                </button>
               </div>
-            ))}
+            ) : (
+              suggestions.map((item, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => handleSelectPlace(item)}
+                  className="px-4 py-3 hover:bg-[#DDEFE8]/70 cursor-pointer flex items-center justify-between transition-colors border-b border-stone-100/60 last:border-0"
+                >
+                  <div className="flex items-center gap-3">
+                    <MapPin className="w-4 h-4 text-[#176B52] shrink-0" />
+                    <div>
+                      <span className="font-bold text-xs sm:text-sm text-[#17231F] block">{item.name}</span>
+                      <span className="text-[11px] text-[#68736E] line-clamp-1">{item.formattedAddress}</span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-bold text-[#176B52] bg-white px-2.5 py-1 rounded-full border border-stone-200 shrink-0">
+                    Select
+                  </span>
+                </div>
+              ))
+            )}
+
+            {/* Explicit search trigger at bottom */}
+            {searchQuery.trim().length > 0 && (
+              <div 
+                onClick={handleExplicitSearch}
+                className="px-4 py-2.5 bg-stone-50 hover:bg-[#DDEFE8]/50 cursor-pointer flex items-center gap-2 text-xs font-semibold text-[#176B52] border-t border-stone-100"
+              >
+                <Search className="w-3.5 h-3.5" />
+                <span>Search Google Maps for "{searchQuery}"</span>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -368,7 +312,6 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
         
         {/* Real Google Map Canvas or Embedded Google Direction Route Viewer */}
         <div ref={mapContainerRef} className="w-full h-full">
-          {/* Iframe Real Google Maps Directions Preview if JS SDK is pending */}
           {!isGoogleSdkReady && (
             <iframe
               title="Google Maps Sri Lanka Route"
@@ -378,7 +321,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
               loading="lazy"
               allowFullScreen
               referrerPolicy="no-referrer-when-downgrade"
-              src={`https://maps.google.com/maps?q=${selectedDestination.lat},${selectedDestination.lng}&z=10&output=embed`}
+              src={`https://maps.google.com/maps?q=${selectedDestination.lat},${selectedDestination.lng}&z=11&output=embed`}
               className="w-full h-full"
             />
           )}
@@ -388,7 +331,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
         {isLoadingRoute && (
           <div className="absolute inset-0 bg-white/75 backdrop-blur-xs flex flex-col items-center justify-center gap-2 z-30 animate-fadeIn">
             <Loader2 className="w-8 h-8 text-[#176B52] animate-spin" />
-            <span className="text-xs font-bold text-[#0B3D2E]">Calculating Google road route & distance...</span>
+            <span className="text-xs font-bold text-[#0B3D2E]">Calculating road route & distance...</span>
           </div>
         )}
 
@@ -401,7 +344,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
                 BANDARANAIKE (CMB) &rarr; {selectedDestination.name.split(',')[0].toUpperCase()}
               </span>
               <span className="text-[10px] font-bold text-[#0B3D2E] bg-[#DDEFE8] px-2 py-0.5 rounded-full">
-                {routeData.isLiveGoogleRoute ? 'Live Google Route' : 'Expressway Verified'}
+                {routeData.isLiveGoogleRoute ? 'Live Road Route' : 'Verified Route'}
               </span>
             </div>
 
@@ -427,7 +370,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
           <div>
             <span className="text-[10px] font-bold text-[#68736E] uppercase tracking-wider block">Selected Destination</span>
             <h4 className="font-serif font-bold text-sm sm:text-base text-[#17231F]">{selectedDestination.name}</h4>
-            <p className="text-[11px] text-[#68736E]">{selectedDestination.formattedAddress}</p>
+            <p className="text-[11px] text-[#68736E] line-clamp-1">{selectedDestination.formattedAddress}</p>
           </div>
         </div>
 
