@@ -13,7 +13,7 @@ export const Hero: React.FC = () => {
           alt="Sigiriya Lion Rock Fortress Sri Lanka"
           className="w-full h-full object-cover object-center scale-105 animate-[scaleIn_1.6s_ease-out_forwards] motion-reduce:transform-none motion-reduce:animate-none"
         />
-        {/* Soft, readable Deep Forest Green gradient overlay without crushing the photo */}
+        {/* Soft, readable Deep Forest Green gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-[#062C22]/90 via-[#062C22]/65 to-[#062C22]/20" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#062C22] via-transparent to-black/25" />
       </div>
@@ -35,7 +35,7 @@ export const Hero: React.FC = () => {
 
           {/* Short Supporting Text */}
           <p className="text-base sm:text-lg text-stone-100 font-normal leading-relaxed max-w-xl animate-[fadeInUp_1.0s_ease-out_forwards] motion-reduce:animate-none">
-            Bespoke Sri Lankan journeys shaped around the places, experiences and moments you want to remember.
+            Create unforgettable Sri Lankan journeys with carefully planned tours, private transfers and authentic experiences.
           </p>
 
           {/* Action CTAs */}
@@ -49,7 +49,7 @@ export const Hero: React.FC = () => {
             </Link>
 
             <Link
-              to="/customize"
+              to="/tours"
               className="inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm font-semibold rounded-2xl bg-white/15 hover:bg-white/25 text-white border border-white/25 backdrop-blur-xl transition-all transform hover:-translate-y-0.5"
             >
               <span>Plan Your Journey</span>

@@ -16,7 +16,7 @@ export const Footer: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Main Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-white/10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-white/10">
           
           {/* Brand & Description */}
           <div className="lg:col-span-2 space-y-4">
@@ -31,8 +31,8 @@ export const Footer: React.FC = () => {
               </div>
             </Link>
 
-            <p className="text-xs sm:text-sm text-stone-300 leading-relaxed max-w-sm">
-              Sri Lanka's trusted bespoke travel company. Crafting private chauffeur journeys, wildlife expeditions, and boutique stays across the island.
+            <p className="text-xs sm:text-sm text-stone-300 leading-relaxed max-w-md">
+              Sri Lanka's premier bespoke travel company. Crafting private chauffeur journeys, airport transfers, wildlife safaris, and boutique stays across the island.
             </p>
 
             <div className="flex items-center gap-2 pt-1">
@@ -68,18 +68,6 @@ export const Footer: React.FC = () => {
                 </a>
               ) : null}
 
-              {SOCIAL_LINKS.youtube?.url ? (
-                <a 
-                  href={SOCIAL_LINKS.youtube.url} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  aria-label={SOCIAL_LINKS.youtube.ariaLabel}
-                  className="w-8 h-8 rounded-xl bg-white/10 hover:bg-[#176B52] text-stone-200 flex items-center justify-center transition-colors"
-                >
-                  <Globe className="w-4 h-4" />
-                </a>
-              ) : null}
-
               {SOCIAL_LINKS.whatsapp?.url ? (
                 <a 
                   href={SOCIAL_LINKS.whatsapp.url} 
@@ -102,48 +90,30 @@ export const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* Explore Links */}
+          {/* Quick Travel Links */}
           <div className="space-y-3">
-            <h4 className="font-serif text-base font-semibold text-white">Explore</h4>
+            <h4 className="font-serif text-base font-semibold text-white">Experience</h4>
             <ul className="space-y-2 text-xs sm:text-sm text-stone-300">
               <li>
                 <Link to="/tours" className="hover:text-[#39A982] transition-colors">
-                  Signature Tours
-                </Link>
-              </li>
-              <li>
-                <Link to="/destinations" className="hover:text-[#39A982] transition-colors">
-                  Destinations
-                </Link>
-              </li>
-              <li>
-                <Link to="/activities" className="hover:text-[#39A982] transition-colors">
-                  Unique Experiences
-                </Link>
-              </li>
-              <li>
-                <Link to="/customize" className="hover:text-[#39A982] transition-colors">
-                  Customize Itinerary
+                  Airport Transfers & Tours
                 </Link>
               </li>
               <li>
                 <Link to="/reviews" className="hover:text-[#39A982] transition-colors">
-                  Guest Reviews
+                  Guest Reviews & Gallery
                 </Link>
               </li>
-            </ul>
-          </div>
-
-          {/* Company Links */}
-          <div className="space-y-3">
-            <h4 className="font-serif text-base font-semibold text-white">Company</h4>
-            <ul className="space-y-2 text-xs sm:text-sm text-stone-300">
-              <li><Link to="/about" className="hover:text-[#39A982] transition-colors">About Us</Link></li>
-              <li><Link to="/contact" className="hover:text-[#39A982] transition-colors">Contact Concierge</Link></li>
-              <li><Link to="/transfers" className="hover:text-[#39A982] transition-colors">Airport Transfers</Link></li>
-              <li><Link to="/terms-and-conditions" className="hover:text-[#39A982] transition-colors">Terms & Conditions</Link></li>
-              <li><Link to="/privacy-policy" className="hover:text-[#39A982] transition-colors">Privacy Policy</Link></li>
-              <li><Link to="/cancellation-refund-policy" className="hover:text-[#39A982] transition-colors">Cancellation Policy</Link></li>
+              <li>
+                <Link to="/contact" className="hover:text-[#39A982] transition-colors">
+                  Contact Concierge
+                </Link>
+              </li>
+              <li>
+                <Link to="/about" className="hover:text-[#39A982] transition-colors">
+                  About Us
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -165,7 +135,7 @@ export const Footer: React.FC = () => {
               </div>
               <div className="flex items-center gap-2.5">
                 <Clock className="w-4 h-4 text-[#39A982] shrink-0" />
-                <span>24/7 Islandwide Support</span>
+                <span>24/7 Dedicated Chauffeur Support</span>
               </div>
             </div>
           </div>
@@ -177,11 +147,9 @@ export const Footer: React.FC = () => {
           <p>© {new Date().getFullYear()} LankaVoyage Ltd. All Rights Reserved.</p>
 
           <div className="flex flex-wrap items-center gap-3.5 text-stone-300">
-            <Link to="/about" className="hover:text-[#39A982]">About</Link>
+            <Link to="/tours" className="hover:text-[#39A982]">Tours</Link>
             <span>•</span>
-            <Link to="/reviews" className="hover:text-[#39A982]">Reviews</Link>
-            <span>•</span>
-            <Link to="/transfers" className="hover:text-[#39A982]">Transfers</Link>
+            <Link to="/reviews" className="hover:text-[#39A982]">Reviews & Gallery</Link>
             <span>•</span>
             <Link to="/terms-and-conditions" className="hover:text-[#39A982]">Terms</Link>
             <span>•</span>

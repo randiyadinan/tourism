@@ -45,14 +45,11 @@ export const Navbar: React.FC = () => {
     navigate('/');
   };
 
+  // Simplified 3 Main Navigation Links
   const navLinks = [
     { name: 'Home', href: '/' },
     { name: 'Tours', href: '/tours' },
-    { name: 'Destinations', href: '/destinations' },
-    { name: 'Activities', href: '/activities' },
-    { name: 'Customize', href: '/customize' },
-    { name: 'Reviews', href: '/reviews' },
-    { name: 'About', href: '/about' },
+    { name: 'Reviews & Gallery', href: '/reviews' },
   ];
 
   const adminMgmtLinks = [
@@ -91,8 +88,8 @@ export const Navbar: React.FC = () => {
             </div>
           </Link>
 
-          {/* Desktop Nav Links */}
-          <nav className="hidden lg:flex items-center gap-7">
+          {/* Desktop Nav Links - Focused 3 Items */}
+          <nav className="hidden lg:flex items-center gap-8">
             {navLinks.map((link) => (
               <NavLink
                 key={link.name}
@@ -125,10 +122,10 @@ export const Navbar: React.FC = () => {
                   Sign In
                 </Link>
                 <Link
-                  to="/customize"
+                  to="/tours"
                   className="px-5 py-2.5 text-xs font-semibold rounded-xl bg-[#0B3D2E] hover:bg-[#176B52] text-white shadow-xs hover:shadow-md transition-all transform hover:-translate-y-0.5 border border-white/10"
                 >
-                  Plan Your Trip
+                  Plan Your Journey
                 </Link>
               </div>
             )}
@@ -303,11 +300,11 @@ export const Navbar: React.FC = () => {
           {!isAuthenticated && (
             <div className="border-t border-white/10 pt-3 space-y-2">
               <Link
-                to="/customize"
+                to="/tours"
                 onClick={() => setMobileMenuOpen(false)}
                 className="block w-full py-2.5 text-center text-xs font-semibold rounded-xl bg-[#176B52] text-white shadow-xs"
               >
-                Plan Your Trip
+                Plan Your Journey
               </Link>
               <Link
                 to="/login"

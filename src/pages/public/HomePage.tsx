@@ -1,11 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Compass, MapPin, Sparkles } from 'lucide-react';
 import { Hero } from '../../components/home/Hero';
 import { WhyLankaVoyage } from '../../components/home/WhyLankaVoyage';
-import { CustomTripCTA } from '../../components/home/CustomTripCTA';
-import { VerifiedReviews } from '../../components/home/VerifiedReviews';
-import { Newsletter } from '../../components/home/Newsletter';
 import { TourCard } from '../../components/tours/TourCard';
 import { DestinationCard } from '../../components/destinations/DestinationCard';
 import { ActivityCard } from '../../components/activities/ActivityCard';
@@ -21,17 +18,18 @@ export const HomePage: React.FC = () => {
   return (
     <div className="space-y-0">
       
-      {/* 1. Hero with Cinematic Sri Lankan Visuals & Liquid Glass Quick Trip Planner */}
+      {/* SECTION 1 & 2: Hero with Sigiriya + Floating Quick Travel Planner */}
       <Hero />
 
-      {/* 2. Featured Signature Tours on White */}
+      {/* SECTION 3: Featured Tours on White */}
       <section className="py-20 sm:py-28 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6">
             <div className="space-y-2.5 max-w-2xl">
-              <span className="text-xs font-semibold text-[#176B52] uppercase tracking-wider">
-                EXPLORE SRI LANKA
+              <span className="text-xs font-semibold text-[#176B52] uppercase tracking-wider flex items-center gap-1.5">
+                <Compass className="w-3.5 h-3.5 text-[#39A982]" />
+                FEATURED TOURS
               </span>
               <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#17231F]">
                 Journeys worth remembering.
@@ -45,7 +43,7 @@ export const HomePage: React.FC = () => {
               to="/tours"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-[#F8F7F2] border border-stone-200 text-xs sm:text-sm font-semibold text-[#0B3D2E] hover:bg-[#DDEFE8] transition-all shrink-0 shadow-2xs"
             >
-              <span>View All Tours</span>
+              <span>View All Tours & Transfers</span>
               <ArrowRight className="w-4 h-4 text-[#39A982]" />
             </Link>
           </div>
@@ -59,14 +57,15 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* 3. Popular Destinations on Ivory */}
+      {/* SECTION 4: Explore Sri Lanka on Ivory */}
       <section className="py-20 sm:py-28 bg-[#F8F7F2]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6">
             <div className="space-y-2.5 max-w-2xl">
-              <span className="text-xs font-semibold text-[#176B52] uppercase tracking-wider">
-                DISCOVER SRI LANKA
+              <span className="text-xs font-semibold text-[#176B52] uppercase tracking-wider flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-[#39A982]" />
+                EXPLORE SRI LANKA
               </span>
               <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#17231F]">
                 Iconic Destinations
@@ -77,10 +76,10 @@ export const HomePage: React.FC = () => {
             </div>
 
             <Link
-              to="/destinations"
+              to="/tours"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white border border-stone-200 text-xs sm:text-sm font-semibold text-[#0B3D2E] hover:bg-stone-50 transition-all shrink-0 shadow-2xs"
             >
-              <span>Explore All Destinations</span>
+              <span>Explore Island Routes</span>
               <ArrowRight className="w-4 h-4 text-[#39A982]" />
             </Link>
           </div>
@@ -94,17 +93,18 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* 4. Featured Experiences on White */}
+      {/* SECTION 5: Travel Experiences on White */}
       <section className="py-20 sm:py-28 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6">
             <div className="space-y-2.5 max-w-2xl">
-              <span className="text-xs font-semibold text-[#176B52] uppercase tracking-wider">
-                CURATED ENCOUNTERS
+              <span className="text-xs font-semibold text-[#176B52] uppercase tracking-wider flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-[#39A982]" />
+                TRAVEL EXPERIENCES
               </span>
               <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#17231F]">
-                Unique Island Experiences
+                Unique Island Encounters
               </h2>
               <p className="text-sm sm:text-base text-[#68736E]">
                 Private leopard game drives, tea sommelier masterclasses, and scenic hill country train journeys.
@@ -112,10 +112,10 @@ export const HomePage: React.FC = () => {
             </div>
 
             <Link
-              to="/activities"
+              to="/tours"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-[#F8F7F2] border border-stone-200 text-xs sm:text-sm font-semibold text-[#0B3D2E] hover:bg-[#DDEFE8] transition-all shrink-0 shadow-2xs"
             >
-              <span>View All Experiences</span>
+              <span>View Experiences</span>
               <ArrowRight className="w-4 h-4 text-[#39A982]" />
             </Link>
           </div>
@@ -129,17 +129,44 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* 5. Why Choose LankaVoyage (Ivory) */}
+      {/* SECTION 6: Why LankaVoyage (Ivory) */}
       <WhyLankaVoyage />
 
-      {/* 6. Traveler Reviews (Ivory) */}
-      <VerifiedReviews />
+      {/* SECTION 7: Final CTA (Deep Forest Green) */}
+      <section className="py-20 sm:py-28 relative overflow-hidden bg-[#062C22] text-white">
+        <div className="absolute inset-0 z-0 opacity-25">
+          <img
+            src="https://images.unsplash.com/photo-1588598198321-9735fd52455b?auto=format&fit=crop&w=2000&q=85"
+            alt="Sri Lanka Sigiriya & Nature"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#062C22] via-[#062C22]/90 to-transparent" />
+        </div>
 
-      {/* 7. Final Custom Journey CTA (Deep Forest Green) */}
-      <CustomTripCTA />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-6">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 text-[#DDEFE8] text-xs font-semibold uppercase tracking-wider">
+            <span>BESPOKE SRI LANKAN JOURNEYS</span>
+          </div>
 
-      {/* 8. Newsletter (Primary Forest Green) */}
-      <Newsletter />
+          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight">
+            Your Sri Lankan journey starts here.
+          </h2>
+
+          <p className="text-base sm:text-lg text-stone-200 max-w-xl mx-auto leading-relaxed">
+            Explore our tours or create a journey that fits your time and style with dedicated chauffeur guidance.
+          </p>
+
+          <div className="pt-3">
+            <Link
+              to="/tours"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-[#176B52] hover:bg-[#0B3D2E] text-white font-semibold text-sm transition-all border border-white/20 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+            >
+              <span>Plan Your Journey</span>
+              <ArrowRight className="w-4 h-4 text-[#DDEFE8]" />
+            </Link>
+          </div>
+        </div>
+      </section>
 
     </div>
   );
