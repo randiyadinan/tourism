@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Plane, 
@@ -8,22 +8,27 @@ import {
   ArrowRight,
   AlertCircle,
   Plus,
-  Minus
+  Minus,
+  Loader2
 } from 'lucide-react';
 import { 
   SUPPORTED_AIRPORTS, 
-  DESTINATION_DISTANCES, 
   TRANSFER_VEHICLE_OPTIONS,
   calculateRealRoadTransferPrice,
-  type TransferVehicleOption,
-  type DestinationDistance
+  type TransferVehicleOption
 } from '../../data/destinationDistances';
-import { TransferMapViewer } from '../../components/transfers/TransferMapViewer';
+import { 
+  AIRPORT_COORDINATES, 
+  type PlaceResult, 
+  type RouteResult, 
+  calculateGoogleRoute 
+} from '../../services/googleMapsService';
+import { GoogleMapDestinationSelector } from '../../components/transfers/GoogleMapDestinationSelector';
 
 export const AirportTransferPage: React.FC = () => {
   const navigate = useNavigate();
 
-  // 1. AIRPORT
+  // 1. AIRPORT (CMB default)
   const [selectedAirportId, setSelectedAirportId] = useState<string>('airport-cmb');
 
   // 2. FLIGHT DETAILS
@@ -36,10 +41,18 @@ export const AirportTransferPage: React.FC = () => {
   const [children, setChildren] = useState<number>(0);
   const [infants, setInfants] = useState<number>(0);
 
-  // 4. DESTINATION (Map-driven)
-  const [selectedDestination, setSelectedDestination] = useState<DestinationDistance>(() => {
-    return DESTINATION_DISTANCES.find(d => d.id === 'dest-sigiriya') || DESTINATION_DISTANCES[0];
+  // 4. GOOGLE MAP SELECTED DESTINATION
+  const [selectedDestination, setSelectedDestination] = useState<PlaceResult>({
+    name: 'Sigiriya Rock Fortress',
+    formattedAddress: 'Sigiriya Ancient City, Central Province, Sri Lanka',
+    lat: 7.9570,
+    lng: 80.7603
   });
+
+  // ROUTE DATA FROM GOOGLE
+  const [routeData, setRouteData] = useState<RouteResult | null>(null);
+  const [isLoadingRoute, setIsLoadingRoute] = useState<boolean>(true);
+  const [routeError, setRouteError] = useState<string | null>(null);
 
   // 5. VEHICLE SELECTION
   const [selectedVehicleId, setSelectedVehicleId] = useState<string>('veh-sedan-luxury');
@@ -61,10 +74,40 @@ export const AirportTransferPage: React.FC = () => {
   const isVehicleCapacityValid = totalPassengers <= selectedVehicle.capacityPassengers;
   const isRoundTrip = tripType === 'Round Trip';
 
+  // Calculate real road distance route via Google Service whenever destination changes
+  useEffect(() => {
+    let isCancelled = false;
+    setIsLoadingRoute(true);
+    setRouteError(null);
+
+    calculateGoogleRoute(
+      { lat: AIRPORT_COORDINATES.lat, lng: AIRPORT_COORDINATES.lng, name: selectedAirport.name },
+      selectedDestination
+    )
+      .then((res) => {
+        if (!isCancelled) {
+          setRouteData(res);
+          setIsLoadingRoute(false);
+        }
+      })
+      .catch((err) => {
+        if (!isCancelled) {
+          console.error('Failed to compute Google Route:', err);
+          setRouteError('Unable to calculate the route. Please try selecting the destination again.');
+          setIsLoadingRoute(false);
+        }
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [selectedDestination, selectedAirport]);
+
   // Real road distance price calculation (Road Distance × Vehicle Rate + Base Fee)
+  const currentDistanceKm = routeData ? routeData.distanceKm : 150;
   const calculatedPrice = useMemo(() => {
-    return calculateRealRoadTransferPrice(selectedDestination.distanceKm, selectedVehicle, isRoundTrip);
-  }, [selectedDestination, selectedVehicle, isRoundTrip]);
+    return calculateRealRoadTransferPrice(currentDistanceKm, selectedVehicle, isRoundTrip);
+  }, [currentDistanceKm, selectedVehicle, isRoundTrip]);
 
   // Re-adjust vehicle if passengers exceed standard car capacity
   const handlePassengerChange = (type: 'adults' | 'children' | 'infants', delta: number) => {
@@ -93,12 +136,12 @@ export const AirportTransferPage: React.FC = () => {
       return;
     }
 
-    // Direct booking / checkout execution
+    // Direct booking / checkout execution with real Google Place data
     navigate('/checkout', {
       state: {
-        tourId: `transfer-${selectedAirport.code.toLowerCase()}-${selectedDestination.shortName.toLowerCase()}`,
-        tourTitle: `Private Airport Transfer: ${selectedAirport.code} Airport to ${selectedDestination.shortName}`,
-        tourImage: selectedDestination.heroImage,
+        tourId: `transfer-${selectedAirport.code.toLowerCase()}-${encodeURIComponent(selectedDestination.name.toLowerCase().replace(/\s+/g, '-'))}`,
+        tourTitle: `Private Airport Transfer: ${selectedAirport.code} Airport to ${selectedDestination.name}`,
+        tourImage: 'https://images.unsplash.com/photo-1588598198321-9735fd52455b?auto=format&fit=crop&w=800&q=80',
         durationDays: isRoundTrip ? 2 : 1,
         startDate: arrivalDate,
         flightNumber: flightNumber,
@@ -107,7 +150,7 @@ export const AirportTransferPage: React.FC = () => {
         children: children,
         airportPickup: true,
         totalAmount: calculatedPrice,
-        destinations: [selectedDestination.name],
+        destinations: [selectedDestination.name, selectedDestination.formattedAddress],
         vehicleType: selectedVehicle.name
       }
     });
@@ -131,7 +174,7 @@ export const AirportTransferPage: React.FC = () => {
           </p>
         </div>
 
-        {/* 2-Column Responsive Layout: Left Booking Details (5 Cols) & Right Map + Vehicle + Price Summary (7 Cols) */}
+        {/* 2-Column Responsive Layout: Left Booking Details (5 Cols) & Right Google Map + Vehicle + Price Summary (7 Cols) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
           
           {/* LEFT COLUMN: BOOKING DETAILS (Airport, Flight Details, Passengers) */}
@@ -354,25 +397,33 @@ export const AirportTransferPage: React.FC = () => {
 
           </div>
 
-          {/* RIGHT COLUMN: INTERACTIVE MAP + VEHICLE SELECTION + PRICE SUMMARY (7 Cols) */}
+          {/* RIGHT COLUMN: GOOGLE MAP + VEHICLE SELECTION + PRICE SUMMARY (7 Cols) */}
           <div className="lg:col-span-7 space-y-8">
             
-            {/* 4. DESTINATION MUST USE A MAP */}
+            {/* 4. GOOGLE MAP INTERACTIVE DESTINATION SEARCH */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-[#176B52] uppercase tracking-wider flex items-center gap-2">
                   <span className="w-5 h-5 rounded-full bg-[#DDEFE8] text-[#176B52] flex items-center justify-center text-[11px] font-bold">4</span>
-                  Where are you going? (Interactive Map)
+                  Interactive Google Map Destination Search
                 </span>
-                <span className="text-[11px] text-[#68736E]">Real Road Routing</span>
+                <span className="text-[11px] text-[#68736E]">Real Road Distance Routing</span>
               </div>
 
-              {/* Map Viewer Component */}
-              <TransferMapViewer
-                selectedAirport={selectedAirport}
+              {/* Google Map Selector Component */}
+              <GoogleMapDestinationSelector
                 selectedDestination={selectedDestination}
-                onSelectDestination={(dest) => setSelectedDestination(dest)}
+                routeData={routeData}
+                isLoadingRoute={isLoadingRoute}
+                onSelectPlace={(place) => setSelectedDestination(place)}
               />
+
+              {routeError && (
+                <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl flex items-center gap-2 text-xs text-rose-700">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{routeError}</span>
+                </div>
+              )}
             </div>
 
             {/* 5. VEHICLE SELECTION */}
@@ -389,7 +440,7 @@ export const AirportTransferPage: React.FC = () => {
                 {TRANSFER_VEHICLE_OPTIONS.map((veh) => {
                   const isCapacityOk = totalPassengers <= veh.capacityPassengers;
                   const isSelected = selectedVehicleId === veh.id;
-                  const itemPrice = calculateRealRoadTransferPrice(selectedDestination.distanceKm, veh, isRoundTrip);
+                  const itemPrice = calculateRealRoadTransferPrice(currentDistanceKm, veh, isRoundTrip);
 
                   return (
                     <div
@@ -432,7 +483,7 @@ export const AirportTransferPage: React.FC = () => {
                             <span className="text-xs text-[#68736E]">USD</span>
                           </div>
                           <span className="text-[10px] text-[#68736E] block">
-                            (${veh.ratePerKmUSD}/km &bull; {selectedDestination.distanceKm} km)
+                            (${veh.ratePerKmUSD}/km &bull; {currentDistanceKm} km Google Route)
                           </span>
 
                           {!isCapacityOk ? (
@@ -473,7 +524,14 @@ export const AirportTransferPage: React.FC = () => {
               <div className="flex items-center justify-between border-b border-white/15 pb-4">
                 <div>
                   <span className="text-[10px] text-[#39A982] uppercase font-bold tracking-wider block">TRANSFER SUMMARY</span>
-                  <span className="font-serif text-3xl font-bold">${calculatedPrice} <span className="text-xs font-sans font-normal text-stone-300">USD</span></span>
+                  {isLoadingRoute ? (
+                    <div className="flex items-center gap-2 mt-1">
+                      <Loader2 className="w-5 h-5 text-[#39A982] animate-spin" />
+                      <span className="text-xs text-stone-300">Calculating transfer price...</span>
+                    </div>
+                  ) : (
+                    <span className="font-serif text-3xl font-bold">${calculatedPrice} <span className="text-xs font-sans font-normal text-stone-300">USD</span></span>
+                  )}
                 </div>
                 <span className="px-3 py-1 rounded-full text-xs font-semibold bg-white/15 text-[#DDEFE8] border border-white/20">
                   {tripType === 'Round Trip' ? 'Round Trip' : 'One Way'}
@@ -495,15 +553,19 @@ export const AirportTransferPage: React.FC = () => {
                 </div>
                 <div className="flex justify-between">
                   <span>Destination:</span>
-                  <span className="font-semibold text-white">{selectedDestination.name}</span>
+                  <span className="font-semibold text-white truncate max-w-[160px]">{selectedDestination.name}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Distance:</span>
-                  <span className="font-semibold text-[#39A982]">{selectedDestination.distanceKm} km (Real Road)</span>
+                  <span className="font-semibold text-[#39A982]">
+                    {isLoadingRoute ? 'Calculating...' : `${currentDistanceKm} km (Real Google Road)`}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span>Estimated Drive:</span>
-                  <span className="font-semibold text-white">{selectedDestination.estimatedHours}</span>
+                  <span className="font-semibold text-white">
+                    {isLoadingRoute ? 'Calculating...' : (routeData?.durationText || '3.5 hours')}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span>Passengers:</span>
@@ -518,9 +580,9 @@ export const AirportTransferPage: React.FC = () => {
               {/* Main Action: Book Transfer */}
               <button
                 onClick={handleBookTransfer}
-                disabled={!isVehicleCapacityValid}
+                disabled={!isVehicleCapacityValid || isLoadingRoute}
                 className={`w-full py-4 rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-md ${
-                  !isVehicleCapacityValid
+                  !isVehicleCapacityValid || isLoadingRoute
                     ? 'bg-stone-500 text-stone-300 cursor-not-allowed'
                     : 'bg-[#39A982] hover:bg-[#176B52] text-white hover:shadow-lg transform hover:-translate-y-0.5'
                 }`}
