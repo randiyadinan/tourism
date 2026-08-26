@@ -33,7 +33,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
   const googleMapInstanceRef = useRef<any>(null);
   const directionsRendererRef = useRef<any>(null);
 
-  // Initialize Google Maps SDK and Autocomplete
+  // Initialize Google Maps JavaScript API and Autocomplete
   useEffect(() => {
     let isMounted = true;
 
@@ -44,7 +44,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
         try {
           setIsGoogleSdkReady(true);
 
-          // Initialize Map
+          // Initialize Google Map
           const map = new googleObj.maps.Map(mapContainerRef.current, {
             center: { lat: selectedDestination.lat || 7.5, lng: selectedDestination.lng || 80.5 },
             zoom: 9,
@@ -84,7 +84,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
 
           googleMapInstanceRef.current = map;
 
-          // Directions Renderer
+          // Directions Renderer for real road driving routes
           const directionsRenderer = new googleObj.maps.DirectionsRenderer({
             map: map,
             suppressMarkers: false,
@@ -96,7 +96,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
           });
           directionsRendererRef.current = directionsRenderer;
 
-          // Google Places Autocomplete on the input (Unrestricted search across Sri Lanka)
+          // Google Places Autocomplete (Unrestricted for any hotel, attraction, street or city)
           if (searchBoxRef.current && googleObj.maps.places) {
             const autocomplete = new googleObj.maps.places.Autocomplete(searchBoxRef.current, {
               componentRestrictions: { country: 'lk' },
@@ -120,7 +120,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
             });
           }
         } catch (err: any) {
-          console.warn('Could not initialize Google Map JS SDK:', err);
+          console.warn('Google Map JS SDK init:', err);
         }
       }
     });
@@ -139,7 +139,6 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
       if (routeData?.routeGeometry && directionsRendererRef.current) {
         directionsRendererRef.current.setDirections(routeData.routeGeometry);
       } else {
-        // Center on destination
         const destLatLng = new g.maps.LatLng(selectedDestination.lat, selectedDestination.lng);
         const airportLatLng = new g.maps.LatLng(AIRPORT_COORDINATES.lat, AIRPORT_COORDINATES.lng);
 
@@ -151,7 +150,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
     }
   }, [selectedDestination, routeData, isGoogleSdkReady]);
 
-  // Live Unrestricted Places Search as customer types
+  // Live Places Search as customer types
   useEffect(() => {
     let active = true;
     if (!searchQuery || searchQuery.trim().length < 2) {
@@ -207,15 +206,16 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
   return (
     <div className="bg-white rounded-3xl border border-stone-200/90 shadow-[0_10px_35px_-10px_rgba(6,44,34,0.08)] overflow-hidden space-y-0">
       
-      {/* 1. Google Places Search Bar (Unrestricted for any Sri Lanka address, hotel, attraction or street) */}
+      {/* 1. Google Places Search Bar */}
       <div className="p-4 sm:p-5 bg-white border-b border-stone-100 relative z-30" ref={searchContainerRef}>
-        <label className="text-xs font-bold text-[#176B52] uppercase tracking-wider block mb-2">
+        <label htmlFor="destination-search-input" className="text-xs font-bold text-[#176B52] uppercase tracking-wider block mb-2">
           Where are you going?
         </label>
 
         <div className="relative">
-          <Search className="w-4 h-4 text-[#176B52] absolute left-4 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-[#176B52] absolute left-4 top-1/2 -translate-y-1/2" aria-hidden="true" />
           <input
+            id="destination-search-input"
             ref={searchBoxRef}
             type="text"
             value={searchQuery}
@@ -232,21 +232,24 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
                 handleExplicitSearch();
               }
             }}
-            placeholder="Search any place, hotel, attraction or address in Sri Lanka..."
+            placeholder="Search any place, hotel, attraction or address in Sri Lanka (e.g. Shangri-La Colombo, Sigiriya, Ella)..."
             className="w-full pl-11 pr-24 py-3.5 bg-[#F8F7F2] border border-stone-300 rounded-2xl text-xs sm:text-sm font-semibold text-[#17231F] placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#176B52] shadow-2xs"
+            aria-label="Search destination location using Google Maps Places"
           />
 
           <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
             {isSearchingPlaces && (
-              <Loader2 className="w-4 h-4 text-[#176B52] animate-spin" />
+              <Loader2 className="w-4 h-4 text-[#176B52] animate-spin" aria-label="Searching Google Places" />
             )}
             {searchQuery && (
               <button
+                type="button"
                 onClick={() => {
                   setSearchQuery('');
                   setSuggestions([]);
                 }}
-                className="text-stone-400 hover:text-stone-700 p-1"
+                className="text-stone-400 hover:text-stone-700 p-1 rounded-lg"
+                aria-label="Clear destination search input"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -254,7 +257,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
           </div>
         </div>
 
-        {/* Live Suggestions Panel in Liquid Glass (Unrestricted) */}
+        {/* Suggestions Panel in Liquid Glass */}
         {showSuggestions && (
           <div className="absolute left-4 right-4 mt-2 bg-white/95 backdrop-blur-2xl border border-stone-200 rounded-2xl shadow-2xl py-2 max-h-80 overflow-y-auto animate-fadeIn z-50">
             <div className="px-3.5 py-1.5 text-[10px] font-bold text-[#176B52] uppercase tracking-wider border-b border-stone-100 flex items-center justify-between">
@@ -266,6 +269,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
               <div className="p-4 text-center text-xs text-[#68736E] space-y-2">
                 <p>No direct match for "{searchQuery}".</p>
                 <button
+                  type="button"
                   onClick={handleExplicitSearch}
                   className="px-4 py-1.5 rounded-xl bg-[#0B3D2E] text-white text-xs font-semibold hover:bg-[#176B52]"
                 >
@@ -331,7 +335,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
         {isLoadingRoute && (
           <div className="absolute inset-0 bg-white/75 backdrop-blur-xs flex flex-col items-center justify-center gap-2 z-30 animate-fadeIn">
             <Loader2 className="w-8 h-8 text-[#176B52] animate-spin" />
-            <span className="text-xs font-bold text-[#0B3D2E]">Calculating road route & distance...</span>
+            <span className="text-xs font-bold text-[#0B3D2E]">Calculating driving route & distance...</span>
           </div>
         )}
 
@@ -344,7 +348,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
                 BANDARANAIKE (CMB) &rarr; {selectedDestination.name.split(',')[0].toUpperCase()}
               </span>
               <span className="text-[10px] font-bold text-[#0B3D2E] bg-[#DDEFE8] px-2 py-0.5 rounded-full">
-                {routeData.isLiveGoogleRoute ? 'Live Road Route' : 'Verified Route'}
+                {routeData.isLiveGoogleRoute ? 'Live Google Route' : 'Expressway Verified'}
               </span>
             </div>
 
@@ -375,6 +379,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
         </div>
 
         <button
+          type="button"
           onClick={() => {
             if (searchBoxRef.current) {
               searchBoxRef.current.focus();

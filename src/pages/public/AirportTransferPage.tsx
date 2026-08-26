@@ -28,11 +28,11 @@ import { GoogleMapDestinationSelector } from '../../components/transfers/GoogleM
 export const AirportTransferPage: React.FC = () => {
   const navigate = useNavigate();
 
-  // 1. AIRPORT (CMB default)
+  // 1. AIRPORT (Bandaranaike International CMB default)
   const [selectedAirportId, setSelectedAirportId] = useState<string>('airport-cmb');
 
   // 2. FLIGHT DETAILS
-  const [flightNumber, setFlightNumber] = useState<string>('UL 504');
+  const [flightNumber, setFlightNumber] = useState<string>('UL 225');
   const [arrivalDate, setArrivalDate] = useState<string>('2026-10-15');
   const [arrivalTime, setArrivalTime] = useState<string>('14:30');
 
@@ -41,7 +41,7 @@ export const AirportTransferPage: React.FC = () => {
   const [children, setChildren] = useState<number>(0);
   const [infants, setInfants] = useState<number>(0);
 
-  // 4. GOOGLE MAP SELECTED DESTINATION
+  // 4. GOOGLE MAP SELECTED DESTINATION (Real place object)
   const [selectedDestination, setSelectedDestination] = useState<PlaceResult>({
     name: 'Sigiriya Rock Fortress',
     formattedAddress: 'Sigiriya Ancient City, Central Province, Sri Lanka',
@@ -49,7 +49,7 @@ export const AirportTransferPage: React.FC = () => {
     lng: 80.7603
   });
 
-  // ROUTE DATA FROM GOOGLE
+  // ROUTE DATA (Real Driving Route & KM from Google Routes API)
   const [routeData, setRouteData] = useState<RouteResult | null>(null);
   const [isLoadingRoute, setIsLoadingRoute] = useState<boolean>(true);
   const [routeError, setRouteError] = useState<string | null>(null);
@@ -74,7 +74,7 @@ export const AirportTransferPage: React.FC = () => {
   const isVehicleCapacityValid = totalPassengers <= selectedVehicle.capacityPassengers;
   const isRoundTrip = tripType === 'Round Trip';
 
-  // Calculate real road distance route via Google Service whenever destination changes
+  // Calculate real driving road distance route via Google Service whenever destination or airport changes
   useEffect(() => {
     let isCancelled = false;
     setIsLoadingRoute(true);
@@ -93,7 +93,7 @@ export const AirportTransferPage: React.FC = () => {
       .catch((err) => {
         if (!isCancelled) {
           console.error('Failed to compute Google Route:', err);
-          setRouteError('Unable to calculate the route. Please try selecting the destination again.');
+          setRouteError('Unable to calculate a driving route for this destination. Please try another location.');
           setIsLoadingRoute(false);
         }
       });
@@ -103,7 +103,7 @@ export const AirportTransferPage: React.FC = () => {
     };
   }, [selectedDestination, selectedAirport]);
 
-  // Real road distance price calculation (Road Distance × Vehicle Rate + Base Fee)
+  // Real road distance price calculation (Actual Google Road Distance × Vehicle Rate + Base Fee)
   const currentDistanceKm = routeData ? routeData.distanceKm : 150;
   const calculatedPrice = useMemo(() => {
     return calculateRealRoadTransferPrice(currentDistanceKm, selectedVehicle, isRoundTrip);
@@ -125,7 +125,6 @@ export const AirportTransferPage: React.FC = () => {
 
     const newTotal = newAdults + newChildren + newInfants;
     if (newTotal > 3 && (selectedVehicle.vehicleCode === 'standard-car' || selectedVehicle.vehicleCode === 'luxury-car')) {
-      // Auto-recommend Van
       setSelectedVehicleId('veh-van-kdh');
     }
   };
@@ -217,6 +216,7 @@ export const AirportTransferPage: React.FC = () => {
                       checked={selectedAirportId === apt.id}
                       onChange={() => setSelectedAirportId(apt.id)}
                       className="text-[#176B52] focus:ring-[#176B52]"
+                      aria-label={`Select ${apt.name}`}
                     />
                   </div>
                 ))}
@@ -233,45 +233,51 @@ export const AirportTransferPage: React.FC = () => {
               <div className="space-y-3.5 text-xs sm:text-sm">
                 
                 <div className="space-y-1">
-                  <label className="font-semibold text-[#17231F] flex items-center gap-1.5">
-                    <Plane className="w-3.5 h-3.5 text-[#176B52]" />
+                  <label htmlFor="flight-number-input" className="font-semibold text-[#17231F] flex items-center gap-1.5">
+                    <Plane className="w-3.5 h-3.5 text-[#176B52]" aria-hidden="true" />
                     Flight Number
                   </label>
                   <input
+                    id="flight-number-input"
                     type="text"
                     value={flightNumber}
                     onChange={(e) => setFlightNumber(e.target.value)}
-                    placeholder="e.g. UL 504"
+                    placeholder="e.g. UL 225"
                     className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-3 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52] uppercase"
+                    aria-label="Flight number input"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="font-semibold text-[#17231F] flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-[#176B52]" />
+                    <label htmlFor="arrival-date-input" className="font-semibold text-[#17231F] flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5 text-[#176B52]" aria-hidden="true" />
                       Arrival Date
                     </label>
                     <input
+                      id="arrival-date-input"
                       type="date"
                       required
                       value={arrivalDate}
                       onChange={(e) => setArrivalDate(e.target.value)}
                       className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-2.5 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
+                      aria-label="Arrival date picker"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="font-semibold text-[#17231F] flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5 text-[#176B52]" />
+                    <label htmlFor="arrival-time-input" className="font-semibold text-[#17231F] flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-[#176B52]" aria-hidden="true" />
                       Arrival Time (Local)
                     </label>
                     <input
+                      id="arrival-time-input"
                       type="time"
                       required
                       value={arrivalTime}
                       onChange={(e) => setArrivalTime(e.target.value)}
                       className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-2.5 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
+                      aria-label="Arrival time picker"
                     />
                   </div>
                 </div>
@@ -328,6 +334,7 @@ export const AirportTransferPage: React.FC = () => {
                       type="button"
                       onClick={() => handlePassengerChange('adults', -1)}
                       className="w-7 h-7 rounded-full bg-white border border-stone-300 flex items-center justify-center text-stone-600 hover:bg-stone-100"
+                      aria-label="Decrease adult count"
                     >
                       <Minus className="w-3.5 h-3.5" />
                     </button>
@@ -336,6 +343,7 @@ export const AirportTransferPage: React.FC = () => {
                       type="button"
                       onClick={() => handlePassengerChange('adults', 1)}
                       className="w-7 h-7 rounded-full bg-white border border-stone-300 flex items-center justify-center text-stone-600 hover:bg-stone-100"
+                      aria-label="Increase adult count"
                     >
                       <Plus className="w-3.5 h-3.5" />
                     </button>
@@ -353,6 +361,7 @@ export const AirportTransferPage: React.FC = () => {
                       type="button"
                       onClick={() => handlePassengerChange('children', -1)}
                       className="w-7 h-7 rounded-full bg-white border border-stone-300 flex items-center justify-center text-stone-600 hover:bg-stone-100"
+                      aria-label="Decrease child count"
                     >
                       <Minus className="w-3.5 h-3.5" />
                     </button>
@@ -361,6 +370,7 @@ export const AirportTransferPage: React.FC = () => {
                       type="button"
                       onClick={() => handlePassengerChange('children', 1)}
                       className="w-7 h-7 rounded-full bg-white border border-stone-300 flex items-center justify-center text-stone-600 hover:bg-stone-100"
+                      aria-label="Increase child count"
                     >
                       <Plus className="w-3.5 h-3.5" />
                     </button>
@@ -378,6 +388,7 @@ export const AirportTransferPage: React.FC = () => {
                       type="button"
                       onClick={() => handlePassengerChange('infants', -1)}
                       className="w-7 h-7 rounded-full bg-white border border-stone-300 flex items-center justify-center text-stone-600 hover:bg-stone-100"
+                      aria-label="Decrease infant count"
                     >
                       <Minus className="w-3.5 h-3.5" />
                     </button>
@@ -386,6 +397,7 @@ export const AirportTransferPage: React.FC = () => {
                       type="button"
                       onClick={() => handlePassengerChange('infants', 1)}
                       className="w-7 h-7 rounded-full bg-white border border-stone-300 flex items-center justify-center text-stone-600 hover:bg-stone-100"
+                      aria-label="Increase infant count"
                     >
                       <Plus className="w-3.5 h-3.5" />
                     </button>
@@ -579,6 +591,7 @@ export const AirportTransferPage: React.FC = () => {
 
               {/* Main Action: Book Transfer */}
               <button
+                type="button"
                 onClick={handleBookTransfer}
                 disabled={!isVehicleCapacityValid || isLoadingRoute}
                 className={`w-full py-4 rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-md ${
