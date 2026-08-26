@@ -28,7 +28,7 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({ destination })
   };
 
   return (
-    <div className="group relative bg-white rounded-3xl overflow-hidden shadow-[0_4px_20px_-4px_rgba(7,94,99,0.08)] hover:shadow-[0_20px_40px_-10px_rgba(7,94,99,0.18)] transition-all duration-300 flex flex-col justify-between h-[360px] border border-stone-200/70 transform hover:-translate-y-1">
+    <div className="group relative bg-white rounded-3xl overflow-hidden shadow-[0_4px_20px_-4px_rgba(6,44,34,0.08)] hover:shadow-[0_20px_40px_-10px_rgba(6,44,34,0.18)] transition-all duration-300 flex flex-col justify-between h-[360px] border border-stone-200/70 transform hover:-translate-y-1">
       {/* Background Image */}
       <img
         src={destination.heroImage}
@@ -37,12 +37,12 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({ destination })
         loading="lazy"
       />
       
-      {/* Ocean Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[#075E63]/92 via-[#075E63]/30 to-transparent" />
+      {/* Deep Forest Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#062C22]/92 via-[#062C22]/30 to-transparent" />
 
       {/* Top Details */}
       <div className="relative z-10 p-5 flex items-center justify-between">
-        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-white/85 backdrop-blur-md text-[#075E63] shadow-xs border border-white/60">
+        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-white/85 backdrop-blur-md text-[#0B3D2E] shadow-xs border border-white/60">
           {destination.province}
         </span>
 
@@ -51,8 +51,8 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({ destination })
           onClick={handleWishlistToggle}
           className={`p-2.5 rounded-full backdrop-blur-md transition-colors shadow-xs ${
             isSaved 
-              ? 'bg-[#E98B6B] text-white' 
-              : 'bg-black/30 text-white hover:bg-white hover:text-[#E98B6B]'
+              ? 'bg-[#39A982] text-white' 
+              : 'bg-black/30 text-white hover:bg-white hover:text-[#176B52]'
           }`}
           title={isSaved ? 'Remove from Saved' : 'Save to Wishlist'}
           aria-label="Save to Wishlist"
@@ -63,13 +63,13 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({ destination })
 
       {/* Bottom Content on Image */}
       <div className="relative z-10 p-6 space-y-2 text-white">
-        <div className="flex items-center gap-1 text-[#E98B6B] text-xs font-semibold">
+        <div className="flex items-center gap-1 text-[#39A982] text-xs font-semibold">
           <Star className="w-3.5 h-3.5 fill-current" />
           <span>{destination.rating.toFixed(1)}</span>
           <span className="text-stone-200 font-normal">({destination.recommendedDuration})</span>
         </div>
 
-        <h3 className="font-serif text-2xl font-normal leading-tight drop-shadow-xs">
+        <h3 className="font-serif text-2xl font-bold leading-tight drop-shadow-xs">
           {destination.name}
         </h3>
 
@@ -78,12 +78,12 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({ destination })
         </p>
 
         <div className="pt-2 flex items-center justify-between">
-          <span className="text-xs font-medium text-[#DDF5F0]">
+          <span className="text-xs font-medium text-[#DDEFE8]">
             {destination.popularActivities.length} Island Highlights
           </span>
           <Link
             to={`/destinations/${destination.slug}`}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/20 hover:bg-white text-white hover:text-[#075E63] text-xs font-semibold backdrop-blur-md transition-colors border border-white/30"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/20 hover:bg-white text-white hover:text-[#0B3D2E] text-xs font-semibold backdrop-blur-md transition-colors border border-white/30"
           >
             <span>Explore</span>
             <ArrowRight className="w-3.5 h-3.5" />

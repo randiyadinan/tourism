@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import { 
+  Sparkles, 
   ArrowRight, 
   ArrowLeft, 
   Check
@@ -211,15 +212,16 @@ export const CustomTripPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#F6F1E7] min-h-screen py-10 sm:py-14">
+    <div className="bg-[#F8F7F2] min-h-screen py-10 sm:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
         {/* Header Title */}
         <div className="text-center max-w-2xl mx-auto space-y-2.5">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-[#0B7A75] border border-stone-200 text-xs font-semibold uppercase tracking-wider shadow-2xs">
-            <span>BESPOKE HOLIDAY DESIGNER</span>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-[#176B52] border border-stone-200 text-xs font-semibold uppercase tracking-wider shadow-2xs">
+            <Sparkles className="w-3.5 h-3.5 text-[#39A982]" />
+            <span>Bespoke Holiday Designer</span>
           </div>
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal text-[#173238]">
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#17231F]">
             Design Your Tailor-Made Journey
           </h1>
           <p className="text-sm sm:text-base text-[#68736E]">
@@ -228,7 +230,7 @@ export const CustomTripPage: React.FC = () => {
         </div>
 
         {/* 8-Step Stepper Bar in Liquid Glass */}
-        <div className="bg-[#FCFEFD]/85 backdrop-blur-xl p-4 rounded-2xl border border-white/80 shadow-[0_4px_20px_-4px_rgba(7,94,99,0.06)] overflow-x-auto">
+        <div className="bg-white/85 backdrop-blur-xl p-4 rounded-2xl border border-white/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.06)] overflow-x-auto">
           <div className="flex items-center justify-between min-w-[620px] gap-2">
             {stepsList.map((st) => {
               const isPast = st.num < currentStep;
@@ -240,7 +242,7 @@ export const CustomTripPage: React.FC = () => {
                   onClick={() => setCurrentStep(st.num)}
                   className={`flex items-center gap-2 cursor-pointer transition-colors ${
                     isCurrent 
-                      ? 'text-[#075E63] font-bold' 
+                      ? 'text-[#0B3D2E] font-bold' 
                       : isPast 
                         ? 'text-stone-700 font-medium' 
                         : 'text-stone-400 opacity-60'
@@ -248,9 +250,9 @@ export const CustomTripPage: React.FC = () => {
                 >
                   <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                     isCurrent 
-                      ? 'bg-[#075E63] text-white shadow-xs' 
+                      ? 'bg-[#0B3D2E] text-white shadow-xs' 
                       : isPast 
-                        ? 'bg-[#DDF5F0] text-[#075E63]' 
+                        ? 'bg-[#DDEFE8] text-[#176B52]' 
                         : 'bg-stone-100 text-stone-500'
                   }`}>
                     {isPast ? <Check className="w-3.5 h-3.5" /> : st.num}
@@ -266,7 +268,7 @@ export const CustomTripPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           {/* Left Column: Active Step (8 Cols) */}
-          <div className="lg:col-span-8 bg-white rounded-3xl p-6 sm:p-8 border border-stone-200/80 shadow-[0_4px_20px_-4px_rgba(7,94,99,0.05)] space-y-8 min-h-[480px] flex flex-col justify-between">
+          <div className="lg:col-span-8 bg-white rounded-3xl p-6 sm:p-8 border border-stone-200/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.05)] space-y-8 min-h-[480px] flex flex-col justify-between">
             
             {/* Step Components Render */}
             <div>
@@ -282,62 +284,62 @@ export const CustomTripPage: React.FC = () => {
               {currentStep === 8 && (
                 <form onSubmit={handleFinalBooking} className="space-y-5 text-xs sm:text-sm">
                   <div>
-                    <h2 className="font-serif text-xl sm:text-2xl font-bold text-[#173238]">Lead Traveler Details & Confirmation</h2>
+                    <h2 className="font-serif text-xl sm:text-2xl font-bold text-[#17231F]">Lead Traveler Details & Confirmation</h2>
                     <p className="text-xs text-[#68736E] mt-1">Enter your contact details to finalize the custom trip and generate your travel voucher.</p>
                   </div>
 
                   <div className="space-y-3.5">
                     <div className="space-y-1">
-                      <label className="font-semibold text-[#173238]">Full Legal Name (as on Passport) *</label>
+                      <label className="font-semibold text-[#17231F]">Full Legal Name (as on Passport) *</label>
                       <input
                         type="text"
                         required
                         value={contactName}
                         onChange={(e) => setContactName(e.target.value)}
                         placeholder="e.g. Eleanor Vance"
-                        className="w-full bg-[#F6F1E7] border border-stone-300 rounded-xl p-2.5 font-medium text-[#173238] focus:outline-none focus:ring-2 focus:ring-[#0B7A75]"
+                        className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-2.5 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
                       />
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                       <div className="space-y-1">
-                        <label className="font-semibold text-[#173238]">Email Address *</label>
+                        <label className="font-semibold text-[#17231F]">Email Address *</label>
                         <input
                           type="email"
                           required
                           value={contactEmail}
                           onChange={(e) => setContactEmail(e.target.value)}
                           placeholder="eleanor@example.com"
-                          className="w-full bg-[#F6F1E7] border border-stone-300 rounded-xl p-2.5 font-medium text-[#173238] focus:outline-none focus:ring-2 focus:ring-[#0B7A75]"
+                          className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-2.5 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="font-semibold text-[#173238]">Phone / WhatsApp *</label>
+                        <label className="font-semibold text-[#17231F]">Phone / WhatsApp *</label>
                         <input
                           type="tel"
                           required
                           value={contactPhone}
                           onChange={(e) => setContactPhone(e.target.value)}
                           placeholder="+44 7911 123456"
-                          className="w-full bg-[#F6F1E7] border border-stone-300 rounded-xl p-2.5 font-medium text-[#173238] focus:outline-none focus:ring-2 focus:ring-[#0B7A75]"
+                          className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-2.5 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
                         />
                       </div>
                     </div>
 
                     <div className="space-y-1">
-                      <label className="font-semibold text-[#173238]">Country of Residence</label>
+                      <label className="font-semibold text-[#17231F]">Country of Residence</label>
                       <input
                         type="text"
                         value={contactCountry}
                         onChange={(e) => setContactCountry(e.target.value)}
                         placeholder="United Kingdom"
-                        className="w-full bg-[#F6F1E7] border border-stone-300 rounded-xl p-2.5 font-medium text-[#173238] focus:outline-none focus:ring-2 focus:ring-[#0B7A75]"
+                        className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-2.5 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
                       />
                     </div>
 
                     {/* Payment Method Selector */}
                     <div className="space-y-1.5 pt-2">
-                      <label className="font-semibold text-[#173238] block">Select Payment Method</label>
+                      <label className="font-semibold text-[#17231F] block">Select Payment Method</label>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                         {[
                           { id: 'PayHere Online Card', label: 'Credit / Debit Card (PayHere)' },
@@ -348,8 +350,8 @@ export const CustomTripPage: React.FC = () => {
                             key={m.id}
                             className={`p-3 rounded-xl border flex items-center gap-2 cursor-pointer transition-colors ${
                               paymentMethod === m.id
-                                ? 'bg-[#DDF5F0] border-[#0B7A75] text-[#075E63] font-semibold'
-                                : 'bg-[#F6F1E7] border-stone-200 text-stone-600'
+                                ? 'bg-[#DDEFE8] border-[#176B52] text-[#0B3D2E] font-semibold'
+                                : 'bg-[#F8F7F2] border-stone-200 text-stone-600'
                             }`}
                           >
                             <input
@@ -357,7 +359,7 @@ export const CustomTripPage: React.FC = () => {
                               name="paymentMethod"
                               checked={paymentMethod === m.id}
                               onChange={() => setPaymentMethod(m.id as any)}
-                              className="text-[#0B7A75] focus:ring-[#0B7A75]"
+                              className="text-[#176B52] focus:ring-[#176B52]"
                             />
                             <span className="text-xs">{m.label}</span>
                           </label>
@@ -369,14 +371,14 @@ export const CustomTripPage: React.FC = () => {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full py-3.5 px-4 bg-[#075E63] hover:bg-[#0B7A75] text-white font-semibold text-xs sm:text-sm rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 border border-white/20"
+                    className="w-full py-3.5 px-4 bg-[#0B3D2E] hover:bg-[#176B52] text-white font-semibold text-xs sm:text-sm rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2 border border-white/20"
                   >
                     {isSubmitting ? (
                       <span>Submitting Custom Itinerary...</span>
                     ) : (
                       <>
                         <span>Submit Booking & Reserve Itinerary</span>
-                        <ArrowRight className="w-4 h-4 text-[#DDF5F0]" />
+                        <ArrowRight className="w-4 h-4 text-[#DDEFE8]" />
                       </>
                     )}
                   </button>
@@ -404,10 +406,10 @@ export const CustomTripPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleNext}
-                  className="flex items-center gap-1.5 text-xs font-semibold px-5 py-2 rounded-xl bg-[#075E63] text-white hover:bg-[#0B7A75] shadow-xs transition-colors"
+                  className="flex items-center gap-1.5 text-xs font-semibold px-5 py-2 rounded-xl bg-[#0B3D2E] text-white hover:bg-[#176B52] shadow-xs transition-colors"
                 >
                   <span>{currentStep === 7 ? 'Proceed to Confirmation' : 'Continue'}</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-[#DDF5F0]" />
+                  <ArrowRight className="w-3.5 h-3.5 text-[#DDEFE8]" />
                 </button>
               </div>
             )}

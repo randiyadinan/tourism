@@ -14,24 +14,24 @@ export const Newsletter: React.FC = () => {
   };
 
   return (
-    <section className="py-16 sm:py-20 bg-[#0B7A75] text-white">
+    <section className="py-16 sm:py-20 bg-[#0B3D2E] text-white">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
         
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-[#DDF5F0] text-xs font-semibold uppercase tracking-wider border border-white/15">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-[#DDEFE8] text-xs font-semibold uppercase tracking-wider border border-white/15">
           <span>CURATED CEYLON DISPATCH</span>
         </div>
 
-        <h2 className="font-serif text-3xl sm:text-4xl font-normal">
+        <h2 className="font-serif text-3xl sm:text-4xl font-bold">
           Receive Seasonal Sri Lanka Travel Inspiration
         </h2>
 
-        <p className="text-sm sm:text-base text-stone-100 max-w-lg mx-auto leading-relaxed">
+        <p className="text-sm sm:text-base text-stone-200 max-w-lg mx-auto leading-relaxed">
           Get occasional insider destination guides, wildlife migration updates, and bespoke holiday ideas.
         </p>
 
         {subscribed ? (
-          <div className="bg-[#075E63] border border-white/20 p-4 rounded-2xl max-w-md mx-auto flex items-center justify-center gap-2 text-white text-sm font-medium">
-            <CheckCircle2 className="w-4 h-4 text-[#55C7C1]" />
+          <div className="bg-[#062C22] border border-white/20 p-4 rounded-2xl max-w-md mx-auto flex items-center justify-center gap-2 text-white text-sm font-medium">
+            <CheckCircle2 className="w-4 h-4 text-[#39A982]" />
             <span>Thank you for subscribing to LankaVoyage dispatches.</span>
           </div>
         ) : (
@@ -44,20 +44,20 @@ export const Newsletter: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email address..."
-                className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white text-[#173238] placeholder-stone-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#075E63] shadow-xs"
+                className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white text-[#17231F] placeholder-stone-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#176B52] shadow-xs"
               />
             </div>
             <button
               type="submit"
-              className="px-6 py-3 bg-[#075E63] hover:bg-[#054347] text-white font-semibold text-xs sm:text-sm rounded-2xl transition-colors flex items-center justify-center gap-1.5 shrink-0 shadow-sm border border-white/10"
+              className="px-6 py-3 bg-[#176B52] hover:bg-[#062C22] text-white font-semibold text-xs sm:text-sm rounded-2xl transition-colors flex items-center justify-center gap-1.5 shrink-0 shadow-sm border border-white/10"
             >
               <span>Subscribe</span>
-              <ArrowRight className="w-3.5 h-3.5 text-[#DDF5F0]" />
+              <ArrowRight className="w-3.5 h-3.5 text-[#DDEFE8]" />
             </button>
           </form>
         )}
 
-        <p className="text-[11px] text-stone-200">
+        <p className="text-[11px] text-stone-300">
           We respect your privacy. Unsubscribe at any time with one click.
         </p>
       </div>

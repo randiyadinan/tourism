@@ -259,10 +259,10 @@ export const CheckoutPage: React.FC = () => {
   // ─── VERIFICATION STATES ─────────────────────────────
   if (verifyingPayment) {
     return (
-      <div className="bg-[#F6F1E7] min-h-screen py-20 flex items-center justify-center">
+      <div className="bg-[#F8F7F2] min-h-screen py-20 flex items-center justify-center">
         <div className="bg-white p-8 rounded-3xl border border-stone-200 shadow-xl max-w-md w-full text-center space-y-4">
-          <div className="w-12 h-12 rounded-full border-4 border-[#0B7A75] border-t-transparent animate-spin mx-auto" />
-          <h2 className="font-serif text-2xl font-bold text-[#173238]">Verifying Payment...</h2>
+          <div className="w-12 h-12 rounded-full border-4 border-[#176B52] border-t-transparent animate-spin mx-auto" />
+          <h2 className="font-serif text-2xl font-bold text-[#17231F]">Verifying Payment...</h2>
           <p className="text-xs text-[#68736E]">
             Please wait while we confirm your PayHere transaction.
           </p>
@@ -273,16 +273,16 @@ export const CheckoutPage: React.FC = () => {
 
   if (verificationPending) {
     return (
-      <div className="bg-[#F6F1E7] min-h-screen py-20 flex items-center justify-center">
+      <div className="bg-[#F8F7F2] min-h-screen py-20 flex items-center justify-center">
         <div className="bg-white p-8 rounded-3xl border border-stone-200 shadow-xl max-w-md w-full text-center space-y-4">
-          <Clock className="w-12 h-12 text-[#E98B6B] mx-auto" />
-          <h2 className="font-serif text-2xl font-bold text-[#173238]">Payment Verification Pending</h2>
+          <Clock className="w-12 h-12 text-amber-500 mx-auto" />
+          <h2 className="font-serif text-2xl font-bold text-[#17231F]">Payment Verification Pending</h2>
           <p className="text-xs text-[#68736E] leading-relaxed">
-            Your transaction for booking <span className="font-bold text-[#173238]">{verifiedBookingCode}</span> has been received and is awaiting gateway settlement.
+            Your transaction for booking <span className="font-bold text-[#17231F]">{verifiedBookingCode}</span> has been received and is awaiting gateway settlement.
           </p>
           <Link
             to="/customer/bookings"
-            className="inline-block px-6 py-2.5 rounded-xl bg-[#075E63] text-white text-xs font-semibold"
+            className="inline-block px-6 py-2.5 rounded-xl bg-[#0B3D2E] text-white text-xs font-semibold"
           >
             Go to My Bookings
           </Link>
@@ -293,16 +293,16 @@ export const CheckoutPage: React.FC = () => {
 
   if (verifiedBookingCode && !verificationPending) {
     return (
-      <div className="bg-[#F6F1E7] min-h-screen py-20 flex items-center justify-center">
+      <div className="bg-[#F8F7F2] min-h-screen py-20 flex items-center justify-center">
         <div className="bg-white p-8 rounded-3xl border border-stone-200 shadow-xl max-w-md w-full text-center space-y-4">
-          <CheckCircle2 className="w-12 h-12 text-[#0B7A75] mx-auto" />
-          <h2 className="font-serif text-2xl font-bold text-[#173238]">Payment Successful!</h2>
+          <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto" />
+          <h2 className="font-serif text-2xl font-bold text-[#17231F]">Payment Successful!</h2>
           <p className="text-xs text-[#68736E] leading-relaxed">
-            Booking reference <span className="font-bold text-[#173238]">{verifiedBookingCode}</span> is confirmed.
+            Booking reference <span className="font-bold text-[#17231F]">{verifiedBookingCode}</span> is confirmed.
           </p>
           <Link
             to="/customer/bookings"
-            className="inline-block px-6 py-2.5 rounded-xl bg-[#075E63] text-white text-xs font-semibold shadow-xs"
+            className="inline-block px-6 py-2.5 rounded-xl bg-[#0B3D2E] text-white text-xs font-semibold shadow-xs"
           >
             View Reservation Details
           </Link>
@@ -313,23 +313,23 @@ export const CheckoutPage: React.FC = () => {
 
   // ─── MAIN CHECKOUT FORM ─────────────────────────────
   return (
-    <div className="bg-[#F6F1E7] min-h-screen py-8 sm:py-12">
+    <div className="bg-[#F8F7F2] min-h-screen py-8 sm:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
         {/* Breadcrumbs */}
         <div className="flex items-center gap-2 text-xs text-[#68736E] font-medium">
-          <Link to="/" className="hover:text-[#0B7A75]">Home</Link>
+          <Link to="/" className="hover:text-[#176B52]">Home</Link>
           <span>/</span>
-          <Link to="/tours" className="hover:text-[#0B7A75]">Tours</Link>
+          <Link to="/tours" className="hover:text-[#176B52]">Tours</Link>
           <span>/</span>
-          <span className="text-[#0B7A75] font-semibold">Secure Checkout</span>
+          <span className="text-[#176B52] font-semibold">Secure Checkout</span>
         </div>
 
         {/* Page Header */}
         <div className="space-y-1">
-          <h1 className="font-serif text-3xl sm:text-4xl font-normal text-[#173238]">Secure Checkout</h1>
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#17231F]">Secure Checkout</h1>
           <p className="flex items-center gap-1.5 text-xs text-[#68736E]">
-            <Lock className="w-3.5 h-3.5 text-[#0B7A75]" />
+            <Lock className="w-3.5 h-3.5 text-[#176B52]" />
             256-bit SSL encrypted · Verified PayHere Gateway · Instant digital travel voucher
           </p>
         </div>
@@ -343,8 +343,8 @@ export const CheckoutPage: React.FC = () => {
             {/* Section A: Order Summary */}
             {state && (
               <div className="bg-white rounded-3xl border border-stone-200 shadow-xs p-6 space-y-4">
-                <h3 className="font-serif text-lg font-bold text-[#173238] flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-[#E98B6B]" />
+                <h3 className="font-serif text-lg font-bold text-[#17231F] flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-[#39A982]" />
                   Selected Itinerary
                 </h3>
 
@@ -355,14 +355,14 @@ export const CheckoutPage: React.FC = () => {
                     className="w-20 h-20 rounded-2xl object-cover border border-stone-200"
                   />
                   <div className="flex-1 space-y-1">
-                    <h4 className="font-serif font-bold text-sm text-[#173238]">{state.tourTitle}</h4>
+                    <h4 className="font-serif font-bold text-sm text-[#17231F]">{state.tourTitle}</h4>
                     <div className="flex flex-wrap items-center gap-3 text-xs text-[#68736E]">
                       <span className="flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5 text-[#0B7A75]" />
+                        <Calendar className="w-3.5 h-3.5 text-[#176B52]" />
                         {state.startDate} · {state.durationDays} Days
                       </span>
                       <span className="flex items-center gap-1">
-                        <Users className="w-3.5 h-3.5 text-[#0B7A75]" />
+                        <Users className="w-3.5 h-3.5 text-[#176B52]" />
                         {state.adults} Adult{state.adults && state.adults > 1 ? 's' : ''}
                         {state.children && state.children > 0 ? `, ${state.children} Child` : ''}
                       </span>
@@ -375,7 +375,7 @@ export const CheckoutPage: React.FC = () => {
                     {state.destinations.map((d, i) => (
                       <span
                         key={i}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-[#DDF5F0] text-[#075E63]"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-[#DDEFE8] text-[#176B52]"
                       >
                         <MapPin className="w-3 h-3" />
                         {d}
@@ -385,8 +385,8 @@ export const CheckoutPage: React.FC = () => {
                 )}
 
                 {state.airportPickup && (
-                  <div className="flex items-center gap-2 text-xs text-[#173238] bg-[#F6F1E7] rounded-xl px-3.5 py-2 border border-stone-200">
-                    <Car className="w-4 h-4 text-[#0B7A75]" />
+                  <div className="flex items-center gap-2 text-xs text-[#17231F] bg-[#F8F7F2] rounded-xl px-3.5 py-2 border border-stone-200">
+                    <Car className="w-4 h-4 text-[#176B52]" />
                     <span>Includes VIP Airport Pickup & Dedicated Chauffeur Fleet</span>
                   </div>
                 )}
@@ -395,77 +395,77 @@ export const CheckoutPage: React.FC = () => {
 
             {/* Section B: Lead Traveler Form */}
             <div className="bg-white rounded-3xl border border-stone-200 shadow-xs p-6 space-y-4">
-              <h3 className="font-serif text-lg font-bold text-[#173238]">Lead Traveler Information</h3>
+              <h3 className="font-serif text-lg font-bold text-[#17231F]">Lead Traveler Information</h3>
 
               <div className="space-y-3.5 text-xs sm:text-sm">
                 <div className="space-y-1">
-                  <label className="font-semibold text-[#173238]">Full Name (as on Passport) *</label>
+                  <label className="font-semibold text-[#17231F]">Full Name (as on Passport) *</label>
                   <input
                     type="text"
                     required
                     value={leadName}
                     onChange={(e) => setLeadName(e.target.value)}
                     placeholder="e.g. David Miller"
-                    className="w-full bg-[#F6F1E7] border border-stone-300 rounded-xl p-3 font-medium text-[#173238] focus:outline-none focus:ring-2 focus:ring-[#0B7A75]"
+                    className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-3 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <div className="space-y-1">
-                    <label className="font-semibold text-[#173238]">Email Address *</label>
+                    <label className="font-semibold text-[#17231F]">Email Address *</label>
                     <input
                       type="email"
                       required
                       value={leadEmail}
                       onChange={(e) => setLeadEmail(e.target.value)}
                       placeholder="david@example.com"
-                      className="w-full bg-[#F6F1E7] border border-stone-300 rounded-xl p-3 font-medium text-[#173238] focus:outline-none focus:ring-2 focus:ring-[#0B7A75]"
+                      className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-3 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="font-semibold text-[#173238]">Phone / WhatsApp *</label>
+                    <label className="font-semibold text-[#17231F]">Phone / WhatsApp *</label>
                     <input
                       type="tel"
                       required
                       value={leadPhone}
                       onChange={(e) => setLeadPhone(e.target.value)}
                       placeholder="+44 7911 123456"
-                      className="w-full bg-[#F6F1E7] border border-stone-300 rounded-xl p-3 font-medium text-[#173238] focus:outline-none focus:ring-2 focus:ring-[#0B7A75]"
+                      className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-3 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <div className="space-y-1">
-                    <label className="font-semibold text-[#173238]">Country of Residence</label>
+                    <label className="font-semibold text-[#17231F]">Country of Residence</label>
                     <input
                       type="text"
                       value={leadCountry}
                       onChange={(e) => setLeadCountry(e.target.value)}
                       placeholder="United Kingdom"
-                      className="w-full bg-[#F6F1E7] border border-stone-300 rounded-xl p-3 font-medium text-[#173238] focus:outline-none focus:ring-2 focus:ring-[#0B7A75]"
+                      className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-3 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="font-semibold text-[#173238]">Passport Number (Optional)</label>
+                    <label className="font-semibold text-[#17231F]">Passport Number (Optional)</label>
                     <input
                       type="text"
                       value={passportNumber}
                       onChange={(e) => setPassportNumber(e.target.value)}
                       placeholder="GB12345678"
-                      className="w-full bg-[#F6F1E7] border border-stone-300 rounded-xl p-3 font-medium text-[#173238] focus:outline-none focus:ring-2 focus:ring-[#0B7A75]"
+                      className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-3 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-semibold text-[#173238]">Special Requests & Dietary Requirements</label>
+                  <label className="font-semibold text-[#17231F]">Special Requests & Dietary Requirements</label>
                   <textarea
                     rows={3}
                     value={specialRequests}
                     onChange={(e) => setSpecialRequests(e.target.value)}
                     placeholder="Vegetarian meal preferences, child car seat requirements, flight arrival details..."
-                    className="w-full bg-[#F6F1E7] border border-stone-300 rounded-xl p-3 font-medium text-[#173238] focus:outline-none focus:ring-2 focus:ring-[#0B7A75]"
+                    className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-3 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
                   />
                 </div>
               </div>
@@ -473,14 +473,14 @@ export const CheckoutPage: React.FC = () => {
 
             {/* Section C: Payment Method Selector */}
             <div className="bg-white rounded-3xl border border-stone-200 shadow-xs p-6 space-y-4">
-              <h3 className="font-serif text-lg font-bold text-[#173238]">Payment Options</h3>
+              <h3 className="font-serif text-lg font-bold text-[#17231F]">Payment Options</h3>
 
               <div className="space-y-2.5">
                 <label
                   className={`p-4 rounded-2xl border flex items-center justify-between cursor-pointer transition-colors ${
                     paymentMethod === 'Credit / Debit Card'
-                      ? 'bg-[#DDF5F0] border-[#0B7A75]'
-                      : 'bg-[#F6F1E7] border-stone-200'
+                      ? 'bg-[#DDEFE8] border-[#176B52]'
+                      : 'bg-[#F8F7F2] border-stone-200'
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -489,10 +489,10 @@ export const CheckoutPage: React.FC = () => {
                       name="payMethod"
                       checked={paymentMethod === 'Credit / Debit Card'}
                       onChange={() => setPaymentMethod('Credit / Debit Card')}
-                      className="text-[#0B7A75] focus:ring-[#0B7A75]"
+                      className="text-[#176B52] focus:ring-[#176B52]"
                     />
                     <div>
-                      <span className="text-xs sm:text-sm font-bold text-[#173238] block">
+                      <span className="text-xs sm:text-sm font-bold text-[#17231F] block">
                         Credit / Debit Card (PayHere Gateway)
                       </span>
                       <span className="text-[11px] text-[#68736E]">
@@ -500,14 +500,14 @@ export const CheckoutPage: React.FC = () => {
                       </span>
                     </div>
                   </div>
-                  <CreditCard className="w-5 h-5 text-[#0B7A75]" />
+                  <CreditCard className="w-5 h-5 text-[#176B52]" />
                 </label>
 
                 <label
                   className={`p-4 rounded-2xl border flex items-center justify-between cursor-pointer transition-colors ${
                     paymentMethod === 'Bank Wire Transfer'
-                      ? 'bg-[#DDF5F0] border-[#0B7A75]'
-                      : 'bg-[#F6F1E7] border-stone-200'
+                      ? 'bg-[#DDEFE8] border-[#176B52]'
+                      : 'bg-[#F8F7F2] border-stone-200'
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -516,10 +516,10 @@ export const CheckoutPage: React.FC = () => {
                       name="payMethod"
                       checked={paymentMethod === 'Bank Wire Transfer'}
                       onChange={() => setPaymentMethod('Bank Wire Transfer')}
-                      className="text-[#0B7A75] focus:ring-[#0B7A75]"
+                      className="text-[#176B52] focus:ring-[#176B52]"
                     />
                     <div>
-                      <span className="text-xs sm:text-sm font-bold text-[#173238] block">
+                      <span className="text-xs sm:text-sm font-bold text-[#17231F] block">
                         International Bank Wire Transfer
                       </span>
                       <span className="text-[11px] text-[#68736E]">
@@ -527,7 +527,7 @@ export const CheckoutPage: React.FC = () => {
                       </span>
                     </div>
                   </div>
-                  <Building className="w-5 h-5 text-[#0B7A75]" />
+                  <Building className="w-5 h-5 text-[#176B52]" />
                 </label>
               </div>
             </div>
@@ -547,15 +547,15 @@ export const CheckoutPage: React.FC = () => {
                   type="checkbox"
                   checked={agreeTerms}
                   onChange={(e) => setAgreeTerms(e.target.checked)}
-                  className="rounded text-[#0B7A75] focus:ring-[#0B7A75] mt-0.5"
+                  className="rounded text-[#176B52] focus:ring-[#176B52] mt-0.5"
                 />
                 <span>
                   I have read and agree to LankaVoyage's{' '}
-                  <Link to="/terms-and-conditions" target="_blank" className="text-[#0B7A75] underline font-semibold">
+                  <Link to="/terms-and-conditions" target="_blank" className="text-[#176B52] underline font-semibold">
                     Terms & Conditions
                   </Link>{' '}
                   and{' '}
-                  <Link to="/cancellation-refund-policy" target="_blank" className="text-[#0B7A75] underline font-semibold">
+                  <Link to="/cancellation-refund-policy" target="_blank" className="text-[#176B52] underline font-semibold">
                     Cancellation & Refund Policy
                   </Link>.
                 </span>
@@ -564,13 +564,13 @@ export const CheckoutPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-4 bg-[#075E63] hover:bg-[#0B7A75] text-white font-bold text-sm rounded-2xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 border border-white/20"
+                className="w-full py-4 bg-[#0B3D2E] hover:bg-[#176B52] text-white font-bold text-sm rounded-2xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 border border-white/20"
               >
                 {isSubmitting ? (
                   <span>Processing Reservation...</span>
                 ) : (
                   <>
-                    <Lock className="w-4 h-4 text-[#DDF5F0]" />
+                    <Lock className="w-4 h-4 text-[#DDEFE8]" />
                     <span>
                       {paymentMethod === 'Credit / Debit Card'
                         ? `Pay $${state?.totalAmount?.toLocaleString() || '0'} with PayHere`
@@ -588,14 +588,14 @@ export const CheckoutPage: React.FC = () => {
             
             {/* Price Receipt Card */}
             <div className="bg-white rounded-3xl border border-stone-200 p-6 space-y-4 shadow-xs">
-              <h3 className="font-serif text-lg font-bold text-[#173238] border-b border-stone-100 pb-3">
+              <h3 className="font-serif text-lg font-bold text-[#17231F] border-b border-stone-100 pb-3">
                 Price Breakdown
               </h3>
 
               <div className="space-y-2.5 text-xs text-[#68736E]">
                 <div className="flex justify-between">
                   <span>Base Tour Package</span>
-                  <span className="font-semibold text-[#173238]">
+                  <span className="font-semibold text-[#17231F]">
                     ${((state?.totalAmount || 0) + (state?.discountAmount || 0) - (state?.airportPickup ? 40 : 0)).toLocaleString()}
                   </span>
                 </div>
@@ -603,20 +603,20 @@ export const CheckoutPage: React.FC = () => {
                 {state?.airportPickup && (
                   <div className="flex justify-between">
                     <span>VIP Airport Pickup</span>
-                    <span className="font-semibold text-[#173238]">+$40</span>
+                    <span className="font-semibold text-[#17231F]">+$40</span>
                   </div>
                 )}
 
                 {state?.discountAmount && state.discountAmount > 0 ? (
-                  <div className="flex justify-between text-[#075E63] font-semibold">
+                  <div className="flex justify-between text-emerald-800 font-semibold">
                     <span>Promo Discount ({state.discountCode})</span>
                     <span>-${state.discountAmount.toLocaleString()}</span>
                   </div>
                 ) : null}
 
-                <div className="flex justify-between text-base font-bold text-[#173238] pt-3 border-t border-stone-200">
+                <div className="flex justify-between text-base font-bold text-[#17231F] pt-3 border-t border-stone-200">
                   <span>Total Due (USD)</span>
-                  <span className="font-serif text-2xl text-[#075E63]">
+                  <span className="font-serif text-2xl text-[#0B3D2E]">
                     ${state?.totalAmount?.toLocaleString() || '0'}
                   </span>
                 </div>
@@ -624,9 +624,9 @@ export const CheckoutPage: React.FC = () => {
             </div>
 
             {/* Trust Badges */}
-            <div className="bg-[#DDF5F0]/60 rounded-3xl p-5 border border-[#0B7A75]/20 space-y-3 text-xs text-[#173238]">
-              <div className="flex items-center gap-2 font-bold text-[#075E63]">
-                <ShieldCheck className="w-4 h-4 text-[#0B7A75]" />
+            <div className="bg-[#DDEFE8]/40 rounded-3xl p-5 border border-[#176B52]/20 space-y-3 text-xs text-[#17231F]">
+              <div className="flex items-center gap-2 font-bold text-[#176B52]">
+                <ShieldCheck className="w-4 h-4" />
                 <span>Our Booking Guarantee</span>
               </div>
               <ul className="space-y-1.5 text-[11px] text-[#68736E]">
