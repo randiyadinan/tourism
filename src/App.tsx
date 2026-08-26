@@ -10,9 +10,8 @@ import { AdminLayout } from './components/admin/AdminLayout';
 import { SEOTracker } from './components/common/SEOTracker';
 import { analytics } from './services/analytics';
 
-// Public Pages (15)
+// Public Pages
 import { HomePage } from './pages/public/HomePage';
-import { ToursPage } from './pages/public/ToursPage';
 import { TourDetailPage } from './pages/public/TourDetailPage';
 import { DestinationsPage } from './pages/public/DestinationsPage';
 import { DestinationDetailPage } from './pages/public/DestinationDetailPage';
@@ -31,7 +30,7 @@ import { TermsAndConditionsPage } from './pages/public/TermsAndConditionsPage';
 import { PrivacyPolicyPage } from './pages/public/PrivacyPolicyPage';
 import { CancellationRefundPolicyPage } from './pages/public/CancellationRefundPolicyPage';
 
-// Customer Portal Pages (8)
+// Customer Portal Pages
 import { CustomerDashboardPage } from './pages/customer/CustomerDashboardPage';
 import { MyTripsPage } from './pages/customer/MyTripsPage';
 import { MyBookingsPage } from './pages/customer/MyBookingsPage';
@@ -41,7 +40,7 @@ import { WishlistPage } from './pages/customer/WishlistPage';
 import { PaymentsPage } from './pages/customer/PaymentsPage';
 import { NotificationsPage } from './pages/customer/NotificationsPage';
 
-// Admin Suite Pages (13)
+// Admin Suite Pages
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import { ManageToursPage } from './pages/admin/ManageToursPage';
 import { EditTourPage } from './pages/admin/EditTourPage';
@@ -68,12 +67,14 @@ export const App: React.FC = () => {
     <>
       <ScrollToTop />
       <SEOTracker />
+      
       <Routes>
         
         {/* PUBLIC ROUTES (with PublicLayout: TopAnnouncement, Navbar, Footer) */}
         <Route element={<PublicLayout />}>
           <Route path="/" element={<HomePage />} />
-          <Route path="/tours" element={<ToursPage />} />
+          {/* Public Tours redirected to /transfers which contains both transfers and all tour packages */}
+          <Route path="/tours" element={<Navigate to="/transfers" replace />} />
           <Route path="/tours/:slug" element={<TourDetailPage />} />
           <Route path="/destinations" element={<DestinationsPage />} />
           <Route path="/destinations/:slug" element={<DestinationDetailPage />} />
@@ -130,18 +131,18 @@ export const App: React.FC = () => {
           <Route path="activities" element={<ManageActivitiesPage />} />
           <Route path="hotels" element={<ManageHotelsPage />} />
           <Route path="vehicles" element={<ManageVehiclesPage />} />
-          <Route path="transfers" element={<ManageAirportTransfersPage />} />
           <Route path="customers" element={<ManageCustomersPage />} />
           <Route path="bookings" element={<ManageBookingsPage />} />
           <Route path="payments" element={<ManagePaymentsPage />} />
           <Route path="reviews" element={<ManageReviewsPage />} />
           <Route path="discounts" element={<ManageDiscountsPage />} />
-          <Route path="notifications" element={<AdminNotificationsPage />} />
+          <Route path="transfers" element={<ManageAirportTransfersPage />} />
           <Route path="reports" element={<ReportsPage />} />
+          <Route path="notifications" element={<AdminNotificationsPage />} />
           <Route path="settings" element={<AdminSettingsPage />} />
         </Route>
 
-        {/* Catch-all */}
+        {/* CATCH-ALL ROUTE */}
         <Route path="*" element={<Navigate to="/" replace />} />
 
       </Routes>

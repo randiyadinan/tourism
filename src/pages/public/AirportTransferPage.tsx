@@ -5,18 +5,20 @@ import {
   Calendar, 
   Clock, 
   ShieldCheck, 
-  ArrowRight,
-  AlertCircle,
-  Plus,
-  Minus,
-  Loader2,
-  MapPin
+  ArrowRight, 
+  AlertCircle, 
+  Plus, 
+  Minus, 
+  Loader2, 
+  MapPin, 
+  Compass, 
+  Search
 } from 'lucide-react';
 import { 
   SUPPORTED_AIRPORTS, 
-  TRANSFER_VEHICLE_OPTIONS,
-  calculateRealRoadTransferPrice,
-  type TransferVehicleOption
+  TRANSFER_VEHICLE_OPTIONS, 
+  calculateRealRoadTransferPrice, 
+  type TransferVehicleOption 
 } from '../../data/destinationDistances';
 import { 
   AIRPORT_COORDINATES, 
@@ -25,6 +27,8 @@ import {
   calculateGoogleRoute 
 } from '../../services/googleMapsService';
 import { GoogleMapDestinationSelector } from '../../components/transfers/GoogleMapDestinationSelector';
+import { tourService } from '../../services/tourService';
+import { TourCard } from '../../components/tours/TourCard';
 
 export const AirportTransferPage: React.FC = () => {
   const navigate = useNavigate();
@@ -53,6 +57,10 @@ export const AirportTransferPage: React.FC = () => {
   // 5. VEHICLE SELECTION
   const [selectedVehicleId, setSelectedVehicleId] = useState<string>('veh-sedan-luxury');
   const [tripType, setTripType] = useState<'One Way: Airport to Hotel' | 'Round Trip'>('One Way: Airport to Hotel');
+
+  // 6. TOURS EXPLORATION SEARCH/FILTER
+  const [tourSearchQuery, setTourSearchQuery] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
   // Selected airport memo
   const selectedAirport = useMemo(() => {
@@ -113,6 +121,27 @@ export const AirportTransferPage: React.FC = () => {
     return calculateRealRoadTransferPrice(currentDistanceKm, selectedVehicle, isRoundTrip);
   }, [selectedDestination, routeData, currentDistanceKm, selectedVehicle, isRoundTrip]);
 
+  // All Tours from tourService
+  const allTours = useMemo(() => {
+    return tourService.getAllTours();
+  }, []);
+
+  const tourCategories = useMemo(() => {
+    const cats = Array.from(new Set(allTours.map(t => t.category)));
+    return ['All', ...cats];
+  }, [allTours]);
+
+  const filteredTours = useMemo(() => {
+    return allTours.filter(tour => {
+      const matchesCategory = selectedCategory === 'All' || tour.category === selectedCategory;
+      const matchesSearch = !tourSearchQuery || 
+        tour.title.toLowerCase().includes(tourSearchQuery.toLowerCase()) ||
+        tour.destinations.some(d => d.toLowerCase().includes(tourSearchQuery.toLowerCase())) ||
+        tour.category.toLowerCase().includes(tourSearchQuery.toLowerCase());
+      return matchesCategory && matchesSearch;
+    });
+  }, [allTours, selectedCategory, tourSearchQuery]);
+
   // Re-adjust vehicle if passengers exceed standard car capacity
   const handlePassengerChange = (type: 'adults' | 'children' | 'infants', delta: number) => {
     let newAdults = adults;
@@ -165,20 +194,24 @@ export const AirportTransferPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#F8F7F2] min-h-screen py-10 sm:py-16">
+    <div className="bg-[#F8F7F2] min-h-screen py-10 sm:py-16 space-y-16 sm:space-y-24">
+      
+      {/* ============================================================ */}
+      {/* 1. AIRPORT TRANSFER & GOOGLE ROUTING SECTION */}
+      {/* ============================================================ */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
         {/* Page Top Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
           <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white text-[#176B52] border border-stone-200 text-xs font-semibold uppercase tracking-wider shadow-2xs">
             <Plane className="w-3.5 h-3.5 text-[#39A982]" />
-            <span>VIP SRI LANKA AIRPORT CHAUFFEUR</span>
+            <span>VIP SRI LANKA AIRPORT CHAUFFEUR & TOURS</span>
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#17231F]">
             Your Journey Starts at the Airport
           </h1>
           <p className="text-sm sm:text-base text-[#68736E] leading-relaxed">
-            Book a comfortable private transfer from the airport to your Sri Lankan destination with transparent distance-based pricing.
+            Book a comfortable private transfer from the airport to your destination with transparent distance-based pricing, or choose an unforgettable multi-day bespoke tour.
           </p>
         </div>
 
@@ -660,6 +693,87 @@ export const AirportTransferPage: React.FC = () => {
         </div>
 
       </div>
+
+      {/* ============================================================ */}
+      {/* 2. EXPLORE OUR TOURS SECTION */}
+      {/* ============================================================ */}
+      <section className="bg-white border-t border-stone-200/80 py-20 sm:py-28">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          
+          {/* Section Header */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-stone-100 pb-8">
+            <div className="space-y-2.5 max-w-2xl">
+              <span className="text-xs font-bold text-[#176B52] uppercase tracking-wider flex items-center gap-1.5">
+                <Compass className="w-4 h-4 text-[#39A982]" />
+                MULTI-DAY BESPOKE EXPERIENCES
+              </span>
+              <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#17231F]">
+                Explore Our Tours
+              </h2>
+              <p className="text-sm sm:text-base text-[#68736E] leading-relaxed">
+                Handcrafted multi-day itineraries across Sri Lanka featuring dedicated national chauffeur guides, boutique colonial stays, and private wildlife safaris.
+              </p>
+            </div>
+
+            {/* Tour Search & Category Filter */}
+            <div className="space-y-3 w-full md:w-auto">
+              <div className="relative">
+                <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={tourSearchQuery}
+                  onChange={(e) => setTourSearchQuery(e.target.value)}
+                  placeholder="Search tours, regions, attractions..."
+                  className="w-full md:w-72 pl-10 pr-4 py-2.5 bg-[#F8F7F2] border border-stone-300 rounded-xl text-xs font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
+                />
+              </div>
+
+              {/* Category Pills */}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {tourCategories.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                      selectedCategory === cat
+                        ? 'bg-[#0B3D2E] text-white shadow-xs'
+                        : 'bg-stone-100 text-[#68736E] hover:bg-stone-200'
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Tour Cards Grid */}
+          {filteredTours.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredTours.map((tour) => (
+                <TourCard key={tour.id} tour={tour} />
+              ))}
+            </div>
+          ) : (
+            <div className="p-12 text-center bg-[#F8F7F2] rounded-3xl border border-stone-200 space-y-3">
+              <Compass className="w-8 h-8 text-stone-400 mx-auto" />
+              <h3 className="font-serif text-lg font-bold text-[#17231F]">No tours found</h3>
+              <p className="text-xs text-[#68736E]">Try changing your search term or category filter.</p>
+              <button
+                onClick={() => {
+                  setTourSearchQuery('');
+                  setSelectedCategory('All');
+                }}
+                className="px-4 py-2 rounded-xl bg-[#0B3D2E] text-white text-xs font-semibold hover:bg-[#176B52]"
+              >
+                Reset Filters
+              </button>
+            </div>
+          )}
+
+        </div>
+      </section>
+
     </div>
   );
 };

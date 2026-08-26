@@ -71,13 +71,8 @@ export const Footer: React.FC = () => {
             <h4 className="font-serif text-base font-semibold text-white">Experience</h4>
             <ul className="space-y-2 text-xs sm:text-sm text-stone-300">
               <li>
-                <Link to="/tours" className="hover:text-[#39A982] transition-colors">
-                  Signature Tours
-                </Link>
-              </li>
-              <li>
                 <Link to="/transfers" className="hover:text-[#39A982] transition-colors">
-                  Airport Transfers (CMB)
+                  Airport Transfers & Tours
                 </Link>
               </li>
               <li>
@@ -116,36 +111,29 @@ export const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* Accreditations & Trust */}
+          {/* Trust Badges */}
           <div className="space-y-3">
-            <h4 className="font-serif text-base font-semibold text-white">Verified Trust</h4>
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2 text-xs text-stone-300">
-              <div className="flex items-center gap-2 text-[#39A982] font-semibold">
-                <ShieldCheck className="w-4 h-4" />
-                <span>SLTDA Certified Agency</span>
+            <h4 className="font-serif text-base font-semibold text-white">Official Certification</h4>
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2.5">
+              <div className="flex items-center gap-2 text-xs font-semibold text-[#39A982]">
+                <ShieldCheck className="w-4 h-4 text-[#39A982]" />
+                <span>SLTDA Registered Agency</span>
               </div>
-              <p className="text-[11px] text-stone-400">
-                Registered under Sri Lanka Tourism Development Authority. All chauffeur-guides are government licensed with full passenger liability insurance.
+              <p className="text-[11px] text-stone-400 leading-relaxed">
+                Licensed by Sri Lanka Tourism Development Authority. Fully insured passenger vehicles and authorized English-speaking national tourist chauffeurs.
               </p>
             </div>
           </div>
 
         </div>
 
-        {/* Bottom Bar & Legal Links */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-400">
+        {/* Footer Bottom Bar */}
+        <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-stone-400">
           <p>&copy; {currentYear} LankaVoyage (Pvt) Ltd. All rights reserved.</p>
-          
-          <div className="flex flex-wrap items-center gap-4 sm:gap-6">
-            <Link to="/privacy-policy" className="hover:text-stone-200 transition-colors">
-              Privacy Policy
-            </Link>
-            <Link to="/terms-and-conditions" className="hover:text-stone-200 transition-colors">
-              Terms & Conditions
-            </Link>
-            <Link to="/cancellation-refund-policy" className="hover:text-stone-200 transition-colors">
-              Cancellation Policy
-            </Link>
+          <div className="flex items-center gap-6">
+            <Link to="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
+            <Link to="/terms-and-conditions" className="hover:text-white transition-colors">Terms of Service</Link>
+            <Link to="/cancellation-refund-policy" className="hover:text-white transition-colors">Cancellation Policy</Link>
           </div>
         </div>
 
