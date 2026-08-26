@@ -73,9 +73,8 @@ export const AirportTransferPage: React.FC = () => {
   const [tourSearchQuery, setTourSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
-  // 7. SELECTED TOUR & CUSTOMIZATION STATE
+  // 7. SELECTED TOUR (Fixed Tour Duration & Fixed Itinerary)
   const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
-  const [customTourDays, setCustomTourDays] = useState<number>(0);
   const [selectedTourVehicleId, setSelectedTourVehicleId] = useState<'car' | 'van' | null>(null);
   const [tourStartDate, setTourStartDate] = useState<string>('2026-10-15');
   const [tourAdults, setTourAdults] = useState<number>(2);
@@ -214,52 +213,28 @@ export const AirportTransferPage: React.FC = () => {
     return TOUR_VEHICLE_OPTIONS.find(v => v.id === selectedTourVehicleId) || null;
   }, [selectedTourVehicleId]);
 
-  // Dynamic Tour Price Calculation (Daily Rate * Duration in Days)
+  // Fixed Tour Price Calculation: Selected Vehicle Daily Rate * Tour's Fixed Duration in Days
+  const fixedTourDays = selectedTour ? selectedTour.durationDays : 0;
+
   const totalTourPriceLKR = useMemo(() => {
-    if (!selectedTourVehicle || customTourDays <= 0) return 0;
-    return selectedTourVehicle.dailyPriceLKR * customTourDays;
-  }, [selectedTourVehicle, customTourDays]);
+    if (!selectedTour || !selectedTourVehicle) return 0;
+    return selectedTourVehicle.dailyPriceLKR * selectedTour.durationDays;
+  }, [selectedTour, selectedTourVehicle]);
 
   const totalTourPriceUSD = useMemo(() => {
-    if (!selectedTourVehicle || customTourDays <= 0) return 0;
-    return selectedTourVehicle.dailyPriceUSD * customTourDays;
-  }, [selectedTourVehicle, customTourDays]);
+    if (!selectedTour || !selectedTourVehicle) return 0;
+    return selectedTourVehicle.dailyPriceUSD * selectedTour.durationDays;
+  }, [selectedTour, selectedTourVehicle]);
 
-  // Dynamic Itinerary Generation based on customTourDays
-  const activeItineraryDays: ItineraryDay[] = useMemo(() => {
-    if (!selectedTour) return [];
-    const baseItinerary = selectedTour.itinerary || [];
-    const count = customTourDays > 0 ? customTourDays : selectedTour.durationDays;
+  // Fixed Itinerary Days from selectedTour
+  const fixedItineraryDays: ItineraryDay[] = useMemo(() => {
+    if (!selectedTour || !selectedTour.itinerary) return [];
+    return selectedTour.itinerary;
+  }, [selectedTour]);
 
-    if (count <= baseItinerary.length) {
-      return baseItinerary.slice(0, count);
-    }
-
-    // If extended beyond base itinerary, generate additional immersive days from tour destinations
-    const result = [...baseItinerary];
-    const availableDests = selectedTour.destinations.length > 0 ? selectedTour.destinations : ['Kandy', 'Ella', 'Galle', 'Sigiriya'];
-
-    for (let d = baseItinerary.length + 1; d <= count; d++) {
-      const destIndex = (d - baseItinerary.length - 1) % availableDests.length;
-      const targetDest = availableDests[destIndex];
-      result.push({
-        day: d,
-        title: `Extended Exploration & Bespoke Leisure in ${targetDest}`,
-        destination: targetDest,
-        description: `Enjoy an extra relaxed chauffeured day in ${targetDest}. Explore local artisan craft markets, scenic viewpoints, hidden waterfalls, and boutique culinary gems at your own personalized pace with your private chauffeur.`,
-        highlights: [`Scenic chauffeured excursion around ${targetDest}`, 'Bespoke leisure & photography', 'Authentic local dining experience'],
-        mealsIncluded: ['Breakfast'],
-        accommodation: 'Boutique Heritage Villa / Luxury Eco Resort'
-      });
-    }
-
-    return result;
-  }, [selectedTour, customTourDays]);
-
-  // When customer clicks "View / Customize Tour" from tour cards
+  // When customer clicks "View Tour / Select Tour" from tour cards
   const handleSelectTour = (tour: Tour) => {
     setSelectedTour(tour);
-    setCustomTourDays(tour.durationDays);
     setSelectedTourVehicleId(null); // Do not automatically select vehicle
     setTimeout(() => {
       tourDetailSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -317,7 +292,7 @@ export const AirportTransferPage: React.FC = () => {
     });
   };
 
-  // Direct checkout execution for Tour Booking (Dynamic Daily Rate * Days)
+  // Direct checkout execution for Tour Booking (Fixed Duration * Daily Rate)
   const handleBookTour = () => {
     if (!selectedTour) {
       alert('Please select a tour.');
@@ -338,9 +313,9 @@ export const AirportTransferPage: React.FC = () => {
     navigate('/checkout', {
       state: {
         tourId: selectedTour.id,
-        tourTitle: `${selectedTour.title} (${customTourDays} Days with Private ${selectedTourVehicle.categoryTitle})`,
+        tourTitle: `${selectedTour.title} (${selectedTour.durationDays} Days with Private ${selectedTourVehicle.categoryTitle})`,
         tourImage: selectedTour.heroImage,
-        durationDays: customTourDays,
+        durationDays: selectedTour.durationDays,
         startDate: tourStartDate,
         adults: tourAdults,
         children: tourChildren,
@@ -870,7 +845,7 @@ export const AirportTransferPage: React.FC = () => {
                 Explore Our Tours
               </h2>
               <p className="text-sm sm:text-base text-[#68736E] leading-relaxed">
-                Handcrafted multi-day itineraries across Sri Lanka featuring dedicated national chauffeur guides, boutique colonial stays, and private wildlife safaris. Click “View / Customize Tour” to explore day-by-day itineraries and vehicle pricing.
+                Handcrafted multi-day itineraries across Sri Lanka featuring dedicated national chauffeur guides, boutique colonial stays, and private wildlife safaris. Click “View Tour” to explore the full day-by-day itinerary and select a chauffeured vehicle.
               </p>
             </div>
 
@@ -907,8 +882,8 @@ export const AirportTransferPage: React.FC = () => {
           </div>
 
           {/* ============================================================ */}
-          {/* 3. FULL TOUR DETAILS & DAY-BY-DAY ITINERARY WITH PHOTOS */}
-          {/* ONLY SHOWN AFTER CUSTOMER CLICKS "VIEW / CUSTOMIZE TOUR" */}
+          {/* 3. FULL TOUR DETAILS & FIXED DAY-BY-DAY ITINERARY WITH PHOTOS */}
+          {/* ONLY SHOWN AFTER CUSTOMER CLICKS "VIEW TOUR" */}
           {/* ============================================================ */}
           {selectedTour && (
             <div className="bg-[#F8F7F2] border-2 border-[#176B52] rounded-3xl p-6 sm:p-10 shadow-2xl space-y-10 animate-fadeIn relative">
@@ -925,7 +900,7 @@ export const AirportTransferPage: React.FC = () => {
                 <X className="w-5 h-5" />
               </button>
 
-              {/* Tour Header Banner */}
+              {/* Tour Header Banner with Fixed Duration */}
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-stone-200 pb-8 pr-12">
                 <div className="flex items-start gap-5">
                   <img
@@ -936,7 +911,7 @@ export const AirportTransferPage: React.FC = () => {
                   <div className="space-y-1.5">
                     <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#176B52] text-white text-[11px] font-bold uppercase tracking-wider">
                       <Sparkles className="w-3.5 h-3.5 text-[#DDEFE8]" />
-                      Customizable Private Itinerary
+                      Fixed Private Itinerary
                     </div>
                     <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#17231F]">
                       {selectedTour.title}
@@ -944,9 +919,9 @@ export const AirportTransferPage: React.FC = () => {
                     <p className="text-xs sm:text-sm text-[#68736E] max-w-2xl">{selectedTour.subtitle}</p>
                     
                     <div className="flex items-center gap-4 pt-2 text-xs text-[#0B3D2E] font-medium flex-wrap">
-                      <span className="flex items-center gap-1">
+                      <span className="flex items-center gap-1 font-bold">
                         <Clock className="w-4 h-4 text-[#176B52]" />
-                        {selectedTour.durationDays} Days Default Itinerary
+                        {fixedTourDays} Days / {selectedTour.durationNights} Nights (Fixed Duration)
                       </span>
                       <span>&bull;</span>
                       <span className="flex items-center gap-1">
@@ -962,54 +937,34 @@ export const AirportTransferPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Tour Duration Customizer */}
-                <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm space-y-2 shrink-0">
+                {/* Fixed Duration Badge */}
+                <div className="bg-white px-5 py-4 rounded-2xl border border-stone-200 shadow-sm space-y-1 text-center shrink-0">
                   <span className="text-[10px] uppercase font-bold text-[#68736E] block tracking-wider">
-                    Customize Number of Days
+                    Tour Duration
                   </span>
-                  <div className="flex items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setCustomTourDays(Math.max(1, customTourDays - 1))}
-                      className="w-10 h-10 rounded-xl bg-[#F8F7F2] border border-stone-300 flex items-center justify-center text-stone-700 hover:bg-stone-200 font-bold transition-colors"
-                      aria-label="Decrease tour days"
-                    >
-                      <Minus className="w-4 h-4" />
-                    </button>
-                    <div className="text-center w-16">
-                      <span className="font-serif text-2xl font-bold text-[#0B3D2E] block leading-none">
-                        {customTourDays}
-                      </span>
-                      <span className="text-[10px] font-semibold text-[#68736E] uppercase">Days</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setCustomTourDays(Math.min(30, customTourDays + 1))}
-                      className="w-10 h-10 rounded-xl bg-[#F8F7F2] border border-stone-300 flex items-center justify-center text-stone-700 hover:bg-stone-200 font-bold transition-colors"
-                      aria-label="Increase tour days"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
-                  </div>
+                  <span className="font-serif text-3xl font-bold text-[#0B3D2E] block leading-tight">
+                    {fixedTourDays} Days
+                  </span>
+                  <span className="text-[11px] font-semibold text-[#176B52] block">
+                    Fixed Itinerary
+                  </span>
                 </div>
               </div>
 
-              {/* Day-by-Day Itinerary with Destination Photos */}
+              {/* Fixed Day-by-Day Itinerary with Destination Photos */}
               <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-serif text-xl sm:text-2xl font-bold text-[#17231F] flex items-center gap-2">
-                      <Compass className="w-5 h-5 text-[#176B52]" />
-                      Day-by-Day Itinerary ({customTourDays} Days Displayed)
-                    </h4>
-                    <p className="text-xs text-[#68736E] mt-0.5">
-                      Each day is fully chauffeured with your private dedicated English-speaking national chauffeur-guide.
-                    </p>
-                  </div>
+                <div>
+                  <h4 className="font-serif text-xl sm:text-2xl font-bold text-[#17231F] flex items-center gap-2">
+                    <Compass className="w-5 h-5 text-[#176B52]" />
+                    Fixed Day-by-Day Itinerary ({fixedTourDays} Days)
+                  </h4>
+                  <p className="text-xs text-[#68736E] mt-0.5">
+                    Predefined luxury route curated with dedicated English-speaking national chauffeur-guide.
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {activeItineraryDays.map((dayItem) => {
+                  {fixedItineraryDays.map((dayItem) => {
                     const destImg = getDestinationImage(dayItem.destination || selectedTour.destinations[0] || 'Sri Lanka');
 
                     return (
@@ -1080,7 +1035,7 @@ export const AirportTransferPage: React.FC = () => {
                       Select Tour Vehicle (Car or Van)
                     </h4>
                     <p className="text-xs text-[#68736E]">
-                      Select exactly one vehicle type to see daily rate and instant total tour price.
+                      Select exactly one vehicle type to see the daily rate and calculated total tour price ({fixedTourDays} Days × Daily Rate).
                     </p>
                   </div>
                   <span className="text-xs font-bold text-[#176B52] bg-white px-3 py-1 rounded-full border border-stone-200">
@@ -1091,8 +1046,8 @@ export const AirportTransferPage: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   {TOUR_VEHICLE_OPTIONS.map((veh) => {
                     const isSelected = selectedTourVehicleId === veh.id;
-                    const calculatedDailyTotalLKR = veh.dailyPriceLKR * customTourDays;
-                    const calculatedDailyTotalUSD = veh.dailyPriceUSD * customTourDays;
+                    const calculatedDailyTotalLKR = veh.dailyPriceLKR * fixedTourDays;
+                    const calculatedDailyTotalUSD = veh.dailyPriceUSD * fixedTourDays;
 
                     return (
                       <div
@@ -1149,7 +1104,7 @@ export const AirportTransferPage: React.FC = () => {
 
                             <div className="text-right">
                               <span className="text-[10px] uppercase font-bold text-[#176B52] block">
-                                Total ({customTourDays} Days)
+                                Total ({fixedTourDays} Days)
                               </span>
                               <span className="font-serif text-xl font-bold text-[#0B3D2E]">
                                 Rs. {calculatedDailyTotalLKR.toLocaleString()}
@@ -1234,7 +1189,7 @@ export const AirportTransferPage: React.FC = () => {
                     {selectedTourVehicle ? (
                       <>
                         <span className="text-[10px] text-[#39A982] uppercase font-bold tracking-wider block">
-                          TOTAL TOUR PRICE ({customTourDays} DAYS)
+                          TOTAL TOUR PRICE ({fixedTourDays} DAYS)
                         </span>
                         <div className="flex items-baseline justify-end gap-2">
                           <span className="font-serif text-3xl sm:text-4xl font-bold">
@@ -1260,7 +1215,7 @@ export const AirportTransferPage: React.FC = () => {
                   </div>
                   <div>
                     <span className="text-stone-400 block text-[10px] uppercase font-semibold">Duration</span>
-                    <span className="font-bold text-white">{customTourDays} Days</span>
+                    <span className="font-bold text-white">{fixedTourDays} Days (Fixed)</span>
                   </div>
                   <div>
                     <span className="text-stone-400 block text-[10px] uppercase font-semibold">Selected Vehicle</span>
@@ -1290,7 +1245,7 @@ export const AirportTransferPage: React.FC = () => {
                     <span>Please Select a Vehicle (Car or Van) to Continue</span>
                   ) : (
                     <>
-                      <span>Book {selectedTour.title} &bull; Rs. {totalTourPriceLKR.toLocaleString()} ({customTourDays} Days with {selectedTourVehicle.categoryTitle})</span>
+                      <span>Book {selectedTour.title} &bull; Rs. {totalTourPriceLKR.toLocaleString()} ({fixedTourDays} Days with {selectedTourVehicle.categoryTitle})</span>
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
@@ -1374,7 +1329,7 @@ export const AirportTransferPage: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Card Action Button: View / Customize Tour (NO vehicle prices shown on card) */}
+                      {/* Card Action Button: View Tour (NO vehicle prices shown on card) */}
                       <div className="pt-4 border-t border-stone-100 flex items-center justify-between gap-3">
                         <div>
                           <span className="text-[10px] text-[#68736E] block font-medium uppercase tracking-wider">
@@ -1397,11 +1352,11 @@ export const AirportTransferPage: React.FC = () => {
                           {isCurrentSelected ? (
                             <>
                               <CheckCircle2 className="w-3.5 h-3.5 text-[#DDEFE8]" />
-                              <span>Customizing</span>
+                              <span>Viewing Tour</span>
                             </>
                           ) : (
                             <>
-                              <span>View / Customize Tour</span>
+                              <span>View Tour</span>
                               <ArrowRight className="w-3.5 h-3.5 text-[#DDEFE8]" />
                             </>
                           )}
