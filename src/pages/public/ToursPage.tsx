@@ -4,7 +4,8 @@ import {
   Search, 
   Grid, 
   List, 
-  SlidersHorizontal
+  SlidersHorizontal,
+  Palmtree
 } from 'lucide-react';
 import { tourService } from '../../services/tourService';
 import type { TourFilterParams } from '../../services/tourService';
@@ -46,24 +47,25 @@ export const ToursPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#FAF8F2] min-h-screen py-10 sm:py-12">
+    <div className="bg-[#FFF9EF] min-h-screen py-10 sm:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
         {/* Page Header */}
         <div className="space-y-3">
-          <span className="text-xs font-semibold text-[#1F6F54] uppercase tracking-wider">
-            Signature Itineraries
-          </span>
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#12372A]">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-[#087F8C] border border-[#F3D6A4] text-xs font-semibold uppercase tracking-wider shadow-2xs">
+            <Palmtree className="w-3.5 h-3.5" />
+            <span>Curated Tropical Itineraries</span>
+          </div>
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#193238]">
             Sri Lanka Tours & Journeys
           </h1>
           <p className="text-sm sm:text-base text-stone-600 max-w-2xl leading-relaxed">
-            Private, chauffeured multi-day journeys designed for couples, families, and solo explorers. All tours can be tailored to your preferred pace and style.
+            Private, chauffeured holidays designed for couples, families, and beach lovers. All itineraries are 100% tailor-made to your preferred travel style.
           </p>
         </div>
 
         {/* Search & Layout Control Bar */}
-        <div className="bg-white p-4 rounded-xl border border-stone-200/80 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="bg-white p-4 sm:p-5 rounded-3xl border border-stone-200/80 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
           
           {/* Search Input */}
           <div className="relative w-full md:w-80">
@@ -73,7 +75,7 @@ export const ToursPage: React.FC = () => {
               value={filters.searchQuery || ''}
               onChange={(e) => setFilters({ ...filters, searchQuery: e.target.value })}
               placeholder="Search tours (e.g. Leopard, Train, Sigiriya)..."
-              className="w-full pl-9 pr-3.5 py-2 bg-[#FAF8F2] border border-stone-300 rounded-lg text-xs sm:text-sm font-medium text-[#1F2933] focus:outline-none focus:ring-2 focus:ring-[#1F6F54]"
+              className="w-full pl-9 pr-3.5 py-2.5 bg-[#FFF9EF] border border-stone-300 rounded-xl text-xs sm:text-sm font-medium text-[#193238] focus:outline-none focus:ring-2 focus:ring-[#087F8C]"
             />
           </div>
 
@@ -83,9 +85,9 @@ export const ToursPage: React.FC = () => {
             {/* Mobile Filter Toggle */}
             <button
               onClick={() => setMobileFilterOpen(!mobileFilterOpen)}
-              className="lg:hidden flex items-center gap-1.5 px-3 py-2 bg-stone-100 text-[#12372A] text-xs font-semibold rounded-lg"
+              className="lg:hidden flex items-center gap-1.5 px-3.5 py-2 bg-stone-100 text-[#193238] text-xs font-semibold rounded-xl"
             >
-              <SlidersHorizontal className="w-3.5 h-3.5 text-[#1F6F54]" />
+              <SlidersHorizontal className="w-3.5 h-3.5 text-[#087F8C]" />
               <span>Filters</span>
             </button>
 
@@ -95,7 +97,7 @@ export const ToursPage: React.FC = () => {
               <select
                 value={filters.sortBy || 'popular'}
                 onChange={(e) => setFilters({ ...filters, sortBy: e.target.value as any })}
-                className="bg-[#FAF8F2] border border-stone-300 rounded-lg px-3 py-2 text-xs font-semibold text-[#1F2933] focus:outline-none focus:ring-2 focus:ring-[#1F6F54]"
+                className="bg-[#FFF9EF] border border-stone-300 rounded-xl px-3 py-2 text-xs font-semibold text-[#193238] focus:outline-none focus:ring-2 focus:ring-[#087F8C]"
               >
                 <option value="popular">Most Popular</option>
                 <option value="price_asc">Price: Low to High</option>
@@ -107,11 +109,11 @@ export const ToursPage: React.FC = () => {
             </div>
 
             {/* Layout Switcher */}
-            <div className="hidden sm:flex items-center bg-stone-100 p-1 rounded-lg">
+            <div className="hidden sm:flex items-center bg-stone-100 p-1 rounded-xl">
               <button
                 onClick={() => setLayout('grid')}
-                className={`p-1.5 rounded-md transition-colors ${
-                  layout === 'grid' ? 'bg-white text-[#12372A] shadow-xs font-bold' : 'text-stone-400 hover:text-stone-700'
+                className={`p-1.5 rounded-lg transition-colors ${
+                  layout === 'grid' ? 'bg-white text-[#087F8C] shadow-xs font-bold' : 'text-stone-400 hover:text-stone-700'
                 }`}
                 title="Grid View"
               >
@@ -119,8 +121,8 @@ export const ToursPage: React.FC = () => {
               </button>
               <button
                 onClick={() => setLayout('horizontal')}
-                className={`p-1.5 rounded-md transition-colors ${
-                  layout === 'horizontal' ? 'bg-white text-[#12372A] shadow-xs font-bold' : 'text-stone-400 hover:text-stone-700'
+                className={`p-1.5 rounded-lg transition-colors ${
+                  layout === 'horizontal' ? 'bg-white text-[#087F8C] shadow-xs font-bold' : 'text-stone-400 hover:text-stone-700'
                 }`}
                 title="List View"
               >
@@ -147,7 +149,7 @@ export const ToursPage: React.FC = () => {
           {/* Mobile Filter Drawer */}
           {mobileFilterOpen && (
             <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 lg:hidden">
-              <div className="bg-white rounded-2xl p-6 max-w-md w-full max-h-[85vh] overflow-y-auto space-y-4">
+              <div className="bg-white rounded-3xl p-6 max-w-md w-full max-h-[85vh] overflow-y-auto space-y-4">
                 <TourFilters
                   filters={filters}
                   onChange={(newFilters) => {
@@ -161,7 +163,7 @@ export const ToursPage: React.FC = () => {
                 />
                 <button
                   onClick={() => setMobileFilterOpen(false)}
-                  className="w-full py-2.5 bg-[#12372A] text-white font-semibold text-xs rounded-lg"
+                  className="w-full py-3 bg-[#087F8C] text-white font-semibold text-xs rounded-xl"
                 >
                   Apply & Close
                 </button>

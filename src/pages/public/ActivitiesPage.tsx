@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search } from 'lucide-react';
+import { Search, Sun } from 'lucide-react';
 import { activityService } from '../../services/activityService';
 import { ActivityCard } from '../../components/activities/ActivityCard';
 import type { ActivityCategory } from '../../types';
@@ -34,24 +34,25 @@ export const ActivitiesPage: React.FC = () => {
   }, [activities, selectedCategory, searchQuery]);
 
   return (
-    <div className="bg-[#FAF8F2] min-h-screen py-10 sm:py-12">
+    <div className="bg-[#FFF9EF] min-h-screen py-10 sm:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
         {/* Header */}
         <div className="space-y-3 max-w-2xl">
-          <span className="text-xs font-semibold text-[#1F6F54] uppercase tracking-wider">
-            Curated Experiences
-          </span>
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#12372A]">
-            Sri Lanka Activities & Encounters
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-[#087F8C] border border-[#F3D6A4] text-xs font-semibold uppercase tracking-wider shadow-2xs">
+            <Sun className="w-3.5 h-3.5 text-[#E7B85C]" />
+            <span>Island Adventures</span>
+          </div>
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#193238]">
+            Sri Lanka Experiences & Encounters
           </h1>
           <p className="text-sm sm:text-base text-stone-600 leading-relaxed">
-            From 4x4 leopard game drives and whale-watching expeditions to tea estate tastings and traditional cooking classes.
+            From 4x4 leopard game drives and blue whale catamaran voyages to tea tasting rituals and traditional village cooking classes.
           </p>
         </div>
 
         {/* Filter Bar */}
-        <div className="bg-white p-4 rounded-xl border border-stone-200/80 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="bg-white p-4 sm:p-5 rounded-3xl border border-stone-200/80 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="relative w-full md:w-80">
             <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
@@ -59,7 +60,7 @@ export const ActivitiesPage: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search experiences (e.g. Safari, Cooking)..."
-              className="w-full pl-9 pr-3.5 py-2 bg-[#FAF8F2] border border-stone-300 rounded-lg text-xs sm:text-sm font-medium text-[#1F2933] focus:outline-none focus:ring-2 focus:ring-[#1F6F54]"
+              className="w-full pl-9 pr-3.5 py-2.5 bg-[#FFF9EF] border border-stone-300 rounded-xl text-xs sm:text-sm font-medium text-[#193238] focus:outline-none focus:ring-2 focus:ring-[#087F8C]"
             />
           </div>
 
@@ -68,9 +69,9 @@ export const ActivitiesPage: React.FC = () => {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
+                className={`px-3.5 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-colors ${
                   selectedCategory === cat
-                    ? 'bg-[#12372A] text-white shadow-xs'
+                    ? 'bg-[#087F8C] text-white shadow-xs font-semibold'
                     : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
                 }`}
               >

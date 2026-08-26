@@ -1,19 +1,19 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  Compass, 
   Phone, 
   Mail, 
   MapPin, 
   ShieldCheck, 
   Globe,
-  Clock 
+  Clock,
+  Palmtree
 } from 'lucide-react';
 import { SOCIAL_LINKS } from '../../config/socialLinks';
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="bg-[#0D3B2E] text-stone-300 border-t border-white/10 pt-16 pb-10">
+    <footer className="bg-[#075E67] text-stone-200 border-t border-white/10 pt-16 pb-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Main Grid */}
@@ -22,26 +22,26 @@ export const Footer: React.FC = () => {
           {/* Brand & Description (2 cols) */}
           <div className="lg:col-span-2 space-y-4">
             <Link to="/" className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[#C5A059] flex items-center justify-center">
-                <Compass className="w-4 h-4 text-[#0D3B2E]" />
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#087F8C] to-[#3E8E5B] flex items-center justify-center shadow-xs">
+                <Palmtree className="w-4 h-4 text-[#F3D6A4]" />
               </div>
               <div className="flex flex-col">
                 <span className="font-serif text-xl font-bold tracking-tight text-white leading-none">
-                  Lanka<span className="text-[#C5A059]">Voyage</span>
+                  Lanka<span className="text-[#E7B85C]">Voyage</span>
                 </span>
-                <span className="text-[9px] uppercase tracking-[0.2em] text-stone-300 mt-0.5 font-medium">
-                  Bespoke Sri Lanka
+                <span className="text-[9px] uppercase tracking-[0.2em] text-[#F3D6A4] mt-0.5 font-medium">
+                  Tropical Sri Lanka
                 </span>
               </div>
             </Link>
 
-            <p className="text-xs sm:text-sm text-stone-300 leading-relaxed max-w-sm">
-              Sri Lanka's trusted bespoke travel company. Crafting private chauffeur journeys, wildlife expeditions, and boutique stays across the island.
+            <p className="text-xs sm:text-sm text-stone-200 leading-relaxed max-w-sm">
+              Sri Lanka's premier bespoke holiday designer. Private chauffeur tours, oceanfront boutique stays, and wildlife safaris across paradise.
             </p>
 
             <div className="flex items-center gap-2 pt-1">
-              <div className="flex items-center gap-1.5 px-3 py-1 bg-white/10 rounded-full text-xs text-stone-200 border border-white/10">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#C5A059]" />
+              <div className="flex items-center gap-1.5 px-3 py-1 bg-white/15 rounded-full text-xs text-stone-100 border border-white/20">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#F3D6A4]" />
                 <span>SLTDA Registered Agency</span>
               </div>
             </div>
@@ -54,7 +54,7 @@ export const Footer: React.FC = () => {
                   target="_blank" 
                   rel="noopener noreferrer" 
                   aria-label={SOCIAL_LINKS.instagram.ariaLabel}
-                  className="w-8 h-8 rounded-lg bg-white/10 hover:bg-[#C5A059] hover:text-[#0D3B2E] text-stone-200 flex items-center justify-center transition-colors"
+                  className="w-8 h-8 rounded-xl bg-white/10 hover:bg-[#087F8C] text-stone-100 flex items-center justify-center transition-colors"
                 >
                   <Globe className="w-4 h-4" />
                 </a>
@@ -66,7 +66,7 @@ export const Footer: React.FC = () => {
                   target="_blank" 
                   rel="noopener noreferrer" 
                   aria-label={SOCIAL_LINKS.facebook.ariaLabel}
-                  className="w-8 h-8 rounded-lg bg-white/10 hover:bg-[#C5A059] hover:text-[#0D3B2E] text-stone-200 flex items-center justify-center transition-colors"
+                  className="w-8 h-8 rounded-xl bg-white/10 hover:bg-[#087F8C] text-stone-100 flex items-center justify-center transition-colors"
                 >
                   <Globe className="w-4 h-4" />
                 </a>
@@ -78,7 +78,7 @@ export const Footer: React.FC = () => {
                   target="_blank" 
                   rel="noopener noreferrer" 
                   aria-label={SOCIAL_LINKS.youtube.ariaLabel}
-                  className="w-8 h-8 rounded-lg bg-white/10 hover:bg-[#C5A059] hover:text-[#0D3B2E] text-stone-200 flex items-center justify-center transition-colors"
+                  className="w-8 h-8 rounded-xl bg-white/10 hover:bg-[#087F8C] text-stone-100 flex items-center justify-center transition-colors"
                 >
                   <Globe className="w-4 h-4" />
                 </a>
@@ -90,7 +90,7 @@ export const Footer: React.FC = () => {
                   target="_blank" 
                   rel="noopener noreferrer" 
                   aria-label={SOCIAL_LINKS.whatsapp.ariaLabel}
-                  className="w-8 h-8 rounded-lg bg-white/10 hover:bg-[#25D366] hover:text-white text-stone-200 flex items-center justify-center transition-colors"
+                  className="w-8 h-8 rounded-xl bg-white/10 hover:bg-[#25D366] hover:text-white text-stone-100 flex items-center justify-center transition-colors"
                 >
                   <Phone className="w-4 h-4" />
                 </a>
@@ -99,7 +99,7 @@ export const Footer: React.FC = () => {
               <a 
                 href="mailto:concierge@lankavoyage.com" 
                 aria-label="Send email to LankaVoyage Concierge"
-                className="w-8 h-8 rounded-lg bg-white/10 hover:bg-[#C5A059] hover:text-[#0D3B2E] text-stone-200 flex items-center justify-center transition-colors"
+                className="w-8 h-8 rounded-xl bg-white/10 hover:bg-[#087F8C] text-stone-100 flex items-center justify-center transition-colors"
               >
                 <Mail className="w-4 h-4" />
               </a>
@@ -109,29 +109,29 @@ export const Footer: React.FC = () => {
           {/* Explore Links */}
           <div className="space-y-3">
             <h4 className="font-serif text-base font-semibold text-white">Explore</h4>
-            <ul className="space-y-2 text-xs sm:text-sm text-stone-300">
+            <ul className="space-y-2 text-xs sm:text-sm text-stone-200">
               <li>
-                <Link to="/tours" className="hover:text-[#C5A059] transition-colors">
+                <Link to="/tours" className="hover:text-[#F3D6A4] transition-colors">
                   Signature Tours
                 </Link>
               </li>
               <li>
-                <Link to="/destinations" className="hover:text-[#C5A059] transition-colors">
+                <Link to="/destinations" className="hover:text-[#F3D6A4] transition-colors">
                   Destinations
                 </Link>
               </li>
               <li>
-                <Link to="/activities" className="hover:text-[#C5A059] transition-colors">
+                <Link to="/activities" className="hover:text-[#F3D6A4] transition-colors">
                   Unique Experiences
                 </Link>
               </li>
               <li>
-                <Link to="/customize" className="hover:text-[#C5A059] transition-colors">
+                <Link to="/customize" className="hover:text-[#F3D6A4] transition-colors">
                   Customize Itinerary
                 </Link>
               </li>
               <li>
-                <Link to="/reviews" className="hover:text-[#C5A059] transition-colors">
+                <Link to="/reviews" className="hover:text-[#F3D6A4] transition-colors">
                   Guest Reviews
                 </Link>
               </li>
@@ -141,34 +141,34 @@ export const Footer: React.FC = () => {
           {/* Company Links */}
           <div className="space-y-3">
             <h4 className="font-serif text-base font-semibold text-white">Company</h4>
-            <ul className="space-y-2 text-xs sm:text-sm text-stone-300">
-              <li><Link to="/about" className="hover:text-[#C5A059] transition-colors">About Us</Link></li>
-              <li><Link to="/contact" className="hover:text-[#C5A059] transition-colors">Contact Concierge</Link></li>
-              <li><Link to="/transfers" className="hover:text-[#C5A059] transition-colors">Airport Transfers</Link></li>
-              <li><Link to="/terms-and-conditions" className="hover:text-[#C5A059] transition-colors">Terms & Conditions</Link></li>
-              <li><Link to="/privacy-policy" className="hover:text-[#C5A059] transition-colors">Privacy Policy</Link></li>
-              <li><Link to="/cancellation-refund-policy" className="hover:text-[#C5A059] transition-colors">Cancellation Policy</Link></li>
+            <ul className="space-y-2 text-xs sm:text-sm text-stone-200">
+              <li><Link to="/about" className="hover:text-[#F3D6A4] transition-colors">About Us</Link></li>
+              <li><Link to="/contact" className="hover:text-[#F3D6A4] transition-colors">Contact Concierge</Link></li>
+              <li><Link to="/transfers" className="hover:text-[#F3D6A4] transition-colors">Airport Transfers</Link></li>
+              <li><Link to="/terms-and-conditions" className="hover:text-[#F3D6A4] transition-colors">Terms & Conditions</Link></li>
+              <li><Link to="/privacy-policy" className="hover:text-[#F3D6A4] transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/cancellation-refund-policy" className="hover:text-[#F3D6A4] transition-colors">Cancellation Policy</Link></li>
             </ul>
           </div>
 
           {/* Contact & Concierge */}
           <div className="space-y-3">
             <h4 className="font-serif text-base font-semibold text-white">24/7 Concierge</h4>
-            <div className="space-y-2.5 text-xs sm:text-sm text-stone-300">
+            <div className="space-y-2.5 text-xs sm:text-sm text-stone-200">
               <div className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-[#C5A059] shrink-0 mt-0.5" />
+                <MapPin className="w-4 h-4 text-[#F3D6A4] shrink-0 mt-0.5" />
                 <span>Level 14, World Trade Center, Colombo 01, Sri Lanka</span>
               </div>
               <div className="flex items-center gap-2.5">
-                <Phone className="w-4 h-4 text-[#C5A059] shrink-0" />
-                <a href="tel:+94771234567" className="hover:text-[#C5A059]">+94 77 123 4567</a>
+                <Phone className="w-4 h-4 text-[#F3D6A4] shrink-0" />
+                <a href="tel:+94771234567" className="hover:text-[#F3D6A4]">+94 77 123 4567</a>
               </div>
               <div className="flex items-center gap-2.5">
-                <Mail className="w-4 h-4 text-[#C5A059] shrink-0" />
-                <a href="mailto:concierge@lankavoyage.com" className="hover:text-[#C5A059]">concierge@lankavoyage.com</a>
+                <Mail className="w-4 h-4 text-[#F3D6A4] shrink-0" />
+                <a href="mailto:concierge@lankavoyage.com" className="hover:text-[#F3D6A4]">concierge@lankavoyage.com</a>
               </div>
               <div className="flex items-center gap-2.5">
-                <Clock className="w-4 h-4 text-[#C5A059] shrink-0" />
+                <Clock className="w-4 h-4 text-[#F3D6A4] shrink-0" />
                 <span>24/7 Islandwide Support</span>
               </div>
             </div>
@@ -176,24 +176,24 @@ export const Footer: React.FC = () => {
 
         </div>
 
-        {/* Bottom Bar with Copyright & Quick Links */}
-        <div className="pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-stone-400">
+        {/* Bottom Bar */}
+        <div className="pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-stone-300">
           <p>© {new Date().getFullYear()} LankaVoyage Ltd. All Rights Reserved.</p>
 
-          <div className="flex flex-wrap items-center gap-3.5 text-stone-300">
-            <Link to="/about" className="hover:text-[#C5A059]">About</Link>
+          <div className="flex flex-wrap items-center gap-3.5 text-stone-200">
+            <Link to="/about" className="hover:text-[#F3D6A4]">About</Link>
             <span>•</span>
-            <Link to="/reviews" className="hover:text-[#C5A059]">Reviews</Link>
+            <Link to="/reviews" className="hover:text-[#F3D6A4]">Reviews</Link>
             <span>•</span>
-            <Link to="/transfers" className="hover:text-[#C5A059]">Transfers</Link>
+            <Link to="/transfers" className="hover:text-[#F3D6A4]">Transfers</Link>
             <span>•</span>
-            <Link to="/terms-and-conditions" className="hover:text-[#C5A059]">Terms</Link>
+            <Link to="/terms-and-conditions" className="hover:text-[#F3D6A4]">Terms</Link>
             <span>•</span>
-            <Link to="/privacy-policy" className="hover:text-[#C5A059]">Privacy</Link>
+            <Link to="/privacy-policy" className="hover:text-[#F3D6A4]">Privacy</Link>
             <span>•</span>
-            <Link to="/cancellation-refund-policy" className="hover:text-[#C5A059]">Cancellations</Link>
+            <Link to="/cancellation-refund-policy" className="hover:text-[#F3D6A4]">Cancellations</Link>
             <span>•</span>
-            <Link to="/contact" className="hover:text-[#C5A059]">Contact</Link>
+            <Link to="/contact" className="hover:text-[#F3D6A4]">Contact</Link>
           </div>
         </div>
 

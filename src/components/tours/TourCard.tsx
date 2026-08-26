@@ -31,22 +31,22 @@ export const TourCard: React.FC<TourCardProps> = ({ tour, layout = 'grid' }) => 
 
   if (layout === 'horizontal') {
     return (
-      <div className="group bg-white rounded-xl border border-stone-200/90 overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 flex flex-col md:flex-row">
+      <div className="group bg-white rounded-3xl border border-stone-200/80 overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col md:flex-row transform hover:-translate-y-1">
         {/* Image */}
-        <div className="relative md:w-2/5 h-60 md:h-auto overflow-hidden">
+        <div className="relative md:w-2/5 h-64 md:h-auto overflow-hidden">
           <img
             src={tour.heroImage}
             alt={tour.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
             loading="lazy"
           />
           {/* Wishlist Button */}
           <button
             onClick={handleWishlistToggle}
-            className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-colors shadow-xs ${
+            className={`absolute top-3.5 right-3.5 p-2.5 rounded-full backdrop-blur-md transition-colors shadow-xs ${
               isSaved 
-                ? 'bg-rose-600 text-white' 
-                : 'bg-black/40 text-white hover:bg-white hover:text-rose-600'
+                ? 'bg-rose-500 text-white' 
+                : 'bg-black/30 text-white hover:bg-white hover:text-rose-500'
             }`}
             title={isSaved ? 'Remove from Saved' : 'Save to Wishlist'}
             aria-label="Save to Wishlist"
@@ -56,46 +56,46 @@ export const TourCard: React.FC<TourCardProps> = ({ tour, layout = 'grid' }) => 
         </div>
 
         {/* Content */}
-        <div className="p-5 md:p-6 md:w-3/5 flex flex-col justify-between space-y-4">
+        <div className="p-6 md:p-7 md:w-3/5 flex flex-col justify-between space-y-4">
           <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs text-[#66716C]">
-              <span className="flex items-center gap-1 font-semibold text-[#1F6B50]">
+            <div className="flex items-center justify-between text-xs">
+              <span className="inline-flex items-center gap-1 font-semibold text-[#087F8C] bg-[#FFF9EF] px-2.5 py-1 rounded-full border border-[#F3D6A4]/60">
                 <Clock className="w-3.5 h-3.5" />
                 {tour.durationDays} Days / {tour.durationNights} Nights
               </span>
-              <div className="flex items-center gap-1 font-semibold text-[#17231F]">
-                <Star className="w-3.5 h-3.5 fill-[#C5A059] text-[#C5A059]" />
+              <div className="flex items-center gap-1 font-semibold text-[#193238]">
+                <Star className="w-3.5 h-3.5 fill-[#E7B85C] text-[#E7B85C]" />
                 <span>{tour.rating.toFixed(1)}</span>
-                <span className="text-[#66716C] font-normal">({tour.reviewCount})</span>
+                <span className="text-stone-400 font-normal">({tour.reviewCount})</span>
               </div>
             </div>
 
             <Link to={`/tours/${tour.slug}`}>
-              <h3 className="font-serif text-xl font-bold text-[#0D3B2E] group-hover:text-[#1F6B50] transition-colors leading-snug">
+              <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#193238] group-hover:text-[#087F8C] transition-colors leading-snug">
                 {tour.title}
               </h3>
             </Link>
-            <p className="text-xs text-[#66716C] font-medium line-clamp-1">{tour.subtitle}</p>
-            <p className="text-xs sm:text-sm text-[#66716C] line-clamp-2 leading-relaxed">{tour.overview}</p>
+            <p className="text-xs text-[#087F8C] font-medium line-clamp-1">{tour.subtitle}</p>
+            <p className="text-xs sm:text-sm text-stone-600 line-clamp-2 leading-relaxed">{tour.overview}</p>
           </div>
 
           {/* Pricing & CTA */}
-          <div className="flex items-center justify-between pt-3 border-t border-stone-100">
+          <div className="flex items-center justify-between pt-4 border-t border-stone-100">
             <div>
-              <span className="text-[11px] text-[#66716C] block font-medium uppercase tracking-wider">From</span>
-              <div className="flex items-baseline gap-1.5">
-                <span className="font-serif text-2xl font-bold text-[#0D3B2E]">
+              <span className="text-[10px] text-stone-400 block font-medium uppercase tracking-wider">From</span>
+              <div className="flex items-baseline gap-1">
+                <span className="font-serif text-2xl font-bold text-[#087F8C]">
                   ${tour.pricePerPerson.toLocaleString()}
                 </span>
-                <span className="text-xs text-[#66716C]">/ person</span>
+                <span className="text-xs text-stone-500">/ person</span>
               </div>
             </div>
 
             <Link
               to={`/tours/${tour.slug}`}
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-lg bg-[#0D3B2E] hover:bg-[#1F6B50] text-white transition-colors"
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 text-xs font-semibold rounded-xl bg-[#087F8C] hover:bg-[#075E67] text-white shadow-xs hover:shadow-md transition-all"
             >
-              <span>View Tour</span>
+              <span>View Journey</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -104,25 +104,32 @@ export const TourCard: React.FC<TourCardProps> = ({ tour, layout = 'grid' }) => 
     );
   }
 
-  // Grid Layout (Default)
+  // Grid Layout (Default) - Holiday Postcard Style
   return (
-    <div className="group bg-white rounded-xl border border-stone-200/90 overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between">
+    <div className="group bg-white rounded-3xl border border-stone-200/80 overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between transform hover:-translate-y-1">
       <div>
         {/* Card Image */}
-        <div className="relative h-56 overflow-hidden">
+        <div className="relative h-60 overflow-hidden">
           <img
             src={tour.heroImage}
             alt={tour.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
             loading="lazy"
           />
+          {/* Floating Badge */}
+          <div className="absolute top-3.5 left-3.5">
+            <span className="px-3 py-1 rounded-full text-[11px] font-bold bg-white/95 text-[#075E67] shadow-sm backdrop-blur-xs">
+              {tour.featured ? '🌴 BEST SELLER' : 'PRIVATE JOURNEY'}
+            </span>
+          </div>
+
           {/* Wishlist Button */}
           <button
             onClick={handleWishlistToggle}
-            className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-colors shadow-xs ${
+            className={`absolute top-3.5 right-3.5 p-2.5 rounded-full backdrop-blur-md transition-colors shadow-xs ${
               isSaved 
-                ? 'bg-rose-600 text-white' 
-                : 'bg-black/40 text-white hover:bg-white hover:text-rose-600'
+                ? 'bg-rose-500 text-white' 
+                : 'bg-black/30 text-white hover:bg-white hover:text-rose-500'
             }`}
             title={isSaved ? 'Remove from Saved' : 'Save to Wishlist'}
             aria-label="Save to Wishlist"
@@ -130,50 +137,50 @@ export const TourCard: React.FC<TourCardProps> = ({ tour, layout = 'grid' }) => 
             <Heart className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
           </button>
 
-          <div className="absolute bottom-3 left-3">
-            <span className="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-[#0D3B2E]/90 text-white backdrop-blur-xs">
+          <div className="absolute bottom-3.5 left-3.5">
+            <span className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#075E67]/90 text-white backdrop-blur-xs">
               {tour.durationDays} Days
             </span>
           </div>
         </div>
 
         {/* Card Body */}
-        <div className="p-5 space-y-2">
-          <div className="flex items-center justify-between text-xs text-[#66716C]">
-            <span className="font-medium text-[#1F6B50]">{tour.category}</span>
-            <div className="flex items-center gap-1 font-semibold text-[#17231F]">
-              <Star className="w-3.5 h-3.5 fill-[#C5A059] text-[#C5A059]" />
+        <div className="p-5 sm:p-6 space-y-2.5">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-semibold text-[#3E8E5B] uppercase tracking-wider text-[11px]">{tour.category}</span>
+            <div className="flex items-center gap-1 font-semibold text-[#193238]">
+              <Star className="w-3.5 h-3.5 fill-[#E7B85C] text-[#E7B85C]" />
               <span>{tour.rating.toFixed(1)}</span>
-              <span className="text-[#66716C] font-normal">({tour.reviewCount})</span>
+              <span className="text-stone-400 font-normal">({tour.reviewCount})</span>
             </div>
           </div>
 
           <Link to={`/tours/${tour.slug}`}>
-            <h3 className="font-serif text-lg font-bold text-[#0D3B2E] group-hover:text-[#1F6B50] transition-colors leading-snug line-clamp-1">
+            <h3 className="font-serif text-lg sm:text-xl font-bold text-[#193238] group-hover:text-[#087F8C] transition-colors leading-snug line-clamp-1">
               {tour.title}
             </h3>
           </Link>
-          <p className="text-xs text-[#66716C] line-clamp-2 leading-relaxed">{tour.tagline || tour.overview}</p>
+          <p className="text-xs text-stone-600 line-clamp-2 leading-relaxed">{tour.tagline || tour.overview}</p>
         </div>
       </div>
 
       {/* Footer / Price & Button */}
-      <div className="px-5 pb-5 pt-3 border-t border-stone-100 flex items-center justify-between">
+      <div className="px-5 sm:px-6 pb-6 pt-3 border-t border-stone-100 flex items-center justify-between">
         <div>
-          <span className="text-[10px] text-[#66716C] block font-medium uppercase tracking-wider">From</span>
+          <span className="text-[10px] text-stone-400 block font-medium uppercase tracking-wider">Starting from</span>
           <div className="flex items-baseline gap-1">
-            <span className="font-serif text-xl font-bold text-[#0D3B2E]">
+            <span className="font-serif text-xl sm:text-2xl font-bold text-[#087F8C]">
               ${tour.pricePerPerson.toLocaleString()}
             </span>
-            <span className="text-[11px] text-[#66716C]">/ person</span>
+            <span className="text-[11px] text-stone-500">/ person</span>
           </div>
         </div>
 
         <Link
           to={`/tours/${tour.slug}`}
-          className="inline-flex items-center gap-1 px-3.5 py-2 text-xs font-semibold rounded-lg bg-[#0D3B2E] hover:bg-[#1F6B50] text-white transition-colors"
+          className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-xl bg-[#087F8C] hover:bg-[#075E67] text-white shadow-xs transition-all"
         >
-          <span>View Tour</span>
+          <span>View Journey</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>

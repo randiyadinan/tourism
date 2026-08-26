@@ -1,85 +1,103 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, ArrowRight, Check, MapPin, Hotel, Car } from 'lucide-react';
+import { ArrowRight, Check, MapPin, Hotel, Car, Palmtree, Sun } from 'lucide-react';
 
 export const CustomTripCTA: React.FC = () => {
   return (
-    <section className="py-20 sm:py-24 relative overflow-hidden bg-[#0D3B2E] text-white">
+    <section className="py-20 sm:py-28 relative overflow-hidden bg-[#075E67] text-white">
+      {/* Background Palm Beach Texture */}
+      <div className="absolute inset-0 z-0 opacity-15">
+        <img
+          src="https://images.unsplash.com/photo-1506953823976-52e1fdc0149a?auto=format&fit=crop&w=1800&q=80"
+          alt="Palm Trees Sky"
+          className="w-full h-full object-cover"
+        />
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
           
           {/* Left Column: Copy & CTAs */}
           <div className="lg:col-span-7 space-y-6">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-[#C5A059] text-xs font-semibold uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Custom Itinerary Builder</span>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-[#F3D6A4] text-xs font-semibold uppercase tracking-wider">
+              <Palmtree className="w-4 h-4 text-[#F3D6A4]" />
+              <span>Tailor-Made Holiday Planner</span>
             </div>
 
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight">
-              Looking for a Unique Route? <br />
-              <span className="text-[#C5A059] italic font-normal">Design Your Dream Trip</span>
+              Your Sri Lanka Story <br />
+              <span className="text-[#F3D6A4] italic font-normal">Starts Here.</span>
             </h2>
 
-            <p className="text-sm sm:text-base text-stone-200 leading-relaxed max-w-xl">
-              Choose your travel dates, select favorite destinations, add safaris or scenic train tickets, choose vehicle styles, and receive an instant price estimation.
+            <p className="text-base sm:text-lg text-stone-100 leading-relaxed max-w-xl">
+              Choose your dates, handpick beaches and wildlife parks, select boutique villa styles, and get an instant transparent quote.
             </p>
 
             {/* Feature Checklist */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-xs sm:text-sm text-stone-200">
-              <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-[#C5A059] shrink-0" />
-                <span>Transparent instant pricing</span>
+              <div className="flex items-center gap-2.5">
+                <div className="w-5 h-5 rounded-full bg-[#087F8C] flex items-center justify-center text-[#F3D6A4] shrink-0">
+                  <Check className="w-3.5 h-3.5" />
+                </div>
+                <span>100% Transparent instant pricing</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-[#C5A059] shrink-0" />
-                <span>VIP Airport Pickup included</span>
+              <div className="flex items-center gap-2.5">
+                <div className="w-5 h-5 rounded-full bg-[#087F8C] flex items-center justify-center text-[#F3D6A4] shrink-0">
+                  <Check className="w-3.5 h-3.5" />
+                </div>
+                <span>VIP Airport meet & greet</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-[#C5A059] shrink-0" />
-                <span>Dedicated chauffeur-guide</span>
+              <div className="flex items-center gap-2.5">
+                <div className="w-5 h-5 rounded-full bg-[#087F8C] flex items-center justify-center text-[#F3D6A4] shrink-0">
+                  <Check className="w-3.5 h-3.5" />
+                </div>
+                <span>Private dedicated chauffeur</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-[#C5A059] shrink-0" />
-                <span>Flexible free consultation</span>
+              <div className="flex items-center gap-2.5">
+                <div className="w-5 h-5 rounded-full bg-[#087F8C] flex items-center justify-center text-[#F3D6A4] shrink-0">
+                  <Check className="w-3.5 h-3.5" />
+                </div>
+                <span>Unlimited itinerary adjustments</span>
               </div>
             </div>
 
-            <div className="pt-2">
+            <div className="pt-3">
               <Link
                 to="/customize"
-                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-lg bg-[#1F6B50] hover:bg-[#267c5d] text-white font-semibold text-sm transition-all shadow-xs border border-white/20"
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-[#087F8C] hover:bg-[#066B77] text-white font-semibold text-sm transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
               >
-                <span>Launch Custom Trip Builder</span>
-                <ArrowRight className="w-4 h-4 text-[#C5A059]" />
+                <Sun className="w-4 h-4 text-[#F3D6A4]" />
+                <span>Plan Your Journey</span>
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </div>
 
           {/* Right Column: Visual Trip Preview Card */}
           <div className="lg:col-span-5">
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 sm:p-7 border border-white/15 space-y-4 shadow-xl">
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+            <div className="bg-white/10 backdrop-blur-md rounded-3xl p-7 border border-white/20 space-y-4 shadow-xl">
+              <div className="flex items-center justify-between border-b border-white/15 pb-3.5">
                 <div>
-                  <span className="text-[11px] text-stone-300 uppercase tracking-wider block font-medium">Trip Preview</span>
-                  <span className="font-serif text-lg sm:text-xl font-bold text-white">Ceylon Explorer</span>
+                  <span className="text-[11px] text-[#F3D6A4] uppercase tracking-wider block font-semibold">Sample Itinerary</span>
+                  <span className="font-serif text-xl font-bold text-white">Tropical Ceylon Escape</span>
                 </div>
-                <span className="px-2.5 py-1 rounded-md text-xs font-semibold bg-[#1F6B50] text-white">
-                  7 Days
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#087F8C] text-white">
+                  8 Days
                 </span>
               </div>
 
-              <div className="space-y-2.5 text-xs sm:text-sm text-stone-200">
-                <div className="flex items-center gap-3 bg-black/20 p-3 rounded-lg">
-                  <MapPin className="w-4 h-4 text-[#C5A059] shrink-0" />
-                  <span>Sigiriya &bull; Kandy &bull; Ella &bull; Yala Safari</span>
+              <div className="space-y-3 text-xs sm:text-sm text-stone-200">
+                <div className="flex items-center gap-3 bg-black/25 p-3 rounded-2xl">
+                  <MapPin className="w-4 h-4 text-[#F3D6A4] shrink-0" />
+                  <span>Sigiriya Citadel &bull; Ella Gap &bull; Yala Safari &bull; Mirissa Beach</span>
                 </div>
-                <div className="flex items-center gap-3 bg-black/20 p-3 rounded-lg">
-                  <Car className="w-4 h-4 text-[#C5A059] shrink-0" />
-                  <span>Private Air-Conditioned Sedan + Chauffeur</span>
+                <div className="flex items-center gap-3 bg-black/25 p-3 rounded-2xl">
+                  <Car className="w-4 h-4 text-[#F3D6A4] shrink-0" />
+                  <span>Private Air-Conditioned Sedan + Chauffeur Guide</span>
                 </div>
-                <div className="flex items-center gap-3 bg-black/20 p-3 rounded-lg">
-                  <Hotel className="w-4 h-4 text-[#C5A059] shrink-0" />
-                  <span>Boutique Eco-Lodges & 5-Star Stays</span>
+                <div className="flex items-center gap-3 bg-black/25 p-3 rounded-2xl">
+                  <Hotel className="w-4 h-4 text-[#F3D6A4] shrink-0" />
+                  <span>Beachfront Boutique Villas & Tea Bungalows</span>
                 </div>
               </div>
             </div>

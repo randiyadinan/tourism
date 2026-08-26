@@ -83,14 +83,14 @@ export const StickyBookingPanel: React.FC<StickyBookingPanelProps> = ({ tour, on
   };
 
   return (
-    <div className="bg-white rounded-xl border border-stone-200/90 p-5 sm:p-6 shadow-md space-y-5">
+    <div className="bg-white rounded-3xl border border-stone-200/90 p-6 sm:p-7 shadow-lg space-y-5">
       
       {/* Price Header */}
       <div className="flex items-baseline justify-between border-b border-stone-100 pb-4">
         <div>
-          <span className="text-[11px] text-stone-400 font-semibold block uppercase tracking-wider">Price from</span>
+          <span className="text-[11px] text-stone-400 font-semibold block uppercase tracking-wider">Starting from</span>
           <div className="flex items-baseline gap-1.5">
-            <span className="font-serif text-2xl sm:text-3xl font-bold text-[#12372A]">
+            <span className="font-serif text-3xl font-bold text-[#087F8C]">
               ${tour.pricePerPerson.toLocaleString()}
             </span>
             {tour.originalPrice && (
@@ -103,7 +103,7 @@ export const StickyBookingPanel: React.FC<StickyBookingPanelProps> = ({ tour, on
         </div>
 
         <div className="text-right">
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-[#1F6F54]/10 text-[#1F6F54]">
+          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-[#FFF9EF] text-[#087F8C] border border-[#F3D6A4]/60">
             <Clock className="w-3.5 h-3.5" />
             {tour.durationDays} Days
           </span>
@@ -115,28 +115,28 @@ export const StickyBookingPanel: React.FC<StickyBookingPanelProps> = ({ tour, on
         
         {/* Start Date */}
         <div className="space-y-1">
-          <label className="text-xs font-semibold text-[#1F2933] flex items-center gap-1.5">
-            <Calendar className="w-3.5 h-3.5 text-[#1F6F54]" />
+          <label className="text-xs font-semibold text-[#193238] flex items-center gap-1.5">
+            <Calendar className="w-3.5 h-3.5 text-[#087F8C]" />
             Tour Start Date
           </label>
           <input
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="w-full bg-[#FAF8F2] border border-stone-300 rounded-lg px-3 py-2 text-xs sm:text-sm font-medium text-[#1F2933] focus:outline-none focus:ring-2 focus:ring-[#1F6F54]"
+            className="w-full bg-[#FFF9EF] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-medium text-[#193238] focus:outline-none focus:ring-2 focus:ring-[#087F8C]"
           />
         </div>
 
         {/* Travelers Pickers */}
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-[#1F2933]">
+            <label className="text-xs font-semibold text-[#193238]">
               Adults (12+ yrs)
             </label>
             <select
               value={adults}
               onChange={(e) => setAdults(Number(e.target.value))}
-              className="w-full bg-[#FAF8F2] border border-stone-300 rounded-lg px-3 py-2 text-xs sm:text-sm font-medium text-[#1F2933] focus:outline-none focus:ring-2 focus:ring-[#1F6F54]"
+              className="w-full bg-[#FFF9EF] border border-stone-300 rounded-xl px-3 py-2 text-xs sm:text-sm font-medium text-[#193238] focus:outline-none focus:ring-2 focus:ring-[#087F8C]"
             >
               {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
                 <option key={num} value={num}>{num} Adult{num > 1 ? 's' : ''}</option>
@@ -145,13 +145,13 @@ export const StickyBookingPanel: React.FC<StickyBookingPanelProps> = ({ tour, on
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-[#1F2933]">
+            <label className="text-xs font-semibold text-[#193238]">
               Children (2-11 yrs)
             </label>
             <select
               value={children}
               onChange={(e) => setChildren(Number(e.target.value))}
-              className="w-full bg-[#FAF8F2] border border-stone-300 rounded-lg px-3 py-2 text-xs sm:text-sm font-medium text-[#1F2933] focus:outline-none focus:ring-2 focus:ring-[#1F6F54]"
+              className="w-full bg-[#FFF9EF] border border-stone-300 rounded-xl px-3 py-2 text-xs sm:text-sm font-medium text-[#193238] focus:outline-none focus:ring-2 focus:ring-[#087F8C]"
             >
               {[0, 1, 2, 3, 4].map(num => (
                 <option key={num} value={num}>{num} {num === 1 ? 'Child' : 'Children'}</option>
@@ -161,19 +161,19 @@ export const StickyBookingPanel: React.FC<StickyBookingPanelProps> = ({ tour, on
         </div>
 
         {/* Airport Transfer Toggle */}
-        <label className="flex items-start gap-2.5 p-3 rounded-lg border border-stone-200 bg-[#FAF8F2] cursor-pointer hover:border-[#1F6F54] transition-colors">
+        <label className="flex items-start gap-2.5 p-3 rounded-2xl border border-stone-200 bg-[#FFF9EF] cursor-pointer hover:border-[#087F8C] transition-colors">
           <input
             type="checkbox"
             checked={airportPickup}
             onChange={(e) => setAirportPickup(e.target.checked)}
-            className="rounded text-[#1F6F54] focus:ring-[#1F6F54] mt-0.5"
+            className="rounded text-[#087F8C] focus:ring-[#087F8C] mt-0.5"
           />
           <div className="text-xs">
-            <span className="font-semibold text-[#1F2933] flex items-center gap-1">
-              <Plane className="w-3.5 h-3.5 text-[#1F6F54]" />
+            <span className="font-semibold text-[#193238] flex items-center gap-1">
+              <Plane className="w-3.5 h-3.5 text-[#087F8C]" />
               VIP Airport Pickup (+$40)
             </span>
-            <span className="text-stone-500 block text-[11px] mt-0.5">CMB Meet & Greet with dedicated chauffeur</span>
+            <span className="text-stone-500 block text-[11px] mt-0.5">CMB Meet & Greet with private vehicle</span>
           </div>
         </label>
 
@@ -187,20 +187,20 @@ export const StickyBookingPanel: React.FC<StickyBookingPanelProps> = ({ tour, on
             value={promoCodeInput}
             onChange={(e) => setPromoCodeInput(e.target.value)}
             placeholder="Promo code (e.g. CEYLON10)"
-            className="flex-1 bg-[#FAF8F2] border border-stone-300 rounded-lg px-3 py-1.5 text-xs font-medium text-[#1F2933] uppercase placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#1F6F54]"
+            className="flex-1 bg-[#FFF9EF] border border-stone-300 rounded-xl px-3 py-2 text-xs font-medium text-[#193238] uppercase placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#087F8C]"
           />
           <button
             type="submit"
-            className="px-3.5 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold transition-colors"
+            className="px-4 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold transition-colors"
           >
             Apply
           </button>
         </div>
 
         {appliedDiscount && (
-          <div className="flex items-center justify-between text-xs text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-md">
+          <div className="flex items-center justify-between text-xs text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
             <span className="flex items-center gap-1 font-medium">
-              <Percent className="w-3 h-3" />
+              <Percent className="w-3.5 h-3.5" />
               Promo "{appliedDiscount.code}" applied!
             </span>
             <span className="font-semibold">-${discountAmount}</span>
@@ -213,7 +213,7 @@ export const StickyBookingPanel: React.FC<StickyBookingPanelProps> = ({ tour, on
       </form>
 
       {/* Pricing Calculation Summary */}
-      <div className="bg-[#FAF8F2] rounded-lg p-3.5 space-y-2 text-xs border border-stone-200/70">
+      <div className="bg-[#FFF9EF] rounded-2xl p-4 space-y-2 text-xs border border-stone-200/70">
         <div className="flex justify-between text-stone-600">
           <span>{adults} Adult{adults > 1 ? 's' : ''} (${tour.pricePerPerson} ea)</span>
           <span className="font-semibold">${adultBaseTotal.toLocaleString()}</span>
@@ -240,16 +240,16 @@ export const StickyBookingPanel: React.FC<StickyBookingPanelProps> = ({ tour, on
           </div>
         )}
 
-        <div className="flex justify-between text-sm font-bold text-[#12372A] pt-2 border-t border-stone-200">
+        <div className="flex justify-between text-sm font-bold text-[#193238] pt-2 border-t border-stone-200">
           <span>Total (USD)</span>
-          <span className="font-serif text-lg">${finalTotal.toLocaleString()}</span>
+          <span className="font-serif text-xl text-[#087F8C]">${finalTotal.toLocaleString()}</span>
         </div>
       </div>
 
       {/* Book Now Button */}
       <button
         onClick={handleProceedBooking}
-        className="w-full py-3 px-4 rounded-lg bg-[#12372A] hover:bg-[#1F6F54] text-white font-semibold text-sm transition-all shadow-xs flex items-center justify-center gap-2"
+        className="w-full py-3.5 px-4 rounded-2xl bg-[#087F8C] hover:bg-[#075E67] text-white font-semibold text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
       >
         <span>Proceed to Secure Checkout</span>
         <ArrowRight className="w-4 h-4" />
@@ -258,11 +258,11 @@ export const StickyBookingPanel: React.FC<StickyBookingPanelProps> = ({ tour, on
       {/* Guarantee Notice */}
       <div className="space-y-1.5 text-[11px] text-stone-500 pt-1">
         <div className="flex items-center gap-1.5">
-          <ShieldCheck className="w-3.5 h-3.5 text-[#1F6F54]" />
+          <ShieldCheck className="w-3.5 h-3.5 text-[#087F8C]" />
           <span>100% Secure 256-bit SSL encrypted booking</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <CreditCard className="w-3.5 h-3.5 text-[#1F6F54]" />
+          <CreditCard className="w-3.5 h-3.5 text-[#087F8C]" />
           <span>PayHere verified Sri Lankan gateway checkout</span>
         </div>
       </div>

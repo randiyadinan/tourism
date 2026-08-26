@@ -5,6 +5,7 @@ import { Hero } from '../../components/home/Hero';
 import { WhyLankaVoyage } from '../../components/home/WhyLankaVoyage';
 import { CustomTripCTA } from '../../components/home/CustomTripCTA';
 import { VerifiedReviews } from '../../components/home/VerifiedReviews';
+import { TropicalBeachSection } from '../../components/home/TropicalBeachSection';
 import { Newsletter } from '../../components/home/Newsletter';
 import { TourCard } from '../../components/tours/TourCard';
 import { DestinationCard } from '../../components/destinations/DestinationCard';
@@ -21,29 +22,29 @@ export const HomePage: React.FC = () => {
   return (
     <div className="space-y-0">
       
-      {/* 1. Hero with Quick Trip Planner */}
+      {/* 1. Hero with Tropical Vibe & Quick Trip Planner */}
       <Hero />
 
       {/* 2. Featured Signature Tours */}
-      <section className="py-20 sm:py-24 bg-white">
+      <section className="py-20 sm:py-28 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6">
             <div className="space-y-2.5 max-w-2xl">
-              <span className="text-xs font-semibold text-[#1F6B50] uppercase tracking-wider">
-                Featured Tours
+              <span className="text-xs font-semibold text-[#087F8C] uppercase tracking-wider">
+                Explore the Island
               </span>
-              <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#0D3B2E]">
-                Hand-Crafted Sri Lanka Itineraries
+              <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#193238]">
+                Where will Sri Lanka take you?
               </h2>
-              <p className="text-sm sm:text-base text-[#66716C]">
-                Private, fully customizable multi-day journeys with dedicated chauffeur-guides and boutique stays.
+              <p className="text-sm sm:text-base text-stone-600">
+                Private, fully customizable tropical journeys with dedicated chauffeur-guides and handpicked boutique resorts.
               </p>
             </div>
 
             <Link
               to="/tours"
-              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#0D3B2E] hover:text-[#1F6B50] transition-colors shrink-0"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-[#FFF9EF] border border-[#F3D6A4] text-xs sm:text-sm font-semibold text-[#087F8C] hover:bg-[#F3D6A4]/40 transition-all shrink-0 shadow-2xs"
             >
               <span>View All Tours</span>
               <ArrowRight className="w-4 h-4" />
@@ -59,26 +60,26 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* 3. Popular Destinations */}
-      <section className="py-20 sm:py-24 bg-[#FAF8F3]">
+      {/* 3. Popular Destinations (Instagram-style travel gallery) */}
+      <section className="py-20 sm:py-28 bg-[#FFF9EF]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6">
             <div className="space-y-2.5 max-w-2xl">
-              <span className="text-xs font-semibold text-[#1F6B50] uppercase tracking-wider">
-                Discover Sri Lanka
+              <span className="text-xs font-semibold text-[#3E8E5B] uppercase tracking-wider">
+                Save These Places
               </span>
-              <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#0D3B2E]">
-                Popular Destinations
+              <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#193238]">
+                Iconic Sri Lankan Destinations
               </h2>
-              <p className="text-sm sm:text-base text-[#66716C]">
-                From UNESCO ancient citadels in Sigiriya to misty tea trails in Ella and sandy southern shores in Mirissa.
+              <p className="text-sm sm:text-base text-stone-600">
+                From ancient rock citadels in Sigiriya to golden surf beaches in Mirissa and tea country hills in Ella.
               </p>
             </div>
 
             <Link
               to="/destinations"
-              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#0D3B2E] hover:text-[#1F6B50] transition-colors shrink-0"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white border border-stone-200 text-xs sm:text-sm font-semibold text-[#087F8C] hover:bg-stone-50 transition-all shrink-0 shadow-2xs"
             >
               <span>Explore All Destinations</span>
               <ArrowRight className="w-4 h-4" />
@@ -94,26 +95,29 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* 4. Unique Experiences / Activities */}
-      <section className="py-20 sm:py-24 bg-white">
+      {/* 4. Tropical Beach Feature ("Life is better by the ocean") */}
+      <TropicalBeachSection />
+
+      {/* 5. Unique Experiences (Wildlife, Train, Whale Watching) */}
+      <section className="py-20 sm:py-28 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6">
             <div className="space-y-2.5 max-w-2xl">
-              <span className="text-xs font-semibold text-[#1F6B50] uppercase tracking-wider">
-                Unique Experiences
+              <span className="text-xs font-semibold text-[#087F8C] uppercase tracking-wider">
+                Island Adventures
               </span>
-              <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#0D3B2E]">
-                Curated Island Encounters
+              <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#193238]">
+                Unique Sri Lanka Experiences
               </h2>
-              <p className="text-sm sm:text-base text-[#66716C]">
-                Private leopard game drives, tea sommelier masterclasses, and scenic hill country blue train journeys.
+              <p className="text-sm sm:text-base text-stone-600">
+                Private leopard game drives, tea sommelier masterclasses, and scenic blue train hill climbs.
               </p>
             </div>
 
             <Link
               to="/activities"
-              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#0D3B2E] hover:text-[#1F6B50] transition-colors shrink-0"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-[#FFF9EF] border border-[#F3D6A4] text-xs sm:text-sm font-semibold text-[#087F8C] hover:bg-[#F3D6A4]/40 transition-all shrink-0 shadow-2xs"
             >
               <span>View All Experiences</span>
               <ArrowRight className="w-4 h-4" />
@@ -129,16 +133,16 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* 5. Why Choose LankaVoyage */}
+      {/* 6. Why Choose LankaVoyage */}
       <WhyLankaVoyage />
 
-      {/* 6. Custom Trip Final CTA */}
+      {/* 7. Final Tropical Story CTA */}
       <CustomTripCTA />
 
-      {/* 7. Traveler Reviews */}
+      {/* 8. Traveler Reviews */}
       <VerifiedReviews />
 
-      {/* 8. Newsletter */}
+      {/* 9. Newsletter */}
       <Newsletter />
 
     </div>
