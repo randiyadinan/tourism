@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Plane, 
@@ -12,7 +12,13 @@ import {
   Loader2, 
   MapPin, 
   Compass, 
-  Search
+  Search,
+  Car,
+  CheckCircle2,
+  Users,
+  Briefcase,
+  Sparkles,
+  X
 } from 'lucide-react';
 import { 
   SUPPORTED_AIRPORTS, 
@@ -28,10 +34,12 @@ import {
 } from '../../services/googleMapsService';
 import { GoogleMapDestinationSelector } from '../../components/transfers/GoogleMapDestinationSelector';
 import { tourService } from '../../services/tourService';
-import { TourCard } from '../../components/tours/TourCard';
+import { TOUR_VEHICLE_OPTIONS, type TourVehicleOption } from '../../data/tourVehiclePricing';
+import type { Tour } from '../../types';
 
 export const AirportTransferPage: React.FC = () => {
   const navigate = useNavigate();
+  const tourBookingSectionRef = useRef<HTMLDivElement>(null);
 
   // 1. AIRPORT (Bandaranaike International CMB default)
   const [selectedAirportId, setSelectedAirportId] = useState<string>('airport-cmb');
@@ -54,13 +62,21 @@ export const AirportTransferPage: React.FC = () => {
   const [isLoadingRoute, setIsLoadingRoute] = useState<boolean>(false);
   const [routeError, setRouteError] = useState<string | null>(null);
 
-  // 5. VEHICLE SELECTION
+  // 5. VEHICLE SELECTION (Airport Transfer)
   const [selectedVehicleId, setSelectedVehicleId] = useState<string>('veh-sedan-luxury');
   const [tripType, setTripType] = useState<'One Way: Airport to Hotel' | 'Round Trip'>('One Way: Airport to Hotel');
 
   // 6. TOURS EXPLORATION SEARCH/FILTER
   const [tourSearchQuery, setTourSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+
+  // 7. DYNAMIC TOUR SELECTION & 2-VEHICLE SELECTION (CAR / VAN)
+  const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
+  const [customTourDays, setCustomTourDays] = useState<number>(0);
+  const [selectedTourVehicleId, setSelectedTourVehicleId] = useState<'car' | 'van' | null>(null);
+  const [tourStartDate, setTourStartDate] = useState<string>('2026-10-15');
+  const [tourAdults, setTourAdults] = useState<number>(2);
+  const [tourChildren, setTourChildren] = useState<number>(0);
 
   // Selected airport memo
   const selectedAirport = useMemo(() => {
@@ -69,7 +85,7 @@ export const AirportTransferPage: React.FC = () => {
 
   const totalPassengers = adults + children + infants;
 
-  // Selected vehicle memo
+  // Selected vehicle memo (Transfer)
   const selectedVehicle: TransferVehicleOption = useMemo(() => {
     return TRANSFER_VEHICLE_OPTIONS.find(v => v.id === selectedVehicleId) || TRANSFER_VEHICLE_OPTIONS[0];
   }, [selectedVehicleId]);
@@ -142,7 +158,34 @@ export const AirportTransferPage: React.FC = () => {
     });
   }, [allTours, selectedCategory, tourSearchQuery]);
 
-  // Re-adjust vehicle if passengers exceed standard car capacity
+  // Dynamic Tour Vehicle Memo
+  const selectedTourVehicle: TourVehicleOption | null = useMemo(() => {
+    if (!selectedTourVehicleId) return null;
+    return TOUR_VEHICLE_OPTIONS.find(v => v.id === selectedTourVehicleId) || null;
+  }, [selectedTourVehicleId]);
+
+  // Dynamic Tour Price Calculation (Daily Rate * Duration in Days)
+  const totalTourPriceLKR = useMemo(() => {
+    if (!selectedTourVehicle || customTourDays <= 0) return 0;
+    return selectedTourVehicle.dailyPriceLKR * customTourDays;
+  }, [selectedTourVehicle, customTourDays]);
+
+  const totalTourPriceUSD = useMemo(() => {
+    if (!selectedTourVehicle || customTourDays <= 0) return 0;
+    return selectedTourVehicle.dailyPriceUSD * customTourDays;
+  }, [selectedTourVehicle, customTourDays]);
+
+  // When customer clicks "Select Tour" from tour cards
+  const handleSelectTour = (tour: Tour) => {
+    setSelectedTour(tour);
+    setCustomTourDays(tour.durationDays);
+    // Auto-scroll gently to the tour vehicle selection area
+    setTimeout(() => {
+      tourBookingSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  };
+
+  // Re-adjust transfer vehicle if passengers exceed standard car capacity
   const handlePassengerChange = (type: 'adults' | 'children' | 'infants', delta: number) => {
     let newAdults = adults;
     let newChildren = children;
@@ -162,6 +205,7 @@ export const AirportTransferPage: React.FC = () => {
     }
   };
 
+  // Direct checkout execution for Airport Transfer
   const handleBookTransfer = () => {
     if (!selectedDestination) {
       alert('Please search and select your destination location on the map.');
@@ -173,7 +217,6 @@ export const AirportTransferPage: React.FC = () => {
       return;
     }
 
-    // Direct booking / checkout execution with real Google Place data
     navigate('/checkout', {
       state: {
         tourId: `transfer-${selectedAirport.code.toLowerCase()}-${encodeURIComponent(selectedDestination.name.toLowerCase().replace(/\s+/g, '-'))}`,
@@ -189,6 +232,41 @@ export const AirportTransferPage: React.FC = () => {
         totalAmount: calculatedPrice,
         destinations: [selectedDestination.name, selectedDestination.formattedAddress],
         vehicleType: selectedVehicle.name
+      }
+    });
+  };
+
+  // Direct checkout execution for Tour Booking (Dynamic Daily Rate * Days)
+  const handleBookTour = () => {
+    if (!selectedTour) {
+      alert('Please select a tour from below.');
+      return;
+    }
+
+    if (!selectedTourVehicle) {
+      alert('Please select a vehicle (Car or Van) for your tour.');
+      return;
+    }
+
+    const totalTourPax = tourAdults + tourChildren;
+    if (totalTourPax > selectedTourVehicle.capacityPassengers) {
+      alert(`The selected ${selectedTourVehicle.categoryTitle} supports up to ${selectedTourVehicle.capacityPassengers} passengers. Please choose a Van or adjust passenger count.`);
+      return;
+    }
+
+    navigate('/checkout', {
+      state: {
+        tourId: selectedTour.id,
+        tourTitle: `${selectedTour.title} (${customTourDays} Days with Private ${selectedTourVehicle.categoryTitle})`,
+        tourImage: selectedTour.heroImage,
+        durationDays: customTourDays,
+        startDate: tourStartDate,
+        adults: tourAdults,
+        children: tourChildren,
+        airportPickup: true,
+        totalAmount: totalTourPriceUSD,
+        destinations: selectedTour.destinations,
+        vehicleType: `${selectedTourVehicle.categoryTitle} (Rs. ${selectedTourVehicle.dailyPriceLKR.toLocaleString()}/day)`
       }
     });
   };
@@ -211,7 +289,7 @@ export const AirportTransferPage: React.FC = () => {
             Your Journey Starts at the Airport
           </h1>
           <p className="text-sm sm:text-base text-[#68736E] leading-relaxed">
-            Book a comfortable private transfer from the airport to your destination with transparent distance-based pricing, or choose an unforgettable multi-day bespoke tour.
+            Book a comfortable private transfer from the airport to your destination with transparent distance-based pricing, or select a handcrafted multi-day tour below.
           </p>
         </div>
 
@@ -695,9 +773,9 @@ export const AirportTransferPage: React.FC = () => {
       </div>
 
       {/* ============================================================ */}
-      {/* 2. EXPLORE OUR TOURS SECTION */}
+      {/* 2. EXPLORE OUR TOURS & 2-VEHICLE BOOKING SECTION */}
       {/* ============================================================ */}
-      <section className="bg-white border-t border-stone-200/80 py-20 sm:py-28">
+      <section className="bg-white border-t border-stone-200/80 py-20 sm:py-28" ref={tourBookingSectionRef}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           
           {/* Section Header */}
@@ -747,12 +825,378 @@ export const AirportTransferPage: React.FC = () => {
             </div>
           </div>
 
+          {/* DYNAMIC TOUR VEHICLE & PRICE CONFIGURATION MODAL / CARD (WHEN A TOUR IS SELECTED) */}
+          {selectedTour && (
+            <div className="bg-[#DDEFE8]/40 border-2 border-[#176B52] rounded-3xl p-6 sm:p-8 shadow-xl space-y-6 animate-fadeIn relative">
+              <button
+                onClick={() => {
+                  setSelectedTour(null);
+                  setSelectedTourVehicleId(null);
+                }}
+                className="absolute top-5 right-5 p-2 rounded-full bg-white text-stone-500 hover:text-[#17231F] shadow-xs border border-stone-200"
+                aria-label="Close tour selection panel"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-stone-200/80 pb-6">
+                <div className="flex items-start gap-4">
+                  <img
+                    src={selectedTour.heroImage}
+                    alt={selectedTour.title}
+                    className="w-24 h-24 rounded-2xl object-cover shrink-0 border border-stone-300 shadow-xs"
+                  />
+                  <div className="space-y-1">
+                    <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#176B52] text-white text-[10px] font-bold uppercase tracking-wider">
+                      <Sparkles className="w-3 h-3 text-[#DDEFE8]" />
+                      Selected Tour Package
+                    </div>
+                    <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#17231F]">
+                      {selectedTour.title}
+                    </h3>
+                    <p className="text-xs text-[#68736E] line-clamp-1">{selectedTour.subtitle}</p>
+                    <div className="flex items-center gap-3 pt-1 text-xs text-[#0B3D2E] font-medium">
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5 text-[#176B52]" />
+                        {selectedTour.durationDays} Days Default Itinerary
+                      </span>
+                      <span>&bull;</span>
+                      <span>{selectedTour.destinations.join(', ')}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Duration Days Increment/Decrement */}
+                <div className="flex items-center gap-3 bg-white p-3 rounded-2xl border border-stone-200 shadow-xs shrink-0">
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-[#68736E] block">Duration Days</span>
+                    <span className="text-xs font-semibold text-[#17231F]">Customizable</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setCustomTourDays(Math.max(1, customTourDays - 1))}
+                      className="w-8 h-8 rounded-full bg-[#F8F7F2] border border-stone-300 flex items-center justify-center text-stone-700 hover:bg-stone-200 font-bold"
+                    >
+                      <Minus className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="font-serif text-lg font-bold w-6 text-center text-[#0B3D2E]">{customTourDays}</span>
+                    <button
+                      type="button"
+                      onClick={() => setCustomTourDays(Math.min(30, customTourDays + 1))}
+                      className="w-8 h-8 rounded-full bg-[#F8F7F2] border border-stone-300 flex items-center justify-center text-stone-700 hover:bg-stone-200 font-bold"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* ONLY TWO VEHICLE CHOICES FOR TOURS: 1. CAR, 2. VAN */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold text-[#176B52] uppercase tracking-wider flex items-center gap-2">
+                    <Car className="w-4 h-4 text-[#176B52]" />
+                    Select Tour Vehicle (Car or Van Only)
+                  </h4>
+                  <span className="text-xs text-[#68736E]">Select exactly one vehicle type</span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {TOUR_VEHICLE_OPTIONS.map((veh) => {
+                    const isSelected = selectedTourVehicleId === veh.id;
+                    const calculatedDailyTotalLKR = veh.dailyPriceLKR * customTourDays;
+                    const calculatedDailyTotalUSD = veh.dailyPriceUSD * customTourDays;
+
+                    return (
+                      <div
+                        key={veh.id}
+                        onClick={() => setSelectedTourVehicleId(veh.id)}
+                        className={`p-5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                          isSelected
+                            ? 'bg-white border-[#0B3D2E] shadow-md ring-2 ring-[#0B3D2E]/20'
+                            : 'bg-white/80 border-stone-200 hover:border-stone-400 hover:bg-white'
+                        }`}
+                      >
+                        <div className="space-y-3">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-center gap-3">
+                              <img
+                                src={veh.image}
+                                alt={veh.name}
+                                className="w-16 h-12 rounded-xl object-cover border border-stone-200 shrink-0"
+                              />
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <h5 className="font-serif text-base font-bold text-[#17231F]">{veh.categoryTitle}</h5>
+                                  <span className="text-[10px] font-bold bg-[#DDEFE8] text-[#176B52] px-2 py-0.5 rounded-full">
+                                    {veh.badge}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-[#68736E] line-clamp-1">{veh.name}</p>
+                              </div>
+                            </div>
+
+                            <input
+                              type="radio"
+                              name="tourVehicleChoice"
+                              checked={isSelected}
+                              onChange={() => setSelectedTourVehicleId(veh.id)}
+                              className="text-[#0B3D2E] focus:ring-[#0B3D2E] w-4 h-4 mt-1"
+                            />
+                          </div>
+
+                          <p className="text-xs text-stone-600">{veh.description}</p>
+
+                          <div className="pt-2 border-t border-stone-100 flex items-center justify-between">
+                            <div>
+                              <span className="text-[10px] uppercase font-bold text-[#68736E] block">Daily Rate</span>
+                              <span className="text-sm font-bold text-[#0B3D2E]">
+                                Rs. {veh.dailyPriceLKR.toLocaleString()} / day
+                              </span>
+                              <span className="text-[11px] text-[#68736E] block">
+                                (${veh.dailyPriceUSD} USD / day)
+                              </span>
+                            </div>
+
+                            <div className="text-right">
+                              <span className="text-[10px] uppercase font-bold text-[#176B52] block">
+                                Total ({customTourDays} Days)
+                              </span>
+                              <span className="font-serif text-lg font-bold text-[#0B3D2E]">
+                                Rs. {calculatedDailyTotalLKR.toLocaleString()}
+                              </span>
+                              <span className="text-xs font-semibold text-[#68736E] block">
+                                (${calculatedDailyTotalUSD} USD)
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="mt-4 pt-3 border-t border-stone-100 flex items-center gap-3 text-[11px] text-[#68736E]">
+                          <span className="flex items-center gap-1">
+                            <Users className="w-3.5 h-3.5 text-[#176B52]" />
+                            Max {veh.capacityPassengers} Pax
+                          </span>
+                          <span>&bull;</span>
+                          <span className="flex items-center gap-1">
+                            <Briefcase className="w-3.5 h-3.5 text-[#176B52]" />
+                            {veh.capacityLuggage} Luggage
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Tour Booking Configuration (Dates and Passengers) */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                <div>
+                  <label className="text-[10px] font-bold text-[#176B52] uppercase tracking-wider block mb-1">
+                    Tour Start Date
+                  </label>
+                  <input
+                    type="date"
+                    value={tourStartDate}
+                    onChange={(e) => setTourStartDate(e.target.value)}
+                    className="w-full bg-white border border-stone-300 rounded-xl p-2.5 text-xs font-medium text-[#17231F] focus:ring-2 focus:ring-[#176B52]"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-[#176B52] uppercase tracking-wider block mb-1">
+                    Adults (Age 12+)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="8"
+                    value={tourAdults}
+                    onChange={(e) => setTourAdults(Math.max(1, parseInt(e.target.value) || 1))}
+                    className="w-full bg-white border border-stone-300 rounded-xl p-2.5 text-xs font-medium text-[#17231F] focus:ring-2 focus:ring-[#176B52]"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-[#176B52] uppercase tracking-wider block mb-1">
+                    Children (Age 2-11)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="6"
+                    value={tourChildren}
+                    onChange={(e) => setTourChildren(Math.max(0, parseInt(e.target.value) || 0))}
+                    className="w-full bg-white border border-stone-300 rounded-xl p-2.5 text-xs font-medium text-[#17231F] focus:ring-2 focus:ring-[#176B52]"
+                  />
+                </div>
+              </div>
+
+              {/* TOUR BOOKING SUMMARY & CHECKOUT BUTTON */}
+              <div className="bg-[#0B3D2E] text-white rounded-2xl p-6 shadow-lg space-y-4 border border-white/10">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/15 pb-4">
+                  <div>
+                    <span className="text-[10px] text-[#39A982] uppercase font-bold tracking-wider block">TOUR BOOKING SUMMARY</span>
+                    <h4 className="font-serif text-xl font-bold">{selectedTour.title}</h4>
+                  </div>
+                  <div className="text-right">
+                    {selectedTourVehicle ? (
+                      <>
+                        <span className="text-[10px] text-[#39A982] uppercase font-bold tracking-wider block">TOTAL TOUR PRICE</span>
+                        <div className="flex items-baseline justify-end gap-1.5">
+                          <span className="font-serif text-2xl sm:text-3xl font-bold">
+                            Rs. {totalTourPriceLKR.toLocaleString()}
+                          </span>
+                          <span className="text-xs text-[#DDEFE8]">
+                            (${totalTourPriceUSD} USD)
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <span className="text-sm font-semibold text-stone-300">Please select Car or Van above</span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-stone-200">
+                  <div>
+                    <span className="text-stone-400 block text-[10px] uppercase font-semibold">Selected Tour</span>
+                    <span className="font-bold text-white truncate block">{selectedTour.title}</span>
+                  </div>
+                  <div>
+                    <span className="text-stone-400 block text-[10px] uppercase font-semibold">Duration</span>
+                    <span className="font-bold text-white">{customTourDays} Days</span>
+                  </div>
+                  <div>
+                    <span className="text-stone-400 block text-[10px] uppercase font-semibold">Selected Vehicle</span>
+                    <span className="font-bold text-white">{selectedTourVehicle ? selectedTourVehicle.categoryTitle : 'Not selected'}</span>
+                  </div>
+                  <div>
+                    <span className="text-stone-400 block text-[10px] uppercase font-semibold">Vehicle Price / Day</span>
+                    <span className="font-bold text-[#39A982]">
+                      {selectedTourVehicle ? `Rs. ${selectedTourVehicle.dailyPriceLKR.toLocaleString()} / day` : '—'}
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleBookTour}
+                  disabled={!selectedTourVehicle}
+                  className={`w-full py-3.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 shadow-md ${
+                    !selectedTourVehicle
+                      ? 'bg-stone-600 text-stone-300 cursor-not-allowed opacity-80'
+                      : 'bg-[#39A982] hover:bg-[#176B52] text-white hover:shadow-lg'
+                  }`}
+                >
+                  {!selectedTourVehicle ? (
+                    <span>Please Select a Vehicle (Car or Van) to Book</span>
+                  ) : (
+                    <>
+                      <span>Book {selectedTour.title} &bull; Rs. {totalTourPriceLKR.toLocaleString()} ({customTourDays} Days with {selectedTourVehicle.categoryTitle})</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
+                </button>
+              </div>
+
+            </div>
+          )}
+
           {/* Tour Cards Grid */}
           {filteredTours.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredTours.map((tour) => (
-                <TourCard key={tour.id} tour={tour} />
-              ))}
+              {filteredTours.map((tour) => {
+                const isCurrentSelected = selectedTour?.id === tour.id;
+
+                return (
+                  <div 
+                    key={tour.id} 
+                    className={`group bg-white rounded-3xl border overflow-hidden transition-all duration-300 flex flex-col justify-between ${
+                      isCurrentSelected 
+                        ? 'border-[#0B3D2E] shadow-xl ring-2 ring-[#0B3D2E]' 
+                        : 'border-stone-200/70 shadow-sm hover:shadow-lg'
+                    }`}
+                  >
+                    {/* Image */}
+                    <div className="relative h-60 overflow-hidden">
+                      <img
+                        src={tour.heroImage}
+                        alt={tour.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        loading="lazy"
+                      />
+                      <div className="absolute top-3.5 left-3.5 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full text-white text-xs font-semibold flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-[#39A982]" />
+                        <span>{tour.durationDays} Days / {tour.durationNights} Nights</span>
+                      </div>
+                      <div className="absolute top-3.5 right-3.5 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full text-[#0B3D2E] text-xs font-bold shadow-xs">
+                        {tour.category}
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-6 flex flex-col justify-between flex-1 space-y-4">
+                      <div className="space-y-2">
+                        <h3 className="font-serif text-xl font-bold text-[#17231F] group-hover:text-[#176B52] transition-colors leading-snug">
+                          {tour.title}
+                        </h3>
+                        <p className="text-xs text-[#176B52] font-semibold">{tour.subtitle}</p>
+                        <p className="text-xs text-[#68736E] line-clamp-2 leading-relaxed">{tour.overview}</p>
+                      </div>
+
+                      {/* Main Destinations */}
+                      <div className="space-y-1.5 pt-2 border-t border-stone-100">
+                        <span className="text-[10px] font-bold text-[#68736E] uppercase tracking-wider block">Destinations Covered</span>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {tour.destinations.slice(0, 4).map((dest, i) => (
+                            <span key={i} className="text-[11px] bg-[#F8F7F2] text-[#0B3D2E] px-2 py-0.5 rounded-md font-medium border border-stone-200">
+                              {dest}
+                            </span>
+                          ))}
+                          {tour.destinations.length > 4 && (
+                            <span className="text-[10px] text-stone-500 font-semibold">
+                              +{tour.destinations.length - 4} more
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Pricing with Vehicle breakdown & Select Button */}
+                      <div className="pt-4 border-t border-stone-100 flex items-center justify-between gap-3">
+                        <div>
+                          <span className="text-[10px] text-[#68736E] block font-medium uppercase tracking-wider">Chauffeured Rates</span>
+                          <div className="text-xs font-bold text-[#0B3D2E]">
+                            <span>Car: Rs. 15,000/day</span>
+                            <span className="text-[#68736E] font-normal block">Van: Rs. 20,000/day</span>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleSelectTour(tour)}
+                          className={`inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold rounded-xl transition-all shadow-xs ${
+                            isCurrentSelected
+                              ? 'bg-[#176B52] text-white'
+                              : 'bg-[#0B3D2E] hover:bg-[#176B52] text-white hover:shadow-md'
+                          }`}
+                        >
+                          {isCurrentSelected ? (
+                            <>
+                              <CheckCircle2 className="w-3.5 h-3.5 text-[#DDEFE8]" />
+                              <span>Configuring</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>Select Tour</span>
+                              <ArrowRight className="w-3.5 h-3.5 text-[#DDEFE8]" />
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <div className="p-12 text-center bg-[#F8F7F2] rounded-3xl border border-stone-200 space-y-3">
