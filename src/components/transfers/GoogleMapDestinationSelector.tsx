@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Search, MapPin, Navigation, X, RefreshCw, Loader2 } from 'lucide-react';
+import { Search, MapPin, Navigation, X, RefreshCw, Loader2, Compass } from 'lucide-react';
 import { 
   AIRPORT_COORDINATES, 
   type PlaceResult, 
@@ -10,7 +10,7 @@ import {
 } from '../../services/googleMapsService';
 
 interface GoogleMapDestinationSelectorProps {
-  selectedDestination: PlaceResult;
+  selectedDestination: PlaceResult | null;
   routeData: RouteResult | null;
   isLoadingRoute: boolean;
   onSelectPlace: (place: PlaceResult) => void;
@@ -38,16 +38,21 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
   const airportMarkerRef = useRef<any>(null);
   const destMarkerRef = useRef<any>(null);
 
-  // Helper to fit bounds to Airport (CMB) and Destination
+  // Helper to fit bounds to Airport (CMB) and Destination (if selected) or center on CMB
   const fitMapBounds = useCallback(() => {
     if (googleMapInstanceRef.current && (window as any).google?.maps) {
       const g = (window as any).google;
       const map = googleMapInstanceRef.current;
 
-      const bounds = new g.maps.LatLngBounds();
-      bounds.extend(new g.maps.LatLng(AIRPORT_COORDINATES.lat, AIRPORT_COORDINATES.lng));
-      bounds.extend(new g.maps.LatLng(selectedDestination.lat, selectedDestination.lng));
-      map.fitBounds(bounds, { top: 40, right: 40, bottom: 40, left: 40 });
+      if (selectedDestination) {
+        const bounds = new g.maps.LatLngBounds();
+        bounds.extend(new g.maps.LatLng(AIRPORT_COORDINATES.lat, AIRPORT_COORDINATES.lng));
+        bounds.extend(new g.maps.LatLng(selectedDestination.lat, selectedDestination.lng));
+        map.fitBounds(bounds, { top: 50, right: 50, bottom: 50, left: 50 });
+      } else {
+        map.setCenter({ lat: 7.8731, lng: 80.7718 });
+        map.setZoom(8);
+      }
     }
   }, [selectedDestination]);
 
@@ -63,10 +68,10 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
           const container = mapContainerRef.current;
           if (container.clientWidth === 0 || container.clientHeight === 0) return;
 
-          // Pure default native ROADMAP
+          // Pure default native ROADMAP centered on Sri Lanka
           const map = new googleObj.maps.Map(container, {
-            center: { lat: selectedDestination.lat || 7.5, lng: selectedDestination.lng || 80.5 },
-            zoom: 9,
+            center: { lat: 7.8731, lng: 80.7718 },
+            zoom: 8,
             mapTypeId: googleObj.maps.MapTypeId.ROADMAP,
             gestureHandling: 'cooperative',
             disableDefaultUI: false,
@@ -91,7 +96,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
           });
           directionsRendererRef.current = directionsRenderer;
 
-          // Airport Marker (CMB)
+          // Airport Marker (CMB) ALWAYS visible
           const airportMarker = new googleObj.maps.Marker({
             position: { lat: AIRPORT_COORDINATES.lat, lng: AIRPORT_COORDINATES.lng },
             map: map,
@@ -99,13 +104,15 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
           });
           airportMarkerRef.current = airportMarker;
 
-          // Destination Marker
-          const destMarker = new googleObj.maps.Marker({
-            position: { lat: selectedDestination.lat, lng: selectedDestination.lng },
-            map: map,
-            title: selectedDestination.name
-          });
-          destMarkerRef.current = destMarker;
+          // Destination Marker (created initially if destination provided, else created on select)
+          if (selectedDestination) {
+            const destMarker = new googleObj.maps.Marker({
+              position: { lat: selectedDestination.lat, lng: selectedDestination.lng },
+              map: map,
+              title: selectedDestination.name
+            });
+            destMarkerRef.current = destMarker;
+          }
 
           // Google Places Autocomplete on input element
           if (searchBoxRef.current && googleObj.maps.places) {
@@ -178,10 +185,21 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
       const g = (window as any).google;
       const map = googleMapInstanceRef.current;
 
-      // Update destination marker position
-      if (destMarkerRef.current) {
-        destMarkerRef.current.setPosition({ lat: selectedDestination.lat, lng: selectedDestination.lng });
-        destMarkerRef.current.setTitle(selectedDestination.name);
+      // Update or clear destination marker position
+      if (selectedDestination) {
+        if (!destMarkerRef.current) {
+          destMarkerRef.current = new g.maps.Marker({
+            position: { lat: selectedDestination.lat, lng: selectedDestination.lng },
+            map: map,
+            title: selectedDestination.name
+          });
+        } else {
+          destMarkerRef.current.setPosition({ lat: selectedDestination.lat, lng: selectedDestination.lng });
+          destMarkerRef.current.setTitle(selectedDestination.name);
+          destMarkerRef.current.setMap(map);
+        }
+      } else if (destMarkerRef.current) {
+        destMarkerRef.current.setMap(null);
       }
 
       // Clear previous fallback polyline if any
@@ -190,12 +208,21 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
         fallbackPolylineRef.current = null;
       }
 
+      // If no destination selected, clear all routes
+      if (!selectedDestination || !routeData) {
+        if (directionsRendererRef.current) {
+          directionsRendererRef.current.set('directions', null);
+        }
+        fitMapBounds();
+        return;
+      }
+
       // 1. Google Directions Route
-      if (routeData?.routeGeometry && directionsRendererRef.current) {
+      if (routeData.routeGeometry && directionsRendererRef.current) {
         directionsRendererRef.current.setDirections(routeData.routeGeometry);
       } 
       // 2. High-precision Road Route Polyline (follows all roads/curves from CMB)
-      else if (routeData?.polylineCoords && routeData.polylineCoords.length > 0) {
+      else if (routeData.polylineCoords && routeData.polylineCoords.length > 0) {
         if (directionsRendererRef.current) {
           directionsRendererRef.current.set('directions', null);
         }
@@ -211,7 +238,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
 
         const bounds = new g.maps.LatLngBounds();
         routeData.polylineCoords.forEach((pt) => bounds.extend(new g.maps.LatLng(pt.lat, pt.lng)));
-        map.fitBounds(bounds, { top: 40, right: 40, bottom: 40, left: 40 });
+        map.fitBounds(bounds, { top: 50, right: 50, bottom: 50, left: 50 });
       } 
       // 3. Re-fit bounds across CMB and Destination
       else {
@@ -429,6 +456,16 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
           }}
         />
 
+        {/* Prompt when no destination selected yet */}
+        {!selectedDestination && (
+          <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-stone-200 shadow-md flex items-center gap-2.5 z-20 pointer-events-none">
+            <Compass className="w-4 h-4 text-[#176B52] animate-pulse" />
+            <span className="text-xs font-semibold text-[#0B3D2E]">
+              Search a destination above to see the real driving route from CMB Airport
+            </span>
+          </div>
+        )}
+
         {/* Loading Route / Resolving Place Overlay */}
         {(isLoadingRoute || isResolvingPlace) && (
           <div className="absolute inset-0 bg-white/70 flex flex-col items-center justify-center gap-2 z-20">
@@ -440,7 +477,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
         )}
 
         {/* Floating Route Info HUD Card */}
-        {routeData && (
+        {selectedDestination && routeData && (
           <div className="absolute bottom-4 left-4 right-4 sm:right-auto sm:max-w-sm bg-white p-4 rounded-2xl border border-stone-200 shadow-xl space-y-2 z-20">
             <div className="flex items-center justify-between text-xs">
               <span className="text-[10px] uppercase font-bold text-[#176B52] tracking-wider flex items-center gap-1.5">
@@ -466,32 +503,39 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
       </div>
 
       {/* 3. Selected Destination Details Bar under Map */}
-      <div className="p-4 sm:p-5 bg-stone-50 border-t border-stone-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#DDEFE8] text-[#176B52] flex items-center justify-center shrink-0">
-            <MapPin className="w-5 h-5" />
+      {selectedDestination ? (
+        <div className="p-4 sm:p-5 bg-stone-50 border-t border-stone-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#DDEFE8] text-[#176B52] flex items-center justify-center shrink-0">
+              <MapPin className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="text-[10px] font-bold text-[#68736E] uppercase tracking-wider block">Selected Destination</span>
+              <h4 className="font-serif font-bold text-sm sm:text-base text-[#17231F]">{selectedDestination.name}</h4>
+              <p className="text-[11px] text-[#68736E] line-clamp-1">{selectedDestination.formattedAddress}</p>
+            </div>
           </div>
-          <div>
-            <span className="text-[10px] font-bold text-[#68736E] uppercase tracking-wider block">Selected Destination</span>
-            <h4 className="font-serif font-bold text-sm sm:text-base text-[#17231F]">{selectedDestination.name}</h4>
-            <p className="text-[11px] text-[#68736E] line-clamp-1">{selectedDestination.formattedAddress}</p>
-          </div>
-        </div>
 
-        <button
-          type="button"
-          onClick={() => {
-            if (searchBoxRef.current) {
-              searchBoxRef.current.focus();
-              searchBoxRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-          }}
-          className="text-xs font-bold text-[#176B52] hover:text-[#0B3D2E] underline flex items-center gap-1 shrink-0"
-        >
-          <RefreshCw className="w-3.5 h-3.5" />
-          <span>Change Destination</span>
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={() => {
+              if (searchBoxRef.current) {
+                searchBoxRef.current.focus();
+                searchBoxRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+            }}
+            className="text-xs font-bold text-[#176B52] hover:text-[#0B3D2E] underline flex items-center gap-1 shrink-0"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span>Change Destination</span>
+          </button>
+        </div>
+      ) : (
+        <div className="p-4 bg-stone-50 border-t border-stone-200 flex items-center gap-3 text-xs text-[#68736E]">
+          <MapPin className="w-4 h-4 text-[#176B52] shrink-0" />
+          <span>No destination selected. Please search and select where you'd like to travel.</span>
+        </div>
+      )}
 
     </div>
   );

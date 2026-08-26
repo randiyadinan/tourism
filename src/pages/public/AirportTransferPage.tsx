@@ -9,7 +9,8 @@ import {
   AlertCircle,
   Plus,
   Minus,
-  Loader2
+  Loader2,
+  MapPin
 } from 'lucide-react';
 import { 
   SUPPORTED_AIRPORTS, 
@@ -41,17 +42,12 @@ export const AirportTransferPage: React.FC = () => {
   const [children, setChildren] = useState<number>(0);
   const [infants, setInfants] = useState<number>(0);
 
-  // 4. GOOGLE MAP SELECTED DESTINATION (Real place object)
-  const [selectedDestination, setSelectedDestination] = useState<PlaceResult>({
-    name: 'Sigiriya Rock Fortress',
-    formattedAddress: 'Sigiriya Ancient City, Central Province, Sri Lanka',
-    lat: 7.9570,
-    lng: 80.7603
-  });
+  // 4. GOOGLE MAP SELECTED DESTINATION (null on initial page load - NO default destination)
+  const [selectedDestination, setSelectedDestination] = useState<PlaceResult | null>(null);
 
-  // ROUTE DATA (Real Driving Route & KM from Google Routes API)
+  // ROUTE DATA (null on initial page load - NO default route)
   const [routeData, setRouteData] = useState<RouteResult | null>(null);
-  const [isLoadingRoute, setIsLoadingRoute] = useState<boolean>(true);
+  const [isLoadingRoute, setIsLoadingRoute] = useState<boolean>(false);
   const [routeError, setRouteError] = useState<string | null>(null);
 
   // 5. VEHICLE SELECTION
@@ -74,8 +70,15 @@ export const AirportTransferPage: React.FC = () => {
   const isVehicleCapacityValid = totalPassengers <= selectedVehicle.capacityPassengers;
   const isRoundTrip = tripType === 'Round Trip';
 
-  // Calculate real driving road distance route via Google Service whenever destination or airport changes
+  // Calculate real driving road distance route via Google Service ONLY when destination is selected
   useEffect(() => {
+    if (!selectedDestination) {
+      setRouteData(null);
+      setIsLoadingRoute(false);
+      setRouteError(null);
+      return;
+    }
+
     let isCancelled = false;
     setIsLoadingRoute(true);
     setRouteError(null);
@@ -103,11 +106,12 @@ export const AirportTransferPage: React.FC = () => {
     };
   }, [selectedDestination, selectedAirport]);
 
-  // Real road distance price calculation (Actual Google Road Distance × Vehicle Rate + Base Fee)
-  const currentDistanceKm = routeData ? routeData.distanceKm : 150;
+  // Real road distance price calculation (0 if no destination selected yet)
+  const currentDistanceKm = routeData ? routeData.distanceKm : 0;
   const calculatedPrice = useMemo(() => {
+    if (!selectedDestination || !routeData) return 0;
     return calculateRealRoadTransferPrice(currentDistanceKm, selectedVehicle, isRoundTrip);
-  }, [currentDistanceKm, selectedVehicle, isRoundTrip]);
+  }, [selectedDestination, routeData, currentDistanceKm, selectedVehicle, isRoundTrip]);
 
   // Re-adjust vehicle if passengers exceed standard car capacity
   const handlePassengerChange = (type: 'adults' | 'children' | 'infants', delta: number) => {
@@ -130,6 +134,11 @@ export const AirportTransferPage: React.FC = () => {
   };
 
   const handleBookTransfer = () => {
+    if (!selectedDestination) {
+      alert('Please search and select your destination location on the map.');
+      return;
+    }
+
     if (!isVehicleCapacityValid) {
       alert(`Please select a vehicle suitable for ${totalPassengers} passengers.`);
       return;
@@ -490,13 +499,21 @@ export const AirportTransferPage: React.FC = () => {
 
                         {/* Price & Selection Button */}
                         <div className="text-right sm:self-center shrink-0">
-                          <div className="flex items-baseline justify-end gap-1">
-                            <span className="font-serif text-xl font-bold text-[#0B3D2E]">${itemPrice}</span>
-                            <span className="text-xs text-[#68736E]">USD</span>
-                          </div>
-                          <span className="text-[10px] text-[#68736E] block">
-                            (${veh.ratePerKmUSD}/km &bull; {currentDistanceKm} km Google Route)
-                          </span>
+                          {selectedDestination && routeData ? (
+                            <>
+                              <div className="flex items-baseline justify-end gap-1">
+                                <span className="font-serif text-xl font-bold text-[#0B3D2E]">${itemPrice}</span>
+                                <span className="text-xs text-[#68736E]">USD</span>
+                              </div>
+                              <span className="text-[10px] text-[#68736E] block">
+                                (${veh.ratePerKmUSD}/km &bull; {currentDistanceKm} km Google Route)
+                              </span>
+                            </>
+                          ) : (
+                            <span className="text-[11px] text-[#176B52] font-semibold block">
+                              From ${veh.baseBookingFeeUSD} + ${veh.ratePerKmUSD}/km
+                            </span>
+                          )}
 
                           {!isCapacityOk ? (
                             <span className="text-[10px] font-bold text-rose-600 block mt-1">
@@ -541,8 +558,10 @@ export const AirportTransferPage: React.FC = () => {
                       <Loader2 className="w-5 h-5 text-[#39A982] animate-spin" />
                       <span className="text-xs text-stone-300">Calculating transfer price...</span>
                     </div>
-                  ) : (
+                  ) : selectedDestination && routeData ? (
                     <span className="font-serif text-3xl font-bold">${calculatedPrice} <span className="text-xs font-sans font-normal text-stone-300">USD</span></span>
+                  ) : (
+                    <span className="text-sm font-semibold text-stone-200 mt-1 block">Select a destination above</span>
                   )}
                 </div>
                 <span className="px-3 py-1 rounded-full text-xs font-semibold bg-white/15 text-[#DDEFE8] border border-white/20">
@@ -565,18 +584,28 @@ export const AirportTransferPage: React.FC = () => {
                 </div>
                 <div className="flex justify-between">
                   <span>Destination:</span>
-                  <span className="font-semibold text-white truncate max-w-[160px]">{selectedDestination.name}</span>
+                  <span className="font-semibold text-white truncate max-w-[160px]">
+                    {selectedDestination ? selectedDestination.name : 'Not selected yet'}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span>Distance:</span>
                   <span className="font-semibold text-[#39A982]">
-                    {isLoadingRoute ? 'Calculating...' : `${currentDistanceKm} km (Real Google Road)`}
+                    {isLoadingRoute 
+                      ? 'Calculating...' 
+                      : selectedDestination && routeData 
+                        ? `${currentDistanceKm} km (Real Google Road)` 
+                        : '—'}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span>Estimated Drive:</span>
                   <span className="font-semibold text-white">
-                    {isLoadingRoute ? 'Calculating...' : (routeData?.durationText || '3.5 hours')}
+                    {isLoadingRoute 
+                      ? 'Calculating...' 
+                      : selectedDestination && routeData 
+                        ? (routeData.durationText || '—') 
+                        : '—'}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -593,20 +622,35 @@ export const AirportTransferPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleBookTransfer}
-                disabled={!isVehicleCapacityValid || isLoadingRoute}
+                disabled={!selectedDestination || !isVehicleCapacityValid || isLoadingRoute}
                 className={`w-full py-4 rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-md ${
-                  !isVehicleCapacityValid || isLoadingRoute
-                    ? 'bg-stone-500 text-stone-300 cursor-not-allowed'
+                  !selectedDestination || !isVehicleCapacityValid || isLoadingRoute
+                    ? 'bg-stone-600 text-stone-300 cursor-not-allowed opacity-80'
                     : 'bg-[#39A982] hover:bg-[#176B52] text-white hover:shadow-lg transform hover:-translate-y-0.5'
                 }`}
               >
-                <span>Book Transfer</span>
-                <ArrowRight className="w-4 h-4 text-white" />
+                {!selectedDestination ? (
+                  <>
+                    <MapPin className="w-4 h-4" />
+                    <span>Please Select a Destination</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Book Transfer &bull; ${calculatedPrice} USD</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
               </button>
 
-              <div className="flex items-center justify-center gap-2 text-[11px] text-stone-300 pt-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#39A982]" />
-                <span>100% Free cancellation up to 24 hours before flight arrival</span>
+              <div className="flex items-center justify-center gap-4 text-[11px] text-stone-300 pt-1">
+                <span className="flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#39A982]" />
+                  Includes Meet & Greet
+                </span>
+                <span>&bull;</span>
+                <span>Free Flight Delay Waiting</span>
+                <span>&bull;</span>
+                <span>All Tolls Included</span>
               </div>
 
             </div>
