@@ -34,8 +34,10 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const googleMapInstanceRef = useRef<any>(null);
   const directionsRendererRef = useRef<any>(null);
+  const airportMarkerRef = useRef<any>(null);
+  const destMarkerRef = useRef<any>(null);
 
-  // Initialize Google Maps JavaScript API and Autocomplete
+  // Initialize Google Maps JavaScript API
   useEffect(() => {
     let isMounted = true;
 
@@ -46,10 +48,12 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
         try {
           setIsGoogleSdkReady(true);
 
-          // Initialize Google Map
+          // Crisp, high-resolution Google Map initialization
           const map = new googleObj.maps.Map(mapContainerRef.current, {
             center: { lat: selectedDestination.lat || 7.5, lng: selectedDestination.lng || 80.5 },
             zoom: 9,
+            mapTypeId: googleObj.maps.MapTypeId.ROADMAP,
+            gestureHandling: 'cooperative',
             styles: [
               {
                 featureType: 'water',
@@ -86,17 +90,49 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
 
           googleMapInstanceRef.current = map;
 
-          // Directions Renderer for real road driving routes
+          // Dedicated Directions Renderer for crisp road routes
           const directionsRenderer = new googleObj.maps.DirectionsRenderer({
             map: map,
             suppressMarkers: false,
             polylineOptions: {
               strokeColor: '#0B3D2E',
               strokeWeight: 5,
-              strokeOpacity: 0.85
+              strokeOpacity: 0.9
             }
           });
           directionsRendererRef.current = directionsRenderer;
+
+          // Airport Marker (CMB)
+          const airportMarker = new googleObj.maps.Marker({
+            position: { lat: AIRPORT_COORDINATES.lat, lng: AIRPORT_COORDINATES.lng },
+            map: map,
+            title: AIRPORT_COORDINATES.name,
+            icon: {
+              path: googleObj.maps.SymbolPath.CIRCLE,
+              scale: 8,
+              fillColor: '#0B3D2E',
+              fillOpacity: 1,
+              strokeColor: '#FFFFFF',
+              strokeWeight: 2.5
+            }
+          });
+          airportMarkerRef.current = airportMarker;
+
+          // Destination Marker
+          const destMarker = new googleObj.maps.Marker({
+            position: { lat: selectedDestination.lat, lng: selectedDestination.lng },
+            map: map,
+            title: selectedDestination.name,
+            icon: {
+              path: googleObj.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+              scale: 6,
+              fillColor: '#176B52',
+              fillOpacity: 1,
+              strokeColor: '#FFFFFF',
+              strokeWeight: 2
+            }
+          });
+          destMarkerRef.current = destMarker;
 
           // Google Places Autocomplete on input element
           if (searchBoxRef.current && googleObj.maps.places) {
@@ -122,6 +158,13 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
               }
             });
           }
+
+          // Initial bounds fit
+          const bounds = new googleObj.maps.LatLngBounds();
+          bounds.extend(new googleObj.maps.LatLng(AIRPORT_COORDINATES.lat, AIRPORT_COORDINATES.lng));
+          bounds.extend(new googleObj.maps.LatLng(selectedDestination.lat, selectedDestination.lng));
+          map.fitBounds(bounds, 60);
+
         } catch (err: any) {
           console.warn('Google Map JS SDK init error:', err);
         }
@@ -133,11 +176,17 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
     };
   }, []);
 
-  // Update Google Map Route and Bounds when destination changes
+  // Update Google Map Route and Bounds when destination or route data changes
   useEffect(() => {
     if (isGoogleSdkReady && googleMapInstanceRef.current && (window as any).google?.maps) {
       const g = (window as any).google;
       const map = googleMapInstanceRef.current;
+
+      // Update destination marker position
+      if (destMarkerRef.current) {
+        destMarkerRef.current.setPosition({ lat: selectedDestination.lat, lng: selectedDestination.lng });
+        destMarkerRef.current.setTitle(selectedDestination.name);
+      }
 
       if (routeData?.routeGeometry && directionsRendererRef.current) {
         directionsRendererRef.current.setDirections(routeData.routeGeometry);
@@ -194,13 +243,11 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
     setShowSuggestions(false);
     setSearchQuery(place.name);
 
-    // If coordinates are already exact (not placeholder)
     if (place.lat && place.lat !== 7.8731 && place.lng !== 80.7718) {
       onSelectPlace(place);
       return;
     }
 
-    // Resolve full geometry if place came from AutocompleteService prediction
     if (place.placeId) {
       setIsResolvingPlace(true);
       const details = await getGooglePlaceDetails(place.placeId, googleMapInstanceRef.current);
@@ -231,7 +278,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
   };
 
   return (
-    <div className="bg-white rounded-3xl border border-stone-200/90 shadow-[0_10px_35px_-10px_rgba(6,44,34,0.08)] overflow-hidden space-y-0">
+    <div className="bg-white rounded-3xl border border-stone-200 shadow-lg overflow-hidden space-y-0">
       
       {/* 1. Google Places Search Bar */}
       <div className="p-4 sm:p-5 bg-white border-b border-stone-100 relative z-30" ref={searchContainerRef}>
@@ -284,9 +331,9 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
           </div>
         </div>
 
-        {/* Suggestions Panel in Liquid Glass */}
+        {/* Suggestions Panel */}
         {showSuggestions && (
-          <div className="absolute left-4 right-4 mt-2 bg-white/95 backdrop-blur-2xl border border-stone-200 rounded-2xl shadow-2xl py-2 max-h-80 overflow-y-auto animate-fadeIn z-50">
+          <div className="absolute left-4 right-4 mt-2 bg-white border border-stone-200 rounded-2xl shadow-2xl py-2 max-h-80 overflow-y-auto z-50">
             <div className="px-3.5 py-1.5 text-[10px] font-bold text-[#176B52] uppercase tracking-wider border-b border-stone-100 flex items-center justify-between">
               <span>Google Maps Places Suggestions</span>
               <span className="text-[10px] text-[#68736E] font-normal">Any Sri Lanka Location</span>
@@ -324,7 +371,6 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
               ))
             )}
 
-            {/* Explicit search trigger at bottom */}
             {searchQuery.trim().length > 0 && (
               <div 
                 onClick={handleExplicitSearch}
@@ -338,29 +384,19 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
         )}
       </div>
 
-      {/* 2. Interactive Map Container (Desktop: 460px, Mobile: 360px) */}
-      <div className="relative w-full h-[360px] sm:h-[460px] bg-[#EAF2ED] overflow-hidden select-none">
+      {/* 2. Crisp, High-Resolution Native Google Maps Canvas (Desktop: 460px, Mobile: 360px) */}
+      <div className="relative w-full h-[360px] sm:h-[460px] bg-[#EAF2ED] overflow-hidden">
         
-        {/* Real Google Map Canvas or Embedded Google Direction Route Viewer */}
-        <div ref={mapContainerRef} className="w-full h-full">
-          {!isGoogleSdkReady && (
-            <iframe
-              title="Google Maps Sri Lanka Route"
-              width="100%"
-              height="100%"
-              style={{ border: 0 }}
-              loading="lazy"
-              allowFullScreen
-              referrerPolicy="no-referrer-when-downgrade"
-              src={`https://maps.google.com/maps?q=${selectedDestination.lat},${selectedDestination.lng}&z=11&output=embed`}
-              className="w-full h-full"
-            />
-          )}
-        </div>
+        {/* Direct Google Maps Canvas without any CSS transforms, filters or scale distortion */}
+        <div 
+          ref={mapContainerRef} 
+          className="w-full h-full"
+          style={{ width: '100%', height: '100%' }}
+        />
 
-        {/* Loading Route Overlay */}
+        {/* Loading Route / Resolving Place Overlay */}
         {(isLoadingRoute || isResolvingPlace) && (
-          <div className="absolute inset-0 bg-white/75 backdrop-blur-xs flex flex-col items-center justify-center gap-2 z-30 animate-fadeIn">
+          <div className="absolute inset-0 bg-white/70 flex flex-col items-center justify-center gap-2 z-20">
             <Loader2 className="w-8 h-8 text-[#176B52] animate-spin" />
             <span className="text-xs font-bold text-[#0B3D2E]">
               {isResolvingPlace ? 'Resolving place location...' : 'Calculating driving route & distance...'}
@@ -368,9 +404,9 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
           </div>
         )}
 
-        {/* Floating Route Info HUD Card (Overlapping bottom left of map in Liquid Glass) */}
+        {/* Floating Route Info HUD Card */}
         {routeData && (
-          <div className="absolute bottom-4 left-4 right-4 sm:right-auto sm:max-w-sm bg-white/90 backdrop-blur-xl p-4 rounded-2xl border border-white/90 shadow-xl space-y-2 z-20 animate-fadeIn">
+          <div className="absolute bottom-4 left-4 right-4 sm:right-auto sm:max-w-sm bg-white p-4 rounded-2xl border border-stone-200 shadow-xl space-y-2 z-20">
             <div className="flex items-center justify-between text-xs">
               <span className="text-[10px] uppercase font-bold text-[#176B52] tracking-wider flex items-center gap-1.5">
                 <Navigation className="w-3.5 h-3.5 text-[#39A982]" />
@@ -395,7 +431,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
       </div>
 
       {/* 3. Selected Destination Details Bar under Map */}
-      <div className="p-4 sm:p-5 bg-stone-50 border-t border-stone-200/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <div className="p-4 sm:p-5 bg-stone-50 border-t border-stone-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-[#DDEFE8] text-[#176B52] flex items-center justify-center shrink-0">
             <MapPin className="w-5 h-5" />
