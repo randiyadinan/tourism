@@ -1,6 +1,6 @@
 /**
- * Clean Google Maps Platform Loader & Directions Service for LankaVoyage
- * Uses the official Google Maps JavaScript API dynamic loader pattern.
+ * Official Standard Google Maps JavaScript API Loader & Services for LankaVoyage
+ * Uses direct standard Google Maps API loading without custom downsampling.
  */
 
 // Bandaranaike International Airport (CMB) exact coordinates
@@ -36,7 +36,7 @@ let googleMapsPromise: Promise<any> | null = null;
 let placesServiceInstance: any = null;
 
 /**
- * Load Google Maps JavaScript API with v=weekly / v=quarterly for crisp Retina/WebGL vector rendering
+ * Standard Singleton Loader for Google Maps JavaScript API
  */
 export const loadGoogleMapsScript = (): Promise<any> => {
   if (typeof window !== 'undefined' && (window as any).google?.maps) {
@@ -59,20 +59,21 @@ export const loadGoogleMapsScript = (): Promise<any> => {
   }
 
   googleMapsPromise = new Promise((resolve) => {
-    const existingScript = document.getElementById('google-maps-script');
+    // Check if script element is already in DOM
+    const existingScript = document.getElementById('google-maps-api-script');
     if (existingScript) {
       if ((window as any).google?.maps) {
         resolve((window as any).google);
       } else {
         existingScript.addEventListener('load', () => resolve((window as any).google));
+        existingScript.addEventListener('error', () => resolve(null));
       }
       return;
     }
 
     const script = document.createElement('script');
-    script.id = 'google-maps-script';
-    // Load modern Maps JavaScript API with places, geometry libraries and async loading
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,geometry&v=weekly&loading=async`;
+    script.id = 'google-maps-api-script';
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,geometry&v=weekly`;
     script.async = true;
     script.defer = true;
 
@@ -85,7 +86,7 @@ export const loadGoogleMapsScript = (): Promise<any> => {
     };
 
     script.onerror = () => {
-      console.warn('Failed to load Google Maps JavaScript API script.');
+      console.warn('Google Maps script failed to load.');
       resolve(null);
     };
 
@@ -252,7 +253,7 @@ export async function searchGooglePlaces(query: string, mapInstance?: any): Prom
     }
   }
 
-  // 3. Fallback Open Places Search when client key is unconfigured
+  // 3. Fallback Open Places Search
   try {
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
       trimmedQuery + ', Sri Lanka'

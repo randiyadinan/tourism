@@ -50,7 +50,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
     }
   }, [selectedDestination]);
 
-  // Clean initialization of native Google Maps JavaScript API
+  // Clean initialization of standard native Google Maps JavaScript API
   useEffect(() => {
     let isMounted = true;
 
@@ -60,40 +60,14 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
       if (googleObj && googleObj.maps && mapContainerRef.current) {
         try {
           const container = mapContainerRef.current;
+          if (container.clientWidth === 0 || container.clientHeight === 0) return;
 
-          // Pure native Google Map canvas with no scaling or distortion
+          // Pure default native ROADMAP with zero custom style desaturation/scaling
           const map = new googleObj.maps.Map(container, {
             center: { lat: selectedDestination.lat || 7.5, lng: selectedDestination.lng || 80.5 },
             zoom: 9,
             mapTypeId: googleObj.maps.MapTypeId.ROADMAP,
             gestureHandling: 'cooperative',
-            styles: [
-              {
-                featureType: 'water',
-                elementType: 'geometry',
-                stylers: [{ color: '#D5E6DC' }]
-              },
-              {
-                featureType: 'landscape',
-                elementType: 'geometry',
-                stylers: [{ color: '#F4F8F5' }]
-              },
-              {
-                featureType: 'road',
-                elementType: 'geometry',
-                stylers: [{ color: '#FFFFFF' }]
-              },
-              {
-                featureType: 'road.highway',
-                elementType: 'geometry',
-                stylers: [{ color: '#176B52' }, { lightness: 40 }]
-              },
-              {
-                featureType: 'poi',
-                elementType: 'all',
-                stylers: [{ visibility: 'off' }]
-              }
-            ],
             disableDefaultUI: false,
             zoomControl: true,
             mapTypeControl: false,
@@ -120,15 +94,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
           const airportMarker = new googleObj.maps.Marker({
             position: { lat: AIRPORT_COORDINATES.lat, lng: AIRPORT_COORDINATES.lng },
             map: map,
-            title: AIRPORT_COORDINATES.name,
-            icon: {
-              path: googleObj.maps.SymbolPath.CIRCLE,
-              scale: 8,
-              fillColor: '#0B3D2E',
-              fillOpacity: 1,
-              strokeColor: '#FFFFFF',
-              strokeWeight: 2.5
-            }
+            title: AIRPORT_COORDINATES.name
           });
           airportMarkerRef.current = airportMarker;
 
@@ -136,15 +102,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
           const destMarker = new googleObj.maps.Marker({
             position: { lat: selectedDestination.lat, lng: selectedDestination.lng },
             map: map,
-            title: selectedDestination.name,
-            icon: {
-              path: googleObj.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-              scale: 6,
-              fillColor: '#176B52',
-              fillOpacity: 1,
-              strokeColor: '#FFFFFF',
-              strokeWeight: 2
-            }
+            title: selectedDestination.name
           });
           destMarkerRef.current = destMarker;
 
@@ -173,7 +131,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
             });
           }
 
-          // Trigger resize event after initial layout to ensure crisp 1:1 pixel rendering
+          // Initial resize trigger
           googleObj.maps.event.trigger(map, 'resize');
           fitMapBounds();
 
@@ -188,16 +146,20 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
     };
   }, []);
 
-  // ResizeObserver: Trigger google.maps.event.trigger(map, 'resize') on container resize
+  // ResizeObserver: Trigger google.maps.event.trigger(map, 'resize') on container dimensions changes
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
-    const resizeObserver = new ResizeObserver(() => {
-      if (googleMapInstanceRef.current && (window as any).google?.maps) {
-        const g = (window as any).google;
-        g.maps.event.trigger(googleMapInstanceRef.current, 'resize');
-        if (!routeData?.routeGeometry) {
-          fitMapBounds();
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.contentRect.width > 0 && entry.contentRect.height > 0) {
+          if (googleMapInstanceRef.current && (window as any).google?.maps) {
+            const g = (window as any).google;
+            g.maps.event.trigger(googleMapInstanceRef.current, 'resize');
+            if (!routeData?.routeGeometry) {
+              fitMapBounds();
+            }
+          }
         }
       }
     });
@@ -407,14 +369,28 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
         )}
       </div>
 
-      {/* 2. Crisp, High-Resolution Native Google Maps Canvas Container */}
-      <div className="relative w-full min-h-[360px] md:min-h-[460px] h-[360px] md:h-[460px] bg-[#EAF2ED] overflow-hidden">
-        
-        {/* Direct Google Maps Canvas: No transforms, no filters, 1:1 pixel rendering */}
+      {/* 2. Direct High-Resolution Google Maps Container */}
+      <div 
+        className="w-full relative overflow-hidden bg-[#EAF2ED]"
+        style={{
+          width: '100%',
+          height: '460px',
+          minHeight: '360px',
+          position: 'relative'
+        }}
+      >
+        {/* The Native Google Maps Canvas */}
         <div 
           ref={mapContainerRef} 
-          className="w-full h-full"
-          style={{ width: '100%', height: '100%' }}
+          style={{
+            width: '100%',
+            height: '100%',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0
+          }}
         />
 
         {/* Loading Route / Resolving Place Overlay */}
