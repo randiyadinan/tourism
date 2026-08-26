@@ -1,9 +1,9 @@
 /**
- * Official Standard Google Maps JavaScript API Loader & Services for LankaVoyage
- * Uses direct standard Google Maps API loading without custom downsampling.
+ * Official Standard Google Maps JavaScript API Loader & Directions Service for LankaVoyage
+ * Always calculates real driving routes originating from Bandaranaike International Airport (CMB).
  */
 
-// Bandaranaike International Airport (CMB) exact coordinates
+// Bandaranaike International Airport (CMB) exact coordinates - ALWAYS THE ORIGIN
 export const AIRPORT_COORDINATES = {
   lat: 7.1808,
   lng: 79.8841,
@@ -27,6 +27,7 @@ export interface RouteResult {
   durationText: string;
   durationMinutes: number;
   routeGeometry?: any;
+  polylineCoords?: { lat: number; lng: number }[];
   isLiveGoogleRoute: boolean;
   status: 'SUCCESS' | 'CALCULATING' | 'ERROR';
   errorMessage?: string;
@@ -59,7 +60,6 @@ export const loadGoogleMapsScript = (): Promise<any> => {
   }
 
   googleMapsPromise = new Promise((resolve) => {
-    // Check if script element is already in DOM
     const existingScript = document.getElementById('google-maps-api-script');
     if (existingScript) {
       if ((window as any).google?.maps) {
@@ -288,22 +288,60 @@ export async function searchGooglePlaces(query: string, mapInstance?: any): Prom
 }
 
 /**
+ * Decode an encoded polyline into an array of {lat, lng}
+ */
+function decodePolyline(encoded: string): { lat: number; lng: number }[] {
+  const poly: { lat: number; lng: number }[] = [];
+  let index = 0, len = encoded.length;
+  let lat = 0, lng = 0;
+
+  while (index < len) {
+    let b, shift = 0, result = 0;
+    do {
+      b = encoded.charCodeAt(index++) - 63;
+      result |= (b & 0x1f) << shift;
+      shift += 5;
+    } while (b >= 0x20);
+    const dlat = ((result & 1) !== 0 ? ~(result >> 1) : (result >> 1));
+    lat += dlat;
+
+    shift = 0;
+    result = 0;
+    do {
+      b = encoded.charCodeAt(index++) - 63;
+      result |= (b & 0x1f) << shift;
+      shift += 5;
+    } while (b >= 0x20);
+    const dlng = ((result & 1) !== 0 ? ~(result >> 1) : (result >> 1));
+    lng += dlng;
+
+    poly.push({ lat: lat / 1e5, lng: lng / 1e5 });
+  }
+
+  return poly;
+}
+
+/**
  * Calculate Real Driving Road Distance & Duration using Google Directions / Routes Service
+ * Origin is ALWAYS Bandaranaike International Airport (CMB).
  */
 export async function calculateGoogleRoute(
-  origin: { lat: number; lng: number; name?: string },
+  origin: { lat?: number; lng?: number; name?: string } | undefined,
   dest: { lat: number; lng: number; name?: string; address?: string }
 ): Promise<RouteResult> {
   const g = typeof window !== 'undefined' ? (window as any).google : null;
+  const originLat = origin?.lat || AIRPORT_COORDINATES.lat;
+  const originLng = origin?.lng || AIRPORT_COORDINATES.lng;
+  const originName = origin?.name || AIRPORT_COORDINATES.name;
 
-  // Primary: Google Maps DirectionsService
+  // 1. Primary: Google Maps DirectionsService
   if (g?.maps?.DirectionsService) {
     try {
       const directionsService = new g.maps.DirectionsService();
       const result = await new Promise<any>((resolve, reject) => {
         directionsService.route(
           {
-            origin: new g.maps.LatLng(origin.lat, origin.lng),
+            origin: new g.maps.LatLng(originLat, originLng),
             destination: new g.maps.LatLng(dest.lat, dest.lng),
             travelMode: g.maps.TravelMode.DRIVING,
             drivingOptions: {
@@ -328,7 +366,7 @@ export async function calculateGoogleRoute(
       const durationMinutes = Math.round((leg.duration?.value || 0) / 60);
 
       return {
-        origin: origin.name || 'Bandaranaike International Airport (CMB)',
+        origin: originName,
         destination: dest.name || 'Selected Destination',
         distanceKm: Math.max(8, distanceKm),
         durationText: durationText,
@@ -342,9 +380,9 @@ export async function calculateGoogleRoute(
     }
   }
 
-  // Fallback Driving Route Engine
+  // 2. Fallback Real Road Driving Route Engine (OSRM road geometry with full polyline)
   try {
-    const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${origin.lng},${origin.lat};${dest.lng},${dest.lat}?overview=false`;
+    const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${originLng},${originLat};${dest.lng},${dest.lat}?overview=full&geometries=polyline`;
     const response = await fetch(osrmUrl);
     if (response.ok) {
       const data = await response.json();
@@ -355,13 +393,15 @@ export async function calculateGoogleRoute(
         const hours = Math.floor(durationMinutes / 60);
         const mins = durationMinutes % 60;
         const durationText = hours > 0 ? (mins > 0 ? `${hours} hr ${mins} min` : `${hours} hours`) : `${mins} mins`;
+        const polylineCoords = route.geometry ? decodePolyline(route.geometry) : undefined;
 
         return {
-          origin: origin.name || 'Bandaranaike International Airport (CMB)',
+          origin: originName,
           destination: dest.name || 'Selected Destination',
           distanceKm: Math.max(8, distanceKm),
           durationText: durationText,
           durationMinutes: durationMinutes,
+          polylineCoords: polylineCoords,
           isLiveGoogleRoute: false,
           status: 'SUCCESS'
         };
@@ -371,13 +411,13 @@ export async function calculateGoogleRoute(
     console.warn('Routing engine error:', err);
   }
 
-  // Precision Road Terrain Model
+  // 3. Fallback Terrain Estimation
   const R = 6371;
-  const dLat = ((dest.lat - origin.lat) * Math.PI) / 180;
-  const dLon = ((dest.lng - origin.lng) * Math.PI) / 180;
+  const dLat = ((dest.lat - originLat) * Math.PI) / 180;
+  const dLon = ((dest.lng - originLng) * Math.PI) / 180;
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((origin.lat * Math.PI) / 180) *
+    Math.cos((originLat * Math.PI) / 180) *
       Math.cos((dest.lat * Math.PI) / 180) *
       Math.sin(dLon / 2) *
       Math.sin(dLon / 2);
@@ -395,7 +435,7 @@ export async function calculateGoogleRoute(
   const durationText = hours > 0 ? (mins > 0 ? `${hours} hr ${mins} min` : `${hours} hours`) : `${mins} mins`;
 
   return {
-    origin: origin.name || 'Bandaranaike International Airport (CMB)',
+    origin: originName,
     destination: dest.name || 'Selected Destination',
     distanceKm: Math.max(8, roadDistanceKm),
     durationText: durationText,

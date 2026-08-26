@@ -34,6 +34,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const googleMapInstanceRef = useRef<any>(null);
   const directionsRendererRef = useRef<any>(null);
+  const fallbackPolylineRef = useRef<any>(null);
   const airportMarkerRef = useRef<any>(null);
   const destMarkerRef = useRef<any>(null);
 
@@ -62,7 +63,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
           const container = mapContainerRef.current;
           if (container.clientWidth === 0 || container.clientHeight === 0) return;
 
-          // Pure default native ROADMAP with zero custom style desaturation/scaling
+          // Pure default native ROADMAP
           const map = new googleObj.maps.Map(container, {
             center: { lat: selectedDestination.lat || 7.5, lng: selectedDestination.lng || 80.5 },
             zoom: 9,
@@ -156,7 +157,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
           if (googleMapInstanceRef.current && (window as any).google?.maps) {
             const g = (window as any).google;
             g.maps.event.trigger(googleMapInstanceRef.current, 'resize');
-            if (!routeData?.routeGeometry) {
+            if (!routeData?.routeGeometry && !routeData?.polylineCoords) {
               fitMapBounds();
             }
           }
@@ -174,14 +175,49 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
   // Update Google Map Route and Bounds when destination or route data changes
   useEffect(() => {
     if (isGoogleSdkReady && googleMapInstanceRef.current && (window as any).google?.maps) {
+      const g = (window as any).google;
+      const map = googleMapInstanceRef.current;
+
+      // Update destination marker position
       if (destMarkerRef.current) {
         destMarkerRef.current.setPosition({ lat: selectedDestination.lat, lng: selectedDestination.lng });
         destMarkerRef.current.setTitle(selectedDestination.name);
       }
 
+      // Clear previous fallback polyline if any
+      if (fallbackPolylineRef.current) {
+        fallbackPolylineRef.current.setMap(null);
+        fallbackPolylineRef.current = null;
+      }
+
+      // 1. Google Directions Route
       if (routeData?.routeGeometry && directionsRendererRef.current) {
         directionsRendererRef.current.setDirections(routeData.routeGeometry);
-      } else {
+      } 
+      // 2. High-precision Road Route Polyline (follows all roads/curves from CMB)
+      else if (routeData?.polylineCoords && routeData.polylineCoords.length > 0) {
+        if (directionsRendererRef.current) {
+          directionsRendererRef.current.set('directions', null);
+        }
+        const polyline = new g.maps.Polyline({
+          path: routeData.polylineCoords,
+          geodesic: false,
+          strokeColor: '#0B3D2E',
+          strokeOpacity: 0.9,
+          strokeWeight: 5,
+          map: map
+        });
+        fallbackPolylineRef.current = polyline;
+
+        const bounds = new g.maps.LatLngBounds();
+        routeData.polylineCoords.forEach((pt) => bounds.extend(new g.maps.LatLng(pt.lat, pt.lng)));
+        map.fitBounds(bounds, { top: 40, right: 40, bottom: 40, left: 40 });
+      } 
+      // 3. Re-fit bounds across CMB and Destination
+      else {
+        if (directionsRendererRef.current) {
+          directionsRendererRef.current.set('directions', null);
+        }
         fitMapBounds();
       }
     }
