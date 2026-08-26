@@ -43,15 +43,15 @@ export const ManageToursPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#082F24]">Manage Tours & Catalog</h1>
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#062C22]">Manage Tours & Catalog</h1>
           <p className="text-xs text-stone-500">Create, edit, publish, or feature signature Sri Lankan itineraries.</p>
         </div>
 
         <Link
           to="/admin/tours/new"
-          className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#0D3B2E] text-white hover:bg-[#134E3F] text-xs font-bold rounded-xl shadow-sm transition-all"
+          className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#0B3D2E] text-white hover:bg-[#134E3F] text-xs font-bold rounded-xl shadow-sm transition-all"
         >
-          <Plus className="w-4 h-4 text-[#E5C378]" />
+          <Plus className="w-4 h-4 text-[#39A982]" />
           <span>Add New Tour</span>
         </Link>
       </div>
@@ -64,7 +64,7 @@ export const ManageToursPage: React.FC = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Filter tours by title or category..."
-          className="w-full bg-transparent border-none text-xs text-[#082F24] focus:outline-none"
+          className="w-full bg-transparent border-none text-xs text-[#062C22] focus:outline-none"
         />
       </div>
 
@@ -72,7 +72,7 @@ export const ManageToursPage: React.FC = () => {
       <div className="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#FAF8F5] text-stone-700 font-bold border-b border-stone-200">
+            <thead className="bg-[#F8F7F2] text-stone-700 font-bold border-b border-stone-200">
               <tr>
                 <th className="py-3.5 px-6">Tour Title</th>
                 <th className="py-3.5 px-4">Category</th>
@@ -89,18 +89,18 @@ export const ManageToursPage: React.FC = () => {
                   <td className="py-4 px-6 flex items-center gap-3">
                     <img src={tour.heroImage} alt={tour.title} className="w-12 h-12 rounded-xl object-cover" />
                     <div>
-                      <h4 className="font-serif font-bold text-xs text-[#082F24] line-clamp-1">{tour.title}</h4>
+                      <h4 className="font-serif font-bold text-xs text-[#062C22] line-clamp-1">{tour.title}</h4>
                       <p className="text-[10px] text-stone-400">{tour.destinations.join(' • ')}</p>
                     </div>
                   </td>
-                  <td className="py-4 px-4 font-semibold text-[#8C6D2B]">{tour.category}</td>
+                  <td className="py-4 px-4 font-semibold text-[#176B52]">{tour.category}</td>
                   <td className="py-4 px-4">{tour.durationDays} Days / {tour.durationNights} Nights</td>
-                  <td className="py-4 px-4 font-bold text-[#082F24]">${tour.pricePerPerson}</td>
+                  <td className="py-4 px-4 font-bold text-[#062C22]">${tour.pricePerPerson}</td>
                   <td className="py-4 px-4">
                     <button
                       onClick={() => handleToggleFeatured(tour.id)}
                       className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                        tour.featured ? 'bg-[#C5A059] text-[#082F24]' : 'bg-stone-100 text-stone-500'
+                        tour.featured ? 'bg-[#176B52] text-[#062C22]' : 'bg-stone-100 text-stone-500'
                       }`}
                     >
                       {tour.featured ? '★ Featured' : 'Standard'}
@@ -120,14 +120,14 @@ export const ManageToursPage: React.FC = () => {
                     <div className="flex items-center justify-end gap-2">
                       <Link
                         to={`/tours/${tour.slug}`}
-                        className="p-1.5 text-stone-400 hover:text-[#0D3B2E]"
+                        className="p-1.5 text-stone-400 hover:text-[#0B3D2E]"
                         title="View public page"
                       >
                         <Eye className="w-4 h-4" />
                       </Link>
                       <Link
                         to={`/admin/tours/${tour.id}/edit`}
-                        className="p-1.5 text-stone-400 hover:text-[#0D3B2E]"
+                        className="p-1.5 text-stone-400 hover:text-[#0B3D2E]"
                         title="Edit Tour"
                       >
                         <Edit3 className="w-4 h-4" />

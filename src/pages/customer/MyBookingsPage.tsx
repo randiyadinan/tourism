@@ -25,15 +25,15 @@ export const MyBookingsPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#082F24]">My Bookings & Vouchers</h1>
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#062C22]">My Bookings & Vouchers</h1>
           <p className="text-xs text-stone-500">Access your digital vouchers, invoices, and payment receipts.</p>
         </div>
 
         <Link
           to="/customize"
-          className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#0D3B2E] text-white hover:bg-[#134E3F] text-xs font-bold rounded-xl shadow-sm transition-all"
+          className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#0B3D2E] text-white hover:bg-[#134E3F] text-xs font-bold rounded-xl shadow-sm transition-all"
         >
-          <Sparkles className="w-3.5 h-3.5 text-[#E5C378]" />
+          <Sparkles className="w-3.5 h-3.5 text-[#39A982]" />
           <span>Book Another Trip</span>
         </Link>
       </div>
@@ -46,7 +46,7 @@ export const MyBookingsPage: React.FC = () => {
             onClick={() => setFilterStatus(status)}
             className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
               filterStatus === status
-                ? 'bg-[#0D3B2E] text-white shadow-sm'
+                ? 'bg-[#0B3D2E] text-white shadow-sm'
                 : 'bg-white text-stone-700 border border-stone-200 hover:bg-stone-50'
             }`}
           >
@@ -71,7 +71,7 @@ export const MyBookingsPage: React.FC = () => {
                 />
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-[#8C6D2B]">
+                    <span className="text-xs font-bold text-[#176B52]">
                       {booking.bookingCode}
                     </span>
                     <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
@@ -85,22 +85,22 @@ export const MyBookingsPage: React.FC = () => {
                     }`}>
                       {booking.bookingStatus}
                     </span>
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#FAF8F5] border border-stone-200 text-stone-700">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#F8F7F2] border border-stone-200 text-stone-700">
                       {booking.paymentStatus}
                     </span>
                   </div>
 
-                  <h3 className="font-serif font-bold text-base text-[#082F24]">{booking.tourTitle}</h3>
+                  <h3 className="font-serif font-bold text-base text-[#062C22]">{booking.tourTitle}</h3>
 
                   <div className="flex flex-wrap items-center gap-4 text-xs text-stone-500">
                     <span className="flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5 text-[#C5A059]" />
+                      <Calendar className="w-3.5 h-3.5 text-[#176B52]" />
                       {booking.startDate} to {booking.endDate}
                     </span>
                     <span>•</span>
                     <span>{booking.adultsCount} Adults{booking.childrenCount > 0 ? `, ${booking.childrenCount} Kids` : ''}</span>
                     <span>•</span>
-                    <span className="font-bold text-[#082F24]">${booking.totalAmount.toLocaleString()} USD</span>
+                    <span className="font-bold text-[#062C22]">${booking.totalAmount.toLocaleString()} USD</span>
                   </div>
                 </div>
               </div>
@@ -109,7 +109,7 @@ export const MyBookingsPage: React.FC = () => {
               <div className="flex items-center gap-2 w-full md:w-auto justify-end border-t md:border-t-0 pt-4 md:pt-0 border-stone-100">
                 <Link
                   to={`/customer/bookings/${booking.id}`}
-                  className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#0D3B2E] text-white hover:bg-[#134E3F] text-xs font-bold rounded-xl shadow-sm transition-all"
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#0B3D2E] text-white hover:bg-[#134E3F] text-xs font-bold rounded-xl shadow-sm transition-all"
                 >
                   <Eye className="w-4 h-4" />
                   <span>View Voucher & Details</span>

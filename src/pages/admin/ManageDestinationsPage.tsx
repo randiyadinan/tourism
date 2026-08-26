@@ -70,15 +70,15 @@ export const ManageDestinationsPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#082F24]">Manage Destinations</h1>
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#062C22]">Manage Destinations</h1>
           <p className="text-xs text-stone-500">Manage Sri Lankan regional catalog, seasons, and highlights.</p>
         </div>
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#0D3B2E] text-white hover:bg-[#134E3F] text-xs font-bold rounded-xl shadow-sm transition-all"
+          className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#0B3D2E] text-white hover:bg-[#134E3F] text-xs font-bold rounded-xl shadow-sm transition-all"
         >
-          <Plus className="w-4 h-4 text-[#E5C378]" />
+          <Plus className="w-4 h-4 text-[#39A982]" />
           <span>Add New Destination</span>
         </button>
       </div>
@@ -91,7 +91,7 @@ export const ManageDestinationsPage: React.FC = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Filter destinations by name or province..."
-          className="w-full bg-transparent border-none text-xs text-[#082F24] focus:outline-none"
+          className="w-full bg-transparent border-none text-xs text-[#062C22] focus:outline-none"
         />
       </div>
 
@@ -99,7 +99,7 @@ export const ManageDestinationsPage: React.FC = () => {
       <div className="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#FAF8F5] text-stone-700 font-bold border-b border-stone-200">
+            <thead className="bg-[#F8F7F2] text-stone-700 font-bold border-b border-stone-200">
               <tr>
                 <th className="py-3.5 px-6">Destination</th>
                 <th className="py-3.5 px-4">Province</th>
@@ -115,14 +115,14 @@ export const ManageDestinationsPage: React.FC = () => {
                   <td className="py-4 px-6 flex items-center gap-3">
                     <img src={dest.heroImage} alt={dest.name} className="w-12 h-12 rounded-xl object-cover" />
                     <div>
-                      <h4 className="font-serif font-bold text-xs text-[#082F24]">{dest.name}</h4>
+                      <h4 className="font-serif font-bold text-xs text-[#062C22]">{dest.name}</h4>
                       <p className="text-[10px] text-stone-400">{dest.tagline}</p>
                     </div>
                   </td>
-                  <td className="py-4 px-4 font-semibold text-[#8C6D2B]">{dest.province}</td>
+                  <td className="py-4 px-4 font-semibold text-[#176B52]">{dest.province}</td>
                   <td className="py-4 px-4">{dest.bestTimeToVisit}</td>
                   <td className="py-4 px-4">{dest.recommendedDuration}</td>
-                  <td className="py-4 px-4 font-bold text-[#082F24]">${dest.startingPrice}</td>
+                  <td className="py-4 px-4 font-bold text-[#062C22]">${dest.startingPrice}</td>
                   <td className="py-4 px-6 text-right">
                     <button
                       onClick={() => handleDelete(dest.id)}
@@ -155,7 +155,7 @@ export const ManageDestinationsPage: React.FC = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Jaffna"
-              className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#082F24]"
+              className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
             />
           </div>
 
@@ -167,7 +167,7 @@ export const ManageDestinationsPage: React.FC = () => {
                 value={sinhalaName}
                 onChange={(e) => setSinhalaName(e.target.value)}
                 placeholder="e.g. යාපනය"
-                className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#082F24]"
+                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
               />
             </div>
             <div className="space-y-1">
@@ -175,7 +175,7 @@ export const ManageDestinationsPage: React.FC = () => {
               <select
                 value={province}
                 onChange={(e) => setProvince(e.target.value)}
-                className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#082F24]"
+                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
               >
                 <option value="Central Province">Central Province</option>
                 <option value="Southern Province">Southern Province</option>
@@ -194,7 +194,7 @@ export const ManageDestinationsPage: React.FC = () => {
               value={tagline}
               onChange={(e) => setTagline(e.target.value)}
               placeholder="e.g. Historic Forts & Vibrant Culture"
-              className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#082F24]"
+              className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
             />
           </div>
 
@@ -206,7 +206,7 @@ export const ManageDestinationsPage: React.FC = () => {
               value={shortDescription}
               onChange={(e) => setShortDescription(e.target.value)}
               placeholder="Overview of region..."
-              className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#082F24]"
+              className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
             />
           </div>
 
@@ -217,7 +217,7 @@ export const ManageDestinationsPage: React.FC = () => {
                 type="text"
                 value={bestTimeToVisit}
                 onChange={(e) => setBestTimeToVisit(e.target.value)}
-                className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#082F24]"
+                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
               />
             </div>
             <div className="space-y-1">
@@ -226,7 +226,7 @@ export const ManageDestinationsPage: React.FC = () => {
                 type="number"
                 value={startingPrice}
                 onChange={(e) => setStartingPrice(Number(e.target.value))}
-                className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#082F24]"
+                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
               />
             </div>
           </div>
@@ -237,13 +237,13 @@ export const ManageDestinationsPage: React.FC = () => {
               type="url"
               value={heroImage}
               onChange={(e) => setHeroImage(e.target.value)}
-              className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#082F24]"
+              className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full py-3.5 bg-[#0D3B2E] text-white font-bold text-xs rounded-xl shadow-md hover:bg-[#134E3F] transition-colors"
+            className="w-full py-3.5 bg-[#0B3D2E] text-white font-bold text-xs rounded-xl shadow-md hover:bg-[#134E3F] transition-colors"
           >
             Save Destination to Database
           </button>

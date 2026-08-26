@@ -72,7 +72,7 @@ export const AdminLayout: React.FC = () => {
       <TopAnnouncement />
 
       {/* Admin Topbar */}
-      <header className="bg-[#082F24] border-b border-[#C5A059]/20 text-white px-4 sm:px-8 py-3.5 sticky top-0 z-40 shadow-md">
+      <header className="bg-[#062C22] border-b border-[#176B52]/20 text-white px-4 sm:px-8 py-3.5 sticky top-0 z-40 shadow-md">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
@@ -82,11 +82,11 @@ export const AdminLayout: React.FC = () => {
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
             <Link to="/admin" className="flex items-center gap-2">
-              <Shield className="w-6 h-6 text-[#E5C378]" />
+              <Shield className="w-6 h-6 text-[#39A982]" />
               <span className="font-serif text-xl font-bold tracking-wide">
-                Lanka<span className="text-[#E5C378]">Voyage</span>
+                Lanka<span className="text-[#39A982]">Voyage</span>
               </span>
-              <span className="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded bg-[#C5A059] text-[#082F24] ml-2">
+              <span className="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded bg-[#176B52] text-[#062C22] ml-2">
                 Admin Suite
               </span>
             </Link>
@@ -97,7 +97,7 @@ export const AdminLayout: React.FC = () => {
               to="/"
               className="hidden sm:inline-flex items-center gap-1.5 text-xs text-stone-300 hover:text-white bg-white/10 px-3 py-1.5 rounded-lg transition-colors"
             >
-              <Compass className="w-3.5 h-3.5 text-[#C5A059]" />
+              <Compass className="w-3.5 h-3.5 text-[#176B52]" />
               View Public Website
             </Link>
 
@@ -105,7 +105,7 @@ export const AdminLayout: React.FC = () => {
               <img
                 src={user?.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80'}
                 alt="Admin"
-                className="w-8 h-8 rounded-full border border-[#C5A059] object-cover"
+                className="w-8 h-8 rounded-full border border-[#176B52] object-cover"
               />
               <span className="text-xs font-semibold hidden md:inline">{user?.name || 'Administrator'}</span>
             </div>
@@ -136,12 +136,12 @@ export const AdminLayout: React.FC = () => {
                         className={({ isActive }) => `
                           flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all
                           ${isActive 
-                            ? 'bg-[#0D3B2E] text-white shadow-md' 
-                            : 'text-stone-600 hover:bg-[#FAF8F5] hover:text-[#082F24]'
+                            ? 'bg-[#0B3D2E] text-white shadow-md' 
+                            : 'text-stone-600 hover:bg-[#F8F7F2] hover:text-[#062C22]'
                           }
                         `}
                       >
-                        <Icon className="w-4 h-4 text-[#C5A059]" />
+                        <Icon className="w-4 h-4 text-[#176B52]" />
                         <span>{item.name}</span>
                       </NavLink>
                     );

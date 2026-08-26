@@ -53,7 +53,7 @@ export const ManageReviewsPage: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#082F24]">Review Moderation Queue</h1>
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#062C22]">Review Moderation Queue</h1>
           <p className="text-xs text-stone-500">Approve authentic guest reviews and publish official management replies.</p>
         </div>
       </div>
@@ -63,7 +63,7 @@ export const ManageReviewsPage: React.FC = () => {
         <button
           onClick={() => setActiveTab('all')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-            activeTab === 'all' ? 'bg-[#0D3B2E] text-white shadow-sm' : 'bg-white text-stone-700 border border-stone-200'
+            activeTab === 'all' ? 'bg-[#0B3D2E] text-white shadow-sm' : 'bg-white text-stone-700 border border-stone-200'
           }`}
         >
           All Reviews ({reviews.length})
@@ -71,7 +71,7 @@ export const ManageReviewsPage: React.FC = () => {
         <button
           onClick={() => setActiveTab('pending')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-            activeTab === 'pending' ? 'bg-[#0D3B2E] text-white shadow-sm' : 'bg-white text-stone-700 border border-stone-200'
+            activeTab === 'pending' ? 'bg-[#0B3D2E] text-white shadow-sm' : 'bg-white text-stone-700 border border-stone-200'
           }`}
         >
           Pending Moderation ({reviews.filter(r => r.status === 'pending').length})
@@ -79,7 +79,7 @@ export const ManageReviewsPage: React.FC = () => {
         <button
           onClick={() => setActiveTab('approved')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-            activeTab === 'approved' ? 'bg-[#0D3B2E] text-white shadow-sm' : 'bg-white text-stone-700 border border-stone-200'
+            activeTab === 'approved' ? 'bg-[#0B3D2E] text-white shadow-sm' : 'bg-white text-stone-700 border border-stone-200'
           }`}
         >
           Live / Approved ({reviews.filter(r => r.status === 'approved').length})
@@ -95,16 +95,16 @@ export const ManageReviewsPage: React.FC = () => {
                 <img
                   src={rev.authorAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&q=80'}
                   alt={rev.authorName}
-                  className="w-9 h-9 rounded-full object-cover border border-[#C5A059]"
+                  className="w-9 h-9 rounded-full object-cover border border-[#176B52]"
                 />
                 <div>
-                  <h4 className="font-bold text-xs text-[#082F24]">{rev.authorName}</h4>
+                  <h4 className="font-bold text-xs text-[#062C22]">{rev.authorName}</h4>
                   <p className="text-[10px] text-stone-400">{rev.authorCountry} • {rev.tripType} • {rev.date}</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-0.5 text-[#C5A059]">
+                <div className="flex items-center gap-0.5 text-[#176B52]">
                   {[...Array(rev.rating)].map((_, i) => (
                     <Star key={i} className="w-3.5 h-3.5 fill-current" />
                   ))}
@@ -118,14 +118,14 @@ export const ManageReviewsPage: React.FC = () => {
             </div>
 
             <div className="space-y-1 text-xs">
-              <h5 className="font-bold text-[#082F24]">"{rev.title}"</h5>
+              <h5 className="font-bold text-[#062C22]">"{rev.title}"</h5>
               <p className="text-stone-600 leading-relaxed">{rev.content}</p>
             </div>
 
             {/* Existing management reply */}
             {rev.replyFromManagement && (
-              <div className="bg-[#FAF8F5] p-3 rounded-2xl border border-stone-200 text-xs text-stone-600 space-y-1">
-                <span className="font-bold text-[#0D3B2E] block">Management Reply ({rev.replyFromManagement.responderName}):</span>
+              <div className="bg-[#F8F7F2] p-3 rounded-2xl border border-stone-200 text-xs text-stone-600 space-y-1">
+                <span className="font-bold text-[#0B3D2E] block">Management Reply ({rev.replyFromManagement.responderName}):</span>
                 <p>{rev.replyFromManagement.text}</p>
               </div>
             )}
@@ -153,9 +153,9 @@ export const ManageReviewsPage: React.FC = () => {
                 )}
                 <button
                   onClick={() => setReplyingReviewId(rev.id)}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#FAF8F5] hover:bg-stone-100 border border-stone-200 text-stone-700 rounded-xl text-xs font-semibold"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#F8F7F2] hover:bg-stone-100 border border-stone-200 text-stone-700 rounded-xl text-xs font-semibold"
                 >
-                  <MessageSquare className="w-3.5 h-3.5 text-[#C5A059]" />
+                  <MessageSquare className="w-3.5 h-3.5 text-[#176B52]" />
                   <span>Reply</span>
                 </button>
               </div>
@@ -188,13 +188,13 @@ export const ManageReviewsPage: React.FC = () => {
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
               placeholder="Dear guest, thank you so much for traveling with LankaVoyage..."
-              className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#082F24]"
+              className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full py-3 bg-[#0D3B2E] text-white font-bold text-xs rounded-xl hover:bg-[#134E3F] transition-colors shadow-sm"
+            className="w-full py-3 bg-[#0B3D2E] text-white font-bold text-xs rounded-xl hover:bg-[#134E3F] transition-colors shadow-sm"
           >
             Publish Management Response
           </button>

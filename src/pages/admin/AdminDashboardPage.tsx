@@ -47,14 +47,14 @@ export const AdminDashboardPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#082F24]">Executive Admin Dashboard</h1>
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#062C22]">Executive Admin Dashboard</h1>
           <p className="text-xs text-stone-500">Live booking operations, approval queue, platform statistics, and revenue logs.</p>
         </div>
 
         <div className="flex items-center gap-2">
           <Link
             to="/admin/bookings"
-            className="px-4 py-2 bg-[#0D3B2E] text-white hover:bg-[#134E3F] text-xs font-bold rounded-xl shadow-sm transition-all"
+            className="px-4 py-2 bg-[#0B3D2E] text-white hover:bg-[#134E3F] text-xs font-bold rounded-xl shadow-sm transition-all"
           >
             Manage All Bookings &rarr;
           </Link>
@@ -74,7 +74,7 @@ export const AdminDashboardPage: React.FC = () => {
         {/* 1. Total Bookings */}
         <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-sm space-y-1">
           <span className="text-[10px] sm:text-xs font-bold text-stone-400 uppercase block">Total Bookings</span>
-          <span className="font-serif text-2xl sm:text-3xl font-bold text-[#082F24] block">
+          <span className="font-serif text-2xl sm:text-3xl font-bold text-[#062C22] block">
             {allBookings.length}
           </span>
           <p className="text-[10px] text-stone-500">All registered trips</p>
@@ -122,10 +122,10 @@ export const AdminDashboardPage: React.FC = () => {
         {/* 5. Total Customers */}
         <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-sm space-y-1">
           <span className="text-[10px] sm:text-xs font-bold text-stone-400 uppercase block flex items-center gap-1">
-            <Users className="w-3.5 h-3.5 text-[#0D3B2E]" />
+            <Users className="w-3.5 h-3.5 text-[#0B3D2E]" />
             Customers
           </span>
-          <span className="font-serif text-2xl sm:text-3xl font-bold text-[#082F24] block">
+          <span className="font-serif text-2xl sm:text-3xl font-bold text-[#062C22] block">
             {totalCustomers}
           </span>
           <p className="text-[10px] text-stone-500">Registered CRM files</p>
@@ -134,10 +134,10 @@ export const AdminDashboardPage: React.FC = () => {
         {/* 6. Total Tours */}
         <div className="bg-white p-4 sm:p-5 rounded-2xl border border-stone-200 shadow-sm space-y-1">
           <span className="text-[10px] sm:text-xs font-bold text-stone-400 uppercase block flex items-center gap-1">
-            <BookOpen className="w-3.5 h-3.5 text-[#C5A059]" />
+            <BookOpen className="w-3.5 h-3.5 text-[#176B52]" />
             Total Tours
           </span>
-          <span className="font-serif text-2xl sm:text-3xl font-bold text-[#082F24] block">
+          <span className="font-serif text-2xl sm:text-3xl font-bold text-[#062C22] block">
             {publishedTours}
           </span>
           <p className="text-[10px] text-stone-500">Active catalog</p>
@@ -165,12 +165,12 @@ export const AdminDashboardPage: React.FC = () => {
               <div key={b.id} className="bg-white p-4 rounded-2xl border border-amber-200 shadow-xs flex flex-col justify-between gap-3 text-xs">
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-[#8C6D2B]">{b.bookingCode}</span>
+                    <span className="font-bold text-[#176B52]">{b.bookingCode}</span>
                     <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
                       Pending Review
                     </span>
                   </div>
-                  <h4 className="font-serif font-bold text-sm text-[#082F24] mt-1">{b.tourTitle}</h4>
+                  <h4 className="font-serif font-bold text-sm text-[#062C22] mt-1">{b.tourTitle}</h4>
                   <p className="text-stone-600 mt-0.5">
                     <strong>Customer:</strong> {b.customerName} ({b.customerEmail})
                   </p>
@@ -182,9 +182,9 @@ export const AdminDashboardPage: React.FC = () => {
                 <div className="flex items-center justify-between gap-2 pt-2 border-t border-stone-100">
                   <Link
                     to={`/customer/bookings/${b.id}`}
-                    className="inline-flex items-center gap-1 text-[11px] font-bold text-[#0D3B2E] hover:underline"
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-[#0B3D2E] hover:underline"
                   >
-                    <Eye className="w-3 h-3 text-[#C5A059]" />
+                    <Eye className="w-3 h-3 text-[#176B52]" />
                     <span>Inspect</span>
                   </Link>
 
@@ -216,10 +216,10 @@ export const AdminDashboardPage: React.FC = () => {
         <div className="lg:col-span-7 bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-sm space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-serif text-lg font-bold text-[#082F24]">2026 Monthly Revenue ($ USD)</h3>
+              <h3 className="font-serif text-lg font-bold text-[#062C22]">2026 Monthly Revenue ($ USD)</h3>
               <p className="text-xs text-stone-500">Gross revenue generated across bespoke tours and transfers</p>
             </div>
-            <span className="text-xs font-bold text-[#0D3B2E] bg-emerald-50 px-2.5 py-1 rounded-lg">
+            <span className="text-xs font-bold text-[#0B3D2E] bg-emerald-50 px-2.5 py-1 rounded-lg">
               High Peak Seasons
             </span>
           </div>
@@ -234,7 +234,7 @@ export const AdminDashboardPage: React.FC = () => {
                   </span>
                   <div
                     style={{ height: `${heightPct}%` }}
-                    className="w-full bg-[#0D3B2E] hover:bg-[#C5A059] rounded-t-xl transition-all duration-500 cursor-pointer shadow-xs"
+                    className="w-full bg-[#0B3D2E] hover:bg-[#176B52] rounded-t-xl transition-all duration-500 cursor-pointer shadow-xs"
                     title={`${m.month}: $${m.revenue.toLocaleString()} (${m.bookings} bookings)`}
                   />
                   <span className="text-xs font-bold text-stone-600">{m.month}</span>
@@ -246,17 +246,17 @@ export const AdminDashboardPage: React.FC = () => {
 
         {/* Popular Tours Breakdown (5 cols) */}
         <div className="lg:col-span-5 bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-sm space-y-5">
-          <h3 className="font-serif text-lg font-bold text-[#082F24]">Top Performing Tours</h3>
+          <h3 className="font-serif text-lg font-bold text-[#062C22]">Top Performing Tours</h3>
           
           <div className="space-y-4">
             {popularTours.map((t, idx) => (
               <div key={idx} className="space-y-1.5 text-xs">
-                <div className="flex justify-between font-bold text-[#082F24]">
+                <div className="flex justify-between font-bold text-[#062C22]">
                   <span className="truncate max-w-[200px]">{t.name}</span>
                   <span>${t.revenue.toLocaleString()}</span>
                 </div>
                 <div className="h-2 bg-stone-100 rounded-full overflow-hidden">
-                  <div className="h-full bg-[#C5A059] rounded-full" style={{ width: `${t.percentage}%` }} />
+                  <div className="h-full bg-[#176B52] rounded-full" style={{ width: `${t.percentage}%` }} />
                 </div>
                 <div className="flex justify-between text-[11px] text-stone-400">
                   <span>{t.bookings} bookings</span>
@@ -272,15 +272,15 @@ export const AdminDashboardPage: React.FC = () => {
       {/* Recent Bookings Feed */}
       <div className="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden space-y-4 p-6 sm:p-8">
         <div className="flex items-center justify-between border-b border-stone-100 pb-4">
-          <h3 className="font-serif text-lg font-bold text-[#082F24]">Recent Customer Bookings</h3>
-          <Link to="/admin/bookings" className="text-xs font-bold text-[#0D3B2E] hover:underline">
+          <h3 className="font-serif text-lg font-bold text-[#062C22]">Recent Customer Bookings</h3>
+          <Link to="/admin/bookings" className="text-xs font-bold text-[#0B3D2E] hover:underline">
             View All Operations &rarr;
           </Link>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#FAF8F5] text-stone-700 font-bold border-b border-stone-200">
+            <thead className="bg-[#F8F7F2] text-stone-700 font-bold border-b border-stone-200">
               <tr>
                 <th className="py-3 px-4">Booking Ref</th>
                 <th className="py-3 px-4">Customer</th>
@@ -294,11 +294,11 @@ export const AdminDashboardPage: React.FC = () => {
             <tbody className="divide-y divide-stone-100 text-stone-600">
               {recentBookings.map((b) => (
                 <tr key={b.id} className="hover:bg-stone-50/50">
-                  <td className="py-3.5 px-4 font-bold text-[#8C6D2B]">{b.bookingCode}</td>
-                  <td className="py-3.5 px-4 font-semibold text-[#082F24]">{b.customerName}</td>
+                  <td className="py-3.5 px-4 font-bold text-[#176B52]">{b.bookingCode}</td>
+                  <td className="py-3.5 px-4 font-semibold text-[#062C22]">{b.customerName}</td>
                   <td className="py-3.5 px-4 truncate max-w-[200px]">{b.tourTitle}</td>
                   <td className="py-3.5 px-4">{b.startDate}</td>
-                  <td className="py-3.5 px-4 font-bold text-[#082F24]">${b.totalAmount.toLocaleString()}</td>
+                  <td className="py-3.5 px-4 font-bold text-[#062C22]">${b.totalAmount.toLocaleString()}</td>
                   <td className="py-3.5 px-4">
                     <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                       b.bookingStatus === 'Confirmed' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
@@ -309,7 +309,7 @@ export const AdminDashboardPage: React.FC = () => {
                   <td className="py-3.5 px-4 text-right">
                     <Link
                       to={`/customer/bookings/${b.id}`}
-                      className="text-xs font-bold text-[#0D3B2E] hover:underline"
+                      className="text-xs font-bold text-[#0B3D2E] hover:underline"
                     >
                       Inspect Voucher
                     </Link>

@@ -49,15 +49,15 @@ export const ManageDiscountsPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#082F24]">Promotions & Discount Codes</h1>
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#062C22]">Promotions & Discount Codes</h1>
           <p className="text-xs text-stone-500">Configure seasonal promo campaigns and early bird percentage savings.</p>
         </div>
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#0D3B2E] text-white hover:bg-[#134E3F] text-xs font-bold rounded-xl shadow-sm transition-all"
+          className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#0B3D2E] text-white hover:bg-[#134E3F] text-xs font-bold rounded-xl shadow-sm transition-all"
         >
-          <Plus className="w-4 h-4 text-[#E5C378]" />
+          <Plus className="w-4 h-4 text-[#39A982]" />
           <span>Create Coupon Code</span>
         </button>
       </div>
@@ -71,7 +71,7 @@ export const ManageDiscountsPage: React.FC = () => {
           >
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="font-mono text-base font-bold text-[#082F24] bg-[#FAF8F5] px-3 py-1 rounded-xl border border-stone-200">
+                <span className="font-mono text-base font-bold text-[#062C22] bg-[#F8F7F2] px-3 py-1 rounded-xl border border-stone-200">
                   {c.code}
                 </span>
                 <button
@@ -84,7 +84,7 @@ export const ManageDiscountsPage: React.FC = () => {
                 </button>
               </div>
 
-              <h4 className="font-serif font-bold text-lg text-[#082F24]">
+              <h4 className="font-serif font-bold text-lg text-[#062C22]">
                 {c.discountType === 'percentage' ? `${c.discountValue}% OFF` : `$${c.discountValue} USD OFF`}
               </h4>
 
@@ -102,7 +102,7 @@ export const ManageDiscountsPage: React.FC = () => {
               </div>
               <div className="flex justify-between">
                 <span>Times Used:</span>
-                <strong className="text-[#0D3B2E]">{c.usageCount} bookings</strong>
+                <strong className="text-[#0B3D2E]">{c.usageCount} bookings</strong>
               </div>
             </div>
 
@@ -134,7 +134,7 @@ export const ManageDiscountsPage: React.FC = () => {
               value={code}
               onChange={(e) => setCode(e.target.value)}
               placeholder="e.g. CEYLON2026"
-              className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs font-mono uppercase text-[#082F24]"
+              className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs font-mono uppercase text-[#062C22]"
             />
           </div>
 
@@ -144,7 +144,7 @@ export const ManageDiscountsPage: React.FC = () => {
               <select
                 value={discountType}
                 onChange={(e) => setDiscountType(e.target.value as any)}
-                className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#082F24]"
+                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
               >
                 <option value="percentage">Percentage (%)</option>
                 <option value="fixed_usd">Fixed Amount ($ USD)</option>
@@ -157,7 +157,7 @@ export const ManageDiscountsPage: React.FC = () => {
                 required
                 value={discountValue}
                 onChange={(e) => setDiscountValue(Number(e.target.value))}
-                className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#082F24]"
+                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
               />
             </div>
           </div>
@@ -169,7 +169,7 @@ export const ManageDiscountsPage: React.FC = () => {
                 type="number"
                 value={minSpendUSD}
                 onChange={(e) => setMinSpendUSD(Number(e.target.value))}
-                className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#082F24]"
+                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
               />
             </div>
             <div className="space-y-1">
@@ -178,7 +178,7 @@ export const ManageDiscountsPage: React.FC = () => {
                 type="date"
                 value={validUntil}
                 onChange={(e) => setValidUntil(e.target.value)}
-                className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#082F24]"
+                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
               />
             </div>
           </div>
@@ -191,13 +191,13 @@ export const ManageDiscountsPage: React.FC = () => {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="e.g. 10% off all tours booked before December"
-              className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#082F24]"
+              className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full py-3 bg-[#0D3B2E] text-white font-bold text-xs rounded-xl shadow-md hover:bg-[#134E3F] transition-colors"
+            className="w-full py-3 bg-[#0B3D2E] text-white font-bold text-xs rounded-xl shadow-md hover:bg-[#134E3F] transition-colors"
           >
             Create & Activate Coupon
           </button>

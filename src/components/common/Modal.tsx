@@ -46,8 +46,8 @@ export const Modal: React.FC<ModalProps> = ({
       />
       <div className={`relative bg-white rounded-2xl shadow-2xl border border-stone-200 w-full ${maxWidthClasses[maxWidth]} overflow-hidden z-10 animate-fadeIn`}>
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-stone-100 bg-[#FAF8F5]">
-          <h3 className="font-serif text-lg font-bold text-[#082F24]">{title}</h3>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-stone-100 bg-[#F8F7F2]">
+          <h3 className="font-serif text-lg font-bold text-[#062C22]">{title}</h3>
           <button
             onClick={onClose}
             className="p-1.5 text-stone-400 hover:text-stone-700 rounded-lg hover:bg-stone-200/50 transition-colors"

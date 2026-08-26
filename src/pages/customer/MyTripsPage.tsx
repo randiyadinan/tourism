@@ -106,11 +106,11 @@ export const MyTripsPage: React.FC = () => {
       {/* Header */}
       <div className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#C5A059]/20 text-[#8C6D2B] text-xs font-bold uppercase">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#176B52]/20 text-[#176B52] text-xs font-bold uppercase">
             <Sparkles className="w-3.5 h-3.5" />
             Confirmed Travel Timeline
           </div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#082F24]">
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#062C22]">
             {currentTrip ? currentTrip.tourTitle : 'Grand Highlights & Heritage (10 Days)'}
           </h1>
           <p className="text-xs text-stone-500">Booking Code: <strong>{currentTrip?.bookingCode || 'LV-2026-8891'}</strong></p>
@@ -119,34 +119,34 @@ export const MyTripsPage: React.FC = () => {
         <div className="flex items-center gap-3">
           <a
             href="tel:+94771234567"
-            className="flex items-center gap-1.5 px-4 py-2 bg-[#0D3B2E] text-white text-xs font-bold rounded-xl hover:bg-[#134E3F] transition-colors"
+            className="flex items-center gap-1.5 px-4 py-2 bg-[#0B3D2E] text-white text-xs font-bold rounded-xl hover:bg-[#134E3F] transition-colors"
           >
-            <Phone className="w-3.5 h-3.5 text-[#E5C378]" />
+            <Phone className="w-3.5 h-3.5 text-[#39A982]" />
             <span>Call Chauffeur Guide</span>
           </a>
         </div>
       </div>
 
       {/* Vertical Interactive Timeline */}
-      <div className="space-y-6 relative before:absolute before:inset-0 before:left-6 before:w-0.5 before:bg-[#C5A059]/30">
+      <div className="space-y-6 relative before:absolute before:inset-0 before:left-6 before:w-0.5 before:bg-[#176B52]/30">
         {timelineStops.map((stop, idx) => {
           const Icon = stop.icon;
           return (
             <div key={idx} className="relative pl-16">
               
               {/* Timeline Bullet */}
-              <div className="absolute left-0 top-3 w-12 h-12 rounded-2xl bg-[#0D3B2E] text-[#E5C378] flex items-center justify-center font-bold text-sm shadow-md border-2 border-[#C5A059] z-10">
+              <div className="absolute left-0 top-3 w-12 h-12 rounded-2xl bg-[#0B3D2E] text-[#39A982] flex items-center justify-center font-bold text-sm shadow-md border-2 border-[#176B52] z-10">
                 <Icon className="w-5 h-5" />
               </div>
 
               {/* Stop Card */}
-              <div className="bg-white rounded-3xl p-6 border border-stone-200 shadow-sm space-y-4 hover:border-[#C5A059]/50 transition-all">
+              <div className="bg-white rounded-3xl p-6 border border-stone-200 shadow-sm space-y-4 hover:border-[#176B52]/50 transition-all">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 pb-3">
                   <div>
-                    <span className="text-[11px] font-bold text-[#8C6D2B] uppercase tracking-wider">
+                    <span className="text-[11px] font-bold text-[#176B52] uppercase tracking-wider">
                       Stop {stop.step} • {stop.location}
                     </span>
-                    <h3 className="font-serif text-lg font-bold text-[#082F24]">{stop.title}</h3>
+                    <h3 className="font-serif text-lg font-bold text-[#062C22]">{stop.title}</h3>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-stone-500 font-medium">{stop.date}</span>
@@ -159,18 +159,18 @@ export const MyTripsPage: React.FC = () => {
                 <p className="text-xs text-stone-600 leading-relaxed">{stop.details}</p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
-                  <div className="bg-[#FAF8F5] p-3 rounded-xl border border-stone-200/60 flex items-start gap-2">
-                    <Hotel className="w-4 h-4 text-[#C5A059] shrink-0 mt-0.5" />
+                  <div className="bg-[#F8F7F2] p-3 rounded-xl border border-stone-200/60 flex items-start gap-2">
+                    <Hotel className="w-4 h-4 text-[#176B52] shrink-0 mt-0.5" />
                     <div>
-                      <strong className="text-[#082F24] block">Confirmed Stay:</strong>
+                      <strong className="text-[#062C22] block">Confirmed Stay:</strong>
                       <span className="text-stone-600">{stop.hotel}</span>
                     </div>
                   </div>
 
-                  <div className="bg-[#FAF8F5] p-3 rounded-xl border border-stone-200/60 flex items-start gap-2">
-                    <Car className="w-4 h-4 text-[#C5A059] shrink-0 mt-0.5" />
+                  <div className="bg-[#F8F7F2] p-3 rounded-xl border border-stone-200/60 flex items-start gap-2">
+                    <Car className="w-4 h-4 text-[#176B52] shrink-0 mt-0.5" />
                     <div>
-                      <strong className="text-[#082F24] block">Transport Arrangement:</strong>
+                      <strong className="text-[#062C22] block">Transport Arrangement:</strong>
                       <span className="text-stone-600">{stop.transport}</span>
                     </div>
                   </div>

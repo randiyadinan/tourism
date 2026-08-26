@@ -12,13 +12,13 @@ export const WishlistPage: React.FC = () => {
       
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#082F24]">Saved Wishlist</h1>
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#062C22]">Saved Wishlist</h1>
           <p className="text-xs text-stone-500">Your favorite tours, destinations, and Sri Lankan activities.</p>
         </div>
 
         <Link
           to="/tours"
-          className="text-xs font-bold text-[#0D3B2E] hover:underline"
+          className="text-xs font-bold text-[#0B3D2E] hover:underline"
         >
           Explore More &rarr;
         </Link>
@@ -44,19 +44,19 @@ export const WishlistPage: React.FC = () => {
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
-                <span className="absolute bottom-3 left-3 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#0D3B2E] text-[#E5C378] capitalize">
+                <span className="absolute bottom-3 left-3 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#0B3D2E] text-[#39A982] capitalize">
                   {item.type}
                 </span>
               </div>
 
               <div className="p-5 flex flex-col justify-between flex-1 space-y-3">
                 <div>
-                  <h3 className="font-serif font-bold text-base text-[#082F24] line-clamp-1">{item.title}</h3>
+                  <h3 className="font-serif font-bold text-base text-[#062C22] line-clamp-1">{item.title}</h3>
                   {item.subtitle && (
                     <p className="text-xs text-stone-500 line-clamp-1">{item.subtitle}</p>
                   )}
                   {item.duration && (
-                    <p className="text-xs text-[#8C6D2B] font-semibold mt-1">{item.duration}</p>
+                    <p className="text-xs text-[#176B52] font-semibold mt-1">{item.duration}</p>
                   )}
                 </div>
 
@@ -64,7 +64,7 @@ export const WishlistPage: React.FC = () => {
                   {item.price ? (
                     <div>
                       <span className="text-[10px] text-stone-400 block uppercase">From</span>
-                      <span className="font-serif text-lg font-bold text-[#082F24]">${item.price.toLocaleString()}</span>
+                      <span className="font-serif text-lg font-bold text-[#062C22]">${item.price.toLocaleString()}</span>
                     </div>
                   ) : (
                     <div />
@@ -72,7 +72,7 @@ export const WishlistPage: React.FC = () => {
 
                   <Link
                     to={item.type === 'tour' ? `/tours/${item.slug}` : item.type === 'destination' ? `/destinations/${item.slug}` : `/activities/${item.slug}`}
-                    className="inline-flex items-center gap-1 px-4 py-2 bg-[#0D3B2E] text-white hover:bg-[#134E3F] text-xs font-bold rounded-xl transition-all shadow-sm"
+                    className="inline-flex items-center gap-1 px-4 py-2 bg-[#0B3D2E] text-white hover:bg-[#134E3F] text-xs font-bold rounded-xl transition-all shadow-sm"
                   >
                     <span>View</span>
                     <ArrowRight className="w-3.5 h-3.5" />

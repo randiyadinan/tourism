@@ -43,15 +43,15 @@ export const CustomerSidebar: React.FC = () => {
     <aside className="w-full lg:w-64 bg-white rounded-3xl border border-stone-200 p-6 shadow-sm flex flex-col justify-between shrink-0 space-y-6">
       <div className="space-y-6">
         {/* User Card */}
-        <div className="flex items-center gap-3 p-3 bg-[#FAF8F5] rounded-2xl border border-stone-200/80">
+        <div className="flex items-center gap-3 p-3 bg-[#F8F7F2] rounded-2xl border border-stone-200/80">
           <img
             src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'}
             alt={user?.name}
-            className="w-12 h-12 rounded-xl object-cover border-2 border-[#C5A059]"
+            className="w-12 h-12 rounded-xl object-cover border-2 border-[#176B52]"
           />
           <div className="overflow-hidden">
-            <h4 className="font-serif font-bold text-sm text-[#082F24] truncate">{user?.name}</h4>
-            <span className="text-[11px] text-[#8C6D2B] font-semibold block uppercase tracking-wider">
+            <h4 className="font-serif font-bold text-sm text-[#062C22] truncate">{user?.name}</h4>
+            <span className="text-[11px] text-[#176B52] font-semibold block uppercase tracking-wider">
               {user?.role === 'admin' ? 'Administrator' : 'Verified Traveler'}
             </span>
           </div>
@@ -69,18 +69,18 @@ export const CustomerSidebar: React.FC = () => {
                 className={({ isActive }) => `
                   flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all
                   ${isActive 
-                    ? 'bg-[#0D3B2E] text-white shadow-md' 
-                    : 'text-stone-600 hover:bg-[#FAF8F5] hover:text-[#082F24]'
+                    ? 'bg-[#0B3D2E] text-white shadow-md' 
+                    : 'text-stone-600 hover:bg-[#F8F7F2] hover:text-[#062C22]'
                   }
                 `}
               >
                 <div className="flex items-center gap-2.5">
-                  <Icon className="w-4 h-4 text-[#C5A059]" />
+                  <Icon className="w-4 h-4 text-[#176B52]" />
                   <span>{item.name}</span>
                 </div>
                 {item.badge !== undefined && item.badge > 0 && (
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                    item.badgeColor === 'red' ? 'bg-rose-500 text-white' : 'bg-[#C5A059] text-[#082F24]'
+                    item.badgeColor === 'red' ? 'bg-rose-500 text-white' : 'bg-[#176B52] text-[#062C22]'
                   }`}>
                     {item.badge}
                   </span>
@@ -95,10 +95,10 @@ export const CustomerSidebar: React.FC = () => {
       <div className="pt-4 border-t border-stone-100 space-y-2">
         <Link
           to="/"
-          className="flex items-center justify-between px-3.5 py-2 text-xs font-semibold text-stone-600 hover:text-[#0D3B2E] transition-colors"
+          className="flex items-center justify-between px-3.5 py-2 text-xs font-semibold text-stone-600 hover:text-[#0B3D2E] transition-colors"
         >
           <span className="flex items-center gap-2">
-            <Compass className="w-4 h-4 text-[#C5A059]" />
+            <Compass className="w-4 h-4 text-[#176B52]" />
             Explore Site
           </span>
           <ChevronRight className="w-4 h-4 text-stone-400" />
@@ -118,16 +118,16 @@ export const CustomerSidebar: React.FC = () => {
 
 export const CustomerLayout: React.FC = () => {
   return (
-    <div className="min-h-screen bg-[#FAF8F5] flex flex-col">
+    <div className="min-h-screen bg-[#F8F7F2] flex flex-col">
       <TopAnnouncement />
       
       {/* Simple Top Banner for Portal */}
-      <div className="bg-[#082F24] border-b border-[#C5A059]/20 py-4 px-4 sm:px-8 text-white">
+      <div className="bg-[#062C22] border-b border-[#176B52]/20 py-4 px-4 sm:px-8 text-white">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <Compass className="w-5 h-5 text-[#E5C378]" />
+            <Compass className="w-5 h-5 text-[#39A982]" />
             <span className="font-serif text-xl font-bold tracking-wide">
-              Lanka<span className="text-[#E5C378]">Voyage</span>
+              Lanka<span className="text-[#39A982]">Voyage</span>
             </span>
             <span className="text-xs text-stone-400 pl-2 ml-2 border-l border-white/20 hidden sm:inline">
               Guest Portal
@@ -136,7 +136,7 @@ export const CustomerLayout: React.FC = () => {
 
           <div className="flex items-center gap-3 text-xs">
             <Link to="/tours" className="text-stone-300 hover:text-white">Explore Tours</Link>
-            <Link to="/customize" className="text-[#E5C378] font-bold hover:underline">Plan Custom Trip</Link>
+            <Link to="/customize" className="text-[#39A982] font-bold hover:underline">Plan Custom Trip</Link>
           </div>
         </div>
       </div>

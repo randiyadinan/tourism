@@ -22,7 +22,7 @@ export const PriceBadge: React.FC<PriceBadgeProps> = ({
     <div className={`flex flex-col ${className}`}>
       <div className="flex items-baseline gap-1.5">
         <span className="text-xs text-stone-500 font-medium">From</span>
-        <span className={`font-serif font-bold text-[#082F24] ${
+        <span className={`font-serif font-bold text-[#062C22] ${
           isLarge ? 'text-3xl' : isSmall ? 'text-base' : 'text-xl'
         }`}>
           ${price.toLocaleString()}

@@ -28,12 +28,12 @@ export const TourFilters: React.FC<TourFiltersProps> = ({ filters, onChange, onR
       {/* Header */}
       <div className="flex items-center justify-between pb-4 border-b border-stone-100">
         <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-[#C5A059]" />
-          <h3 className="font-serif text-lg font-bold text-[#082F24]">Filter Tours</h3>
+          <Filter className="w-4 h-4 text-[#176B52]" />
+          <h3 className="font-serif text-lg font-bold text-[#062C22]">Filter Tours</h3>
         </div>
         <button
           onClick={onReset}
-          className="inline-flex items-center gap-1 text-xs font-semibold text-stone-500 hover:text-[#0D3B2E] transition-colors"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-stone-500 hover:text-[#0B3D2E] transition-colors"
         >
           <RotateCcw className="w-3 h-3" />
           Reset All
@@ -42,7 +42,7 @@ export const TourFilters: React.FC<TourFiltersProps> = ({ filters, onChange, onR
 
       {/* Category / Travel Style */}
       <div className="space-y-2">
-        <label className="text-xs font-bold text-[#082F24] uppercase tracking-wider block">
+        <label className="text-xs font-bold text-[#062C22] uppercase tracking-wider block">
           Travel Style / Category
         </label>
         <div className="space-y-1">
@@ -52,13 +52,13 @@ export const TourFilters: React.FC<TourFiltersProps> = ({ filters, onChange, onR
               onClick={() => onChange({ ...filters, category: cat })}
               className={`w-full text-left px-3 py-2 rounded-xl text-xs font-medium transition-all flex items-center justify-between ${
                 (filters.category || 'All') === cat
-                  ? 'bg-[#0D3B2E] text-white font-bold shadow-sm'
+                  ? 'bg-[#0B3D2E] text-white font-bold shadow-sm'
                   : 'text-stone-600 hover:bg-stone-100'
               }`}
             >
               <span>{cat}</span>
               {(filters.category || 'All') === cat && (
-                <Sparkles className="w-3 h-3 text-[#E5C378]" />
+                <Sparkles className="w-3 h-3 text-[#39A982]" />
               )}
             </button>
           ))}
@@ -67,13 +67,13 @@ export const TourFilters: React.FC<TourFiltersProps> = ({ filters, onChange, onR
 
       {/* Destination Filter */}
       <div className="space-y-2 pt-2 border-t border-stone-100">
-        <label className="text-xs font-bold text-[#082F24] uppercase tracking-wider block">
+        <label className="text-xs font-bold text-[#062C22] uppercase tracking-wider block">
           Destination
         </label>
         <select
           value={filters.destination || 'All'}
           onChange={(e) => onChange({ ...filters, destination: e.target.value })}
-          className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-[#082F24] focus:outline-none focus:ring-2 focus:ring-[#C5A059]"
+          className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-[#062C22] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
         >
           <option value="All">All Sri Lankan Regions</option>
           {INITIAL_DESTINATIONS.map((d) => (
@@ -84,7 +84,7 @@ export const TourFilters: React.FC<TourFiltersProps> = ({ filters, onChange, onR
 
       {/* Duration Radio */}
       <div className="space-y-2 pt-2 border-t border-stone-100">
-        <label className="text-xs font-bold text-[#082F24] uppercase tracking-wider block">
+        <label className="text-xs font-bold text-[#062C22] uppercase tracking-wider block">
           Duration
         </label>
         <div className="grid grid-cols-2 gap-2 text-xs">
@@ -92,7 +92,7 @@ export const TourFilters: React.FC<TourFiltersProps> = ({ filters, onChange, onR
             onClick={() => onChange({ ...filters, durationMin: undefined, durationMax: undefined })}
             className={`py-2 px-3 rounded-xl border text-center font-medium transition-all ${
               filters.durationMin === undefined && filters.durationMax === undefined
-                ? 'bg-[#0D3B2E] text-white border-[#0D3B2E]'
+                ? 'bg-[#0B3D2E] text-white border-[#0B3D2E]'
                 : 'border-stone-200 text-stone-600 hover:bg-stone-50'
             }`}
           >
@@ -102,7 +102,7 @@ export const TourFilters: React.FC<TourFiltersProps> = ({ filters, onChange, onR
             onClick={() => onChange({ ...filters, durationMin: 1, durationMax: 5 })}
             className={`py-2 px-3 rounded-xl border text-center font-medium transition-all ${
               filters.durationMax === 5
-                ? 'bg-[#0D3B2E] text-white border-[#0D3B2E]'
+                ? 'bg-[#0B3D2E] text-white border-[#0B3D2E]'
                 : 'border-stone-200 text-stone-600 hover:bg-stone-50'
             }`}
           >
@@ -112,7 +112,7 @@ export const TourFilters: React.FC<TourFiltersProps> = ({ filters, onChange, onR
             onClick={() => onChange({ ...filters, durationMin: 6, durationMax: 8 })}
             className={`py-2 px-3 rounded-xl border text-center font-medium transition-all ${
               filters.durationMin === 6 && filters.durationMax === 8
-                ? 'bg-[#0D3B2E] text-white border-[#0D3B2E]'
+                ? 'bg-[#0B3D2E] text-white border-[#0B3D2E]'
                 : 'border-stone-200 text-stone-600 hover:bg-stone-50'
             }`}
           >
@@ -122,7 +122,7 @@ export const TourFilters: React.FC<TourFiltersProps> = ({ filters, onChange, onR
             onClick={() => onChange({ ...filters, durationMin: 9, durationMax: undefined })}
             className={`py-2 px-3 rounded-xl border text-center font-medium transition-all ${
               filters.durationMin === 9
-                ? 'bg-[#0D3B2E] text-white border-[#0D3B2E]'
+                ? 'bg-[#0B3D2E] text-white border-[#0B3D2E]'
                 : 'border-stone-200 text-stone-600 hover:bg-stone-50'
             }`}
           >

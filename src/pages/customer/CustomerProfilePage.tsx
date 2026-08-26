@@ -56,7 +56,7 @@ export const CustomerProfilePage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-100 pb-6">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#082F24]">Traveler Profile & Preferences</h1>
+            <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#062C22]">Traveler Profile & Preferences</h1>
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 flex items-center gap-1">
               <ShieldCheck className="w-3 h-3" />
               Verified Traveler
@@ -82,20 +82,20 @@ export const CustomerProfilePage: React.FC = () => {
 
       {/* Account Info Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-4 bg-[#FAF8F5] rounded-2xl border border-stone-200 space-y-1">
+        <div className="p-4 bg-[#F8F7F2] rounded-2xl border border-stone-200 space-y-1">
           <span className="text-[10px] text-stone-400 font-bold uppercase block">Account ID</span>
-          <p className="font-mono text-xs font-bold text-[#082F24] truncate">{user?.id || 'user-customer'}</p>
+          <p className="font-mono text-xs font-bold text-[#062C22] truncate">{user?.id || 'user-customer'}</p>
         </div>
-        <div className="p-4 bg-[#FAF8F5] rounded-2xl border border-stone-200 space-y-1">
+        <div className="p-4 bg-[#F8F7F2] rounded-2xl border border-stone-200 space-y-1">
           <span className="text-[10px] text-stone-400 font-bold uppercase block">Account Type</span>
-          <p className="text-xs font-bold text-[#0D3B2E] capitalize">
+          <p className="text-xs font-bold text-[#0B3D2E] capitalize">
             {user?.role === 'customer' ? 'Customer / Traveler' : 'Administrator'}
           </p>
         </div>
-        <div className="p-4 bg-[#FAF8F5] rounded-2xl border border-stone-200 space-y-1">
+        <div className="p-4 bg-[#F8F7F2] rounded-2xl border border-stone-200 space-y-1">
           <span className="text-[10px] text-stone-400 font-bold uppercase block">Member Since</span>
-          <p className="text-xs font-bold text-[#082F24] flex items-center gap-1">
-            <Calendar className="w-3.5 h-3.5 text-[#C5A059]" />
+          <p className="text-xs font-bold text-[#062C22] flex items-center gap-1">
+            <Calendar className="w-3.5 h-3.5 text-[#176B52]" />
             {user?.createdAt || '2026-05-10'}
           </p>
         </div>
@@ -105,8 +105,8 @@ export const CustomerProfilePage: React.FC = () => {
         
         {/* Personal Details */}
         <div className="space-y-4">
-          <h3 className="font-serif font-bold text-base text-[#082F24] flex items-center gap-1.5">
-            <UserIcon className="w-4 h-4 text-[#C5A059]" />
+          <h3 className="font-serif font-bold text-base text-[#062C22] flex items-center gap-1.5">
+            <UserIcon className="w-4 h-4 text-[#176B52]" />
             Personal Information
           </h3>
           
@@ -118,7 +118,7 @@ export const CustomerProfilePage: React.FC = () => {
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-[#082F24] focus:outline-none focus:ring-2 focus:ring-[#C5A059]"
+                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-[#062C22] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
               />
             </div>
 
@@ -144,7 +144,7 @@ export const CustomerProfilePage: React.FC = () => {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+44 7700 900077"
-                  className="w-full pl-10 pr-3.5 py-2.5 bg-[#FAF8F5] border border-stone-300 rounded-xl text-xs text-[#082F24] focus:outline-none focus:ring-2 focus:ring-[#C5A059]"
+                  className="w-full pl-10 pr-3.5 py-2.5 bg-[#F8F7F2] border border-stone-300 rounded-xl text-xs text-[#062C22] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
                 />
               </div>
             </div>
@@ -158,7 +158,7 @@ export const CustomerProfilePage: React.FC = () => {
                   value={country}
                   onChange={(e) => setCountry(e.target.value)}
                   placeholder="United Kingdom"
-                  className="w-full pl-10 pr-3.5 py-2.5 bg-[#FAF8F5] border border-stone-300 rounded-xl text-xs text-[#082F24] focus:outline-none focus:ring-2 focus:ring-[#C5A059]"
+                  className="w-full pl-10 pr-3.5 py-2.5 bg-[#F8F7F2] border border-stone-300 rounded-xl text-xs text-[#062C22] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
                 />
               </div>
             </div>
@@ -167,7 +167,7 @@ export const CustomerProfilePage: React.FC = () => {
 
         {/* Travel & Passport Details */}
         <div className="space-y-4 pt-4 border-t border-stone-100">
-          <h3 className="font-serif font-bold text-base text-[#082F24]">Travel & Stay Preferences</h3>
+          <h3 className="font-serif font-bold text-base text-[#062C22]">Travel & Stay Preferences</h3>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
@@ -177,7 +177,7 @@ export const CustomerProfilePage: React.FC = () => {
                 value={passportNumber}
                 onChange={(e) => setPassportNumber(e.target.value)}
                 placeholder="e.g. GB98821458"
-                className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-[#082F24] uppercase focus:outline-none focus:ring-2 focus:ring-[#C5A059]"
+                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-[#062C22] uppercase focus:outline-none focus:ring-2 focus:ring-[#176B52]"
               />
             </div>
 
@@ -188,7 +188,7 @@ export const CustomerProfilePage: React.FC = () => {
                 value={dietaryPreferences}
                 onChange={(e) => setDietaryPreferences(e.target.value)}
                 placeholder="e.g. Vegetarian, Nut Allergy, Halal"
-                className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-[#082F24] focus:outline-none focus:ring-2 focus:ring-[#C5A059]"
+                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-[#062C22] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
               />
             </div>
           </div>
@@ -196,7 +196,7 @@ export const CustomerProfilePage: React.FC = () => {
 
         {/* Emergency Contact */}
         <div className="space-y-4 pt-4 border-t border-stone-100">
-          <h3 className="font-serif font-bold text-base text-[#082F24]">Emergency Contact</h3>
+          <h3 className="font-serif font-bold text-base text-[#062C22]">Emergency Contact</h3>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
@@ -206,7 +206,7 @@ export const CustomerProfilePage: React.FC = () => {
                 value={emergencyName}
                 onChange={(e) => setEmergencyName(e.target.value)}
                 placeholder="e.g. Mark Jenkins (Spouse)"
-                className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-[#082F24] focus:outline-none focus:ring-2 focus:ring-[#C5A059]"
+                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-[#062C22] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
               />
             </div>
 
@@ -217,7 +217,7 @@ export const CustomerProfilePage: React.FC = () => {
                 value={emergencyPhone}
                 onChange={(e) => setEmergencyPhone(e.target.value)}
                 placeholder="+44 7700 900088"
-                className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-[#082F24] focus:outline-none focus:ring-2 focus:ring-[#C5A059]"
+                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-[#062C22] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
               />
             </div>
           </div>
@@ -227,9 +227,9 @@ export const CustomerProfilePage: React.FC = () => {
         <div className="pt-4 border-t border-stone-100 flex justify-end">
           <button
             type="submit"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[#0D3B2E] text-white hover:bg-[#134E3F] font-bold text-xs rounded-xl shadow-md transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[#0B3D2E] text-white hover:bg-[#134E3F] font-bold text-xs rounded-xl shadow-md transition-all"
           >
-            <Save className="w-4 h-4 text-[#E5C378]" />
+            <Save className="w-4 h-4 text-[#39A982]" />
             <span>Save Profile Settings</span>
           </button>
         </div>

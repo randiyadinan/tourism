@@ -32,11 +32,11 @@ export const TravelInspiration: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="text-center max-w-3xl mx-auto mb-14 space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#C5A059]/15 text-[#8C6D2B] text-xs font-bold uppercase tracking-wider">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#176B52]/15 text-[#176B52] text-xs font-bold uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5" />
             Travel Inspiration
           </div>
-          <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#082F24]">
+          <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#062C22]">
             Stories from the Wonder of Asia
           </h2>
           <p className="text-sm sm:text-base text-stone-600">
@@ -46,7 +46,7 @@ export const TravelInspiration: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {articles.map((art, idx) => (
-            <div key={idx} className="group bg-[#FAF8F5] rounded-2xl overflow-hidden border border-stone-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between luxury-card">
+            <div key={idx} className="group bg-[#F8F7F2] rounded-2xl overflow-hidden border border-stone-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between luxury-card">
               <div className="relative h-48 overflow-hidden">
                 <img
                   src={art.image}
@@ -54,7 +54,7 @@ export const TravelInspiration: React.FC = () => {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   loading="lazy"
                 />
-                <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#0D3B2E] text-[#E5C378] border border-[#C5A059]/40">
+                <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#0B3D2E] text-[#39A982] border border-[#176B52]/40">
                   {art.category}
                 </span>
               </div>
@@ -65,7 +65,7 @@ export const TravelInspiration: React.FC = () => {
                     <Calendar className="w-3.5 h-3.5" />
                     <span>{art.date}</span>
                   </div>
-                  <h3 className="font-serif text-lg font-bold text-[#082F24] group-hover:text-[#2b705c] transition-colors leading-snug">
+                  <h3 className="font-serif text-lg font-bold text-[#062C22] group-hover:text-[#2b705c] transition-colors leading-snug">
                     {art.title}
                   </h3>
                   <p className="text-xs text-stone-600 leading-relaxed">{art.excerpt}</p>
@@ -74,7 +74,7 @@ export const TravelInspiration: React.FC = () => {
                 <div className="pt-3 border-t border-stone-200/60">
                   <Link
                     to="/tours"
-                    className="inline-flex items-center gap-1 text-xs font-bold text-[#0D3B2E] hover:text-[#C5A059] transition-colors"
+                    className="inline-flex items-center gap-1 text-xs font-bold text-[#0B3D2E] hover:text-[#176B52] transition-colors"
                   >
                     Read Guide & Matching Tours &rarr;
                   </Link>

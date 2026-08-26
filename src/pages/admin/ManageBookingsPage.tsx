@@ -71,7 +71,7 @@ export const ManageBookingsPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#082F24]">Manage Customer Bookings</h1>
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#062C22]">Manage Customer Bookings</h1>
           <p className="text-xs text-stone-500">Review bespoke itineraries, confirm pending requests, and assign operations.</p>
         </div>
         <button
@@ -110,7 +110,7 @@ export const ManageBookingsPage: React.FC = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by code, customer, or tour..."
-            className="w-full pl-10 pr-4 py-2 bg-[#FAF8F5] border border-stone-300 rounded-xl text-xs text-[#082F24] focus:outline-none"
+            className="w-full pl-10 pr-4 py-2 bg-[#F8F7F2] border border-stone-300 rounded-xl text-xs text-[#062C22] focus:outline-none"
           />
         </div>
 
@@ -121,7 +121,7 @@ export const ManageBookingsPage: React.FC = () => {
               onClick={() => setStatusFilter(st)}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                 statusFilter === st
-                  ? 'bg-[#0D3B2E] text-white shadow-sm'
+                  ? 'bg-[#0B3D2E] text-white shadow-sm'
                   : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
               }`}
             >
@@ -135,7 +135,7 @@ export const ManageBookingsPage: React.FC = () => {
       <div className="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#FAF8F5] text-stone-700 font-bold border-b border-stone-200">
+            <thead className="bg-[#F8F7F2] text-stone-700 font-bold border-b border-stone-200">
               <tr>
                 <th className="py-3.5 px-6">Booking Ref</th>
                 <th className="py-3.5 px-4">Lead Guest</th>
@@ -150,25 +150,25 @@ export const ManageBookingsPage: React.FC = () => {
             <tbody className="divide-y divide-stone-100 text-stone-600">
               {filtered.map((b) => (
                 <tr key={b.id} className={`hover:bg-stone-50/50 ${b.bookingStatus === 'Pending' ? 'bg-amber-50/30' : ''}`}>
-                  <td className="py-4 px-6 font-bold text-[#8C6D2B]">
+                  <td className="py-4 px-6 font-bold text-[#176B52]">
                     {b.bookingCode}
                     <span className="block text-[10px] text-stone-400 font-normal">
                       {b.type === 'custom_trip' ? 'Bespoke Custom' : 'Fixed Tour'}
                     </span>
                   </td>
                   <td className="py-4 px-4">
-                    <strong className="text-[#082F24] block">{b.customerName}</strong>
+                    <strong className="text-[#062C22] block">{b.customerName}</strong>
                     <span className="text-[10px] text-stone-400">{b.customerEmail}</span>
                   </td>
                   <td className="py-4 px-4 truncate max-w-[180px] font-medium">{b.tourTitle}</td>
                   <td className="py-4 px-4 whitespace-nowrap">{b.startDate} to {b.endDate}</td>
-                  <td className="py-4 px-4 font-bold text-[#082F24]">${b.totalAmount.toLocaleString()}</td>
+                  <td className="py-4 px-4 font-bold text-[#062C22]">${b.totalAmount.toLocaleString()}</td>
                   <td className="py-4 px-4">
                     <div className="space-y-1.5">
                       <select
                         value={b.bookingStatus}
                         onChange={(e) => handleUpdateStatus(b.id, e.target.value as BookingStatus)}
-                        className={`px-2.5 py-1 rounded-lg font-bold text-[11px] border focus:ring-1 focus:ring-[#C5A059] ${
+                        className={`px-2.5 py-1 rounded-lg font-bold text-[11px] border focus:ring-1 focus:ring-[#176B52] ${
                           b.bookingStatus === 'Confirmed'
                             ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
                             : b.bookingStatus === 'Pending'
@@ -209,7 +209,7 @@ export const ManageBookingsPage: React.FC = () => {
                     <select
                       value={b.paymentStatus}
                       onChange={(e) => handleUpdatePayment(b.id, e.target.value as PaymentStatus)}
-                      className={`px-2.5 py-1 rounded-lg font-bold text-[11px] border focus:ring-1 focus:ring-[#C5A059] ${
+                      className={`px-2.5 py-1 rounded-lg font-bold text-[11px] border focus:ring-1 focus:ring-[#176B52] ${
                         b.paymentStatus === 'Fully Paid' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : b.paymentStatus === 'Deposit Paid' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-rose-50 text-rose-700 border-rose-200'
                       }`}
                     >
@@ -222,14 +222,14 @@ export const ManageBookingsPage: React.FC = () => {
                   <td className="py-4 px-6 text-right space-x-2 whitespace-nowrap">
                     <button
                       onClick={() => setSelectedBooking(b)}
-                      className="inline-flex items-center gap-1 text-xs font-bold text-[#0D3B2E] bg-stone-100 hover:bg-stone-200 px-2.5 py-1 rounded-lg"
+                      className="inline-flex items-center gap-1 text-xs font-bold text-[#0B3D2E] bg-stone-100 hover:bg-stone-200 px-2.5 py-1 rounded-lg"
                     >
                       <Eye className="w-3.5 h-3.5" />
                       <span>Inspect</span>
                     </button>
                     <Link
                       to={`/customer/bookings/${b.id}`}
-                      className="inline-flex items-center gap-1 text-xs font-bold text-[#8C6D2B] hover:underline"
+                      className="inline-flex items-center gap-1 text-xs font-bold text-[#176B52] hover:underline"
                     >
                       Voucher
                     </Link>
@@ -248,10 +248,10 @@ export const ManageBookingsPage: React.FC = () => {
             
             <div className="flex items-center justify-between border-b border-stone-100 pb-4">
               <div>
-                <span className="text-[10px] font-bold text-[#8C6D2B] uppercase tracking-wider">
+                <span className="text-[10px] font-bold text-[#176B52] uppercase tracking-wider">
                   Admin Itinerary Inspector
                 </span>
-                <h3 className="font-serif text-xl font-bold text-[#082F24]">
+                <h3 className="font-serif text-xl font-bold text-[#062C22]">
                   {selectedBooking.bookingCode} — {selectedBooking.tourTitle}
                 </h3>
               </div>
@@ -264,9 +264,9 @@ export const ManageBookingsPage: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-              <div className="bg-[#FAF8F5] p-4 rounded-2xl border border-stone-200/80 space-y-2">
-                <span className="font-bold text-[#082F24] flex items-center gap-1.5">
-                  <Users className="w-4 h-4 text-[#C5A059]" />
+              <div className="bg-[#F8F7F2] p-4 rounded-2xl border border-stone-200/80 space-y-2">
+                <span className="font-bold text-[#062C22] flex items-center gap-1.5">
+                  <Users className="w-4 h-4 text-[#176B52]" />
                   Guest Details
                 </span>
                 <p><strong>Name:</strong> {selectedBooking.customerName}</p>
@@ -275,9 +275,9 @@ export const ManageBookingsPage: React.FC = () => {
                 <p><strong>Travelers:</strong> {selectedBooking.adultsCount} Adults, {selectedBooking.childrenCount} Children, {selectedBooking.infantsCount} Infants</p>
               </div>
 
-              <div className="bg-[#FAF8F5] p-4 rounded-2xl border border-stone-200/80 space-y-2">
-                <span className="font-bold text-[#082F24] flex items-center gap-1.5">
-                  <Car className="w-4 h-4 text-[#C5A059]" />
+              <div className="bg-[#F8F7F2] p-4 rounded-2xl border border-stone-200/80 space-y-2">
+                <span className="font-bold text-[#062C22] flex items-center gap-1.5">
+                  <Car className="w-4 h-4 text-[#176B52]" />
                   Transportation & Schedule
                 </span>
                 <p><strong>Vehicle:</strong> {selectedBooking.vehicleType || 'Toyota KDH Luxury Van'}</p>
@@ -288,9 +288,9 @@ export const ManageBookingsPage: React.FC = () => {
             </div>
 
             {/* Airport Transfer Info */}
-            <div className="bg-[#FAF8F5] p-4 rounded-2xl border border-stone-200/80 space-y-2 text-xs">
-              <span className="font-bold text-[#082F24] flex items-center gap-1.5">
-                <Plane className="w-4 h-4 text-[#C5A059]" />
+            <div className="bg-[#F8F7F2] p-4 rounded-2xl border border-stone-200/80 space-y-2 text-xs">
+              <span className="font-bold text-[#062C22] flex items-center gap-1.5">
+                <Plane className="w-4 h-4 text-[#176B52]" />
                 Airport Transfer Logistics
               </span>
               <p><strong>Transfer Option:</strong> {selectedBooking.airportTransferOption || (selectedBooking.airportPickup ? 'Arrival Pickup' : 'None')}</p>
@@ -300,9 +300,9 @@ export const ManageBookingsPage: React.FC = () => {
 
             {/* Activities List */}
             {selectedBooking.activitiesSelected && selectedBooking.activitiesSelected.length > 0 && (
-              <div className="bg-[#FAF8F5] p-4 rounded-2xl border border-stone-200/80 space-y-2 text-xs">
-                <span className="font-bold text-[#082F24] flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-[#C5A059]" />
+              <div className="bg-[#F8F7F2] p-4 rounded-2xl border border-stone-200/80 space-y-2 text-xs">
+                <span className="font-bold text-[#062C22] flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-[#176B52]" />
                   Selected Activities ({selectedBooking.activitiesSelected.length})
                 </span>
                 <div className="flex flex-wrap gap-1.5">
@@ -323,8 +323,8 @@ export const ManageBookingsPage: React.FC = () => {
             )}
 
             {/* Complete Price Breakdown */}
-            <div className="bg-[#FAF8F5] p-4 rounded-2xl border border-stone-200/80 space-y-2 text-xs">
-              <span className="font-bold text-[#082F24] block">Complete Price Breakdown</span>
+            <div className="bg-[#F8F7F2] p-4 rounded-2xl border border-stone-200/80 space-y-2 text-xs">
+              <span className="font-bold text-[#062C22] block">Complete Price Breakdown</span>
               <div className="space-y-1 text-stone-600">
                 <div className="flex justify-between">
                   <span>Base Package Price:</span>
@@ -342,9 +342,9 @@ export const ManageBookingsPage: React.FC = () => {
                     <span className="font-semibold">-${selectedBooking.discountAmount?.toLocaleString()}</span>
                   </div>
                 )}
-                <div className="flex justify-between font-bold text-[#082F24] pt-1 border-t border-stone-200 text-sm">
+                <div className="flex justify-between font-bold text-[#062C22] pt-1 border-t border-stone-200 text-sm">
                   <span>Total Amount Paid / Due:</span>
-                  <span className="text-[#0D3B2E]">${selectedBooking.totalAmount.toLocaleString()} USD</span>
+                  <span className="text-[#0B3D2E]">${selectedBooking.totalAmount.toLocaleString()} USD</span>
                 </div>
               </div>
             </div>
@@ -370,7 +370,7 @@ export const ManageBookingsPage: React.FC = () => {
               <div className="flex items-center gap-2">
                 <Link
                   to={`/customer/bookings/${selectedBooking.id}`}
-                  className="px-4 py-1.5 bg-[#0D3B2E] text-white font-bold text-xs rounded-xl hover:bg-[#134E3F]"
+                  className="px-4 py-1.5 bg-[#0B3D2E] text-white font-bold text-xs rounded-xl hover:bg-[#134E3F]"
                 >
                   Open Full Voucher
                 </Link>

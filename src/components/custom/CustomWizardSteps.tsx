@@ -26,46 +26,46 @@ export const Step1Dates: React.FC<WizardStepProps> = ({ tripState, onChange }) =
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="font-serif text-2xl font-bold text-[#082F24]">When are you planning to visit Sri Lanka?</h3>
+        <h3 className="font-serif text-2xl font-bold text-[#062C22]">When are you planning to visit Sri Lanka?</h3>
         <p className="text-sm text-stone-600">Select your intended arrival and departure dates. You can adjust these later.</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
         <div className="space-y-2">
-          <label className="text-xs font-bold text-[#082F24] uppercase tracking-wider flex items-center gap-1.5">
-            <Calendar className="w-4 h-4 text-[#C5A059]" />
+          <label className="text-xs font-bold text-[#062C22] uppercase tracking-wider flex items-center gap-1.5">
+            <Calendar className="w-4 h-4 text-[#176B52]" />
             Arrival Date in Sri Lanka
           </label>
           <input
             type="date"
             value={tripState.arrivalDate}
             onChange={(e) => onChange({ arrivalDate: e.target.value })}
-            className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-4 py-3 text-sm font-semibold text-[#082F24] focus:ring-2 focus:ring-[#C5A059] focus:outline-none"
+            className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-4 py-3 text-sm font-semibold text-[#062C22] focus:ring-2 focus:ring-[#176B52] focus:outline-none"
           />
         </div>
 
         <div className="space-y-2">
-          <label className="text-xs font-bold text-[#082F24] uppercase tracking-wider flex items-center gap-1.5">
-            <Calendar className="w-4 h-4 text-[#C5A059]" />
+          <label className="text-xs font-bold text-[#062C22] uppercase tracking-wider flex items-center gap-1.5">
+            <Calendar className="w-4 h-4 text-[#176B52]" />
             Departure Date from Sri Lanka
           </label>
           <input
             type="date"
             value={tripState.departureDate}
             onChange={(e) => onChange({ departureDate: e.target.value })}
-            className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-4 py-3 text-sm font-semibold text-[#082F24] focus:ring-2 focus:ring-[#C5A059] focus:outline-none"
+            className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-4 py-3 text-sm font-semibold text-[#062C22] focus:ring-2 focus:ring-[#176B52] focus:outline-none"
           />
         </div>
       </div>
 
       {/* Duration Highlight Box */}
-      <div className="bg-[#FAF8F5] p-5 rounded-2xl border border-[#C5A059]/40 flex items-center justify-between">
+      <div className="bg-[#F8F7F2] p-5 rounded-2xl border border-[#176B52]/40 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#0D3B2E] text-[#E5C378] flex items-center justify-center font-bold">
+          <div className="w-10 h-10 rounded-xl bg-[#0B3D2E] text-[#39A982] flex items-center justify-center font-bold">
             <Clock className="w-5 h-5" />
           </div>
           <div>
-            <p className="font-serif font-bold text-[#082F24] text-base">Trip Duration: {daysCount} Days / {daysCount - 1} Nights</p>
+            <p className="font-serif font-bold text-[#062C22] text-base">Trip Duration: {daysCount} Days / {daysCount - 1} Nights</p>
             <p className="text-xs text-stone-500">Suggested destination coverage: {Math.min(6, Math.max(2, Math.floor(daysCount / 2)))} regions</p>
           </div>
         </div>
@@ -82,7 +82,7 @@ export const Step2Travelers: React.FC<WizardStepProps> = ({ tripState, onChange 
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="font-serif text-2xl font-bold text-[#082F24]">Who is traveling on this journey?</h3>
+        <h3 className="font-serif text-2xl font-bold text-[#062C22]">Who is traveling on this journey?</h3>
         <p className="text-sm text-stone-600">We size vehicle capacity and chauffeur arrangements based on your party.</p>
       </div>
 
@@ -91,17 +91,17 @@ export const Step2Travelers: React.FC<WizardStepProps> = ({ tripState, onChange 
         {/* Adults */}
         <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between space-y-4">
           <div>
-            <h4 className="font-serif text-lg font-bold text-[#082F24]">Adults</h4>
+            <h4 className="font-serif text-lg font-bold text-[#062C22]">Adults</h4>
             <p className="text-xs text-stone-500">Ages 12 and above</p>
           </div>
-          <div className="flex items-center justify-between bg-[#FAF8F5] p-2 rounded-xl border border-stone-300">
+          <div className="flex items-center justify-between bg-[#F8F7F2] p-2 rounded-xl border border-stone-300">
             <button
               onClick={() => onChange({ adults: Math.max(1, tripState.adults - 1) })}
               className="w-9 h-9 rounded-lg bg-white shadow-sm flex items-center justify-center text-stone-700 hover:bg-stone-100 font-bold"
             >
               <Minus className="w-4 h-4" />
             </button>
-            <span className="font-serif text-2xl font-bold text-[#082F24]">{tripState.adults}</span>
+            <span className="font-serif text-2xl font-bold text-[#062C22]">{tripState.adults}</span>
             <button
               onClick={() => onChange({ adults: tripState.adults + 1 })}
               className="w-9 h-9 rounded-lg bg-white shadow-sm flex items-center justify-center text-stone-700 hover:bg-stone-100 font-bold"
@@ -114,17 +114,17 @@ export const Step2Travelers: React.FC<WizardStepProps> = ({ tripState, onChange 
         {/* Children */}
         <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between space-y-4">
           <div>
-            <h4 className="font-serif text-lg font-bold text-[#082F24]">Children</h4>
+            <h4 className="font-serif text-lg font-bold text-[#062C22]">Children</h4>
             <p className="text-xs text-stone-500">Ages 2 to 11 (Reduced Rate)</p>
           </div>
-          <div className="flex items-center justify-between bg-[#FAF8F5] p-2 rounded-xl border border-stone-300">
+          <div className="flex items-center justify-between bg-[#F8F7F2] p-2 rounded-xl border border-stone-300">
             <button
               onClick={() => onChange({ children: Math.max(0, tripState.children - 1) })}
               className="w-9 h-9 rounded-lg bg-white shadow-sm flex items-center justify-center text-stone-700 hover:bg-stone-100 font-bold"
             >
               <Minus className="w-4 h-4" />
             </button>
-            <span className="font-serif text-2xl font-bold text-[#082F24]">{tripState.children}</span>
+            <span className="font-serif text-2xl font-bold text-[#062C22]">{tripState.children}</span>
             <button
               onClick={() => onChange({ children: tripState.children + 1 })}
               className="w-9 h-9 rounded-lg bg-white shadow-sm flex items-center justify-center text-stone-700 hover:bg-stone-100 font-bold"
@@ -137,17 +137,17 @@ export const Step2Travelers: React.FC<WizardStepProps> = ({ tripState, onChange 
         {/* Infants */}
         <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm flex flex-col justify-between space-y-4">
           <div>
-            <h4 className="font-serif text-lg font-bold text-[#082F24]">Infants</h4>
+            <h4 className="font-serif text-lg font-bold text-[#062C22]">Infants</h4>
             <p className="text-xs text-stone-500">Under 2 years (Complimentary)</p>
           </div>
-          <div className="flex items-center justify-between bg-[#FAF8F5] p-2 rounded-xl border border-stone-300">
+          <div className="flex items-center justify-between bg-[#F8F7F2] p-2 rounded-xl border border-stone-300">
             <button
               onClick={() => onChange({ infants: Math.max(0, tripState.infants - 1) })}
               className="w-9 h-9 rounded-lg bg-white shadow-sm flex items-center justify-center text-stone-700 hover:bg-stone-100 font-bold"
             >
               <Minus className="w-4 h-4" />
             </button>
-            <span className="font-serif text-2xl font-bold text-[#082F24]">{tripState.infants}</span>
+            <span className="font-serif text-2xl font-bold text-[#062C22]">{tripState.infants}</span>
             <button
               onClick={() => onChange({ infants: tripState.infants + 1 })}
               className="w-9 h-9 rounded-lg bg-white shadow-sm flex items-center justify-center text-stone-700 hover:bg-stone-100 font-bold"
@@ -211,7 +211,7 @@ export const Step3Arrival: React.FC<WizardStepProps> = ({ tripState, onChange })
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="font-serif text-2xl font-bold text-[#082F24]">Airport Transfers & Arrival Details</h3>
+        <h3 className="font-serif text-2xl font-bold text-[#062C22]">Airport Transfers & Arrival Details</h3>
         <p className="text-sm text-stone-600">Choose your VIP airport chauffeur transfer options and flight timing.</p>
       </div>
 
@@ -225,27 +225,27 @@ export const Step3Arrival: React.FC<WizardStepProps> = ({ tripState, onChange })
               onClick={() => handleSelectOption(opt.id)}
               className={`cursor-pointer rounded-2xl border p-4 transition-all relative flex flex-col justify-between ${
                 isSelected
-                  ? 'border-[#0D3B2E] bg-[#0D3B2E]/5 ring-2 ring-[#C5A059]'
+                  ? 'border-[#0B3D2E] bg-[#0B3D2E]/5 ring-2 ring-[#176B52]'
                   : 'border-stone-200 bg-white hover:border-stone-300 shadow-sm'
               }`}
             >
               {('popular' in opt && opt.popular) && (
-                <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#C5A059] text-[#082F24]">
+                <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#176B52] text-[#062C22]">
                   Save $5
                 </span>
               )}
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <Plane className="w-5 h-5 text-[#0D3B2E]" />
-                  <h4 className="font-serif font-bold text-base text-[#082F24]">{opt.title}</h4>
+                  <Plane className="w-5 h-5 text-[#0B3D2E]" />
+                  <h4 className="font-serif font-bold text-base text-[#062C22]">{opt.title}</h4>
                 </div>
                 <p className="text-xs text-stone-600 leading-relaxed">{opt.desc}</p>
               </div>
 
               <div className="pt-3 mt-2 border-t border-stone-100 flex items-center justify-between text-xs">
-                <span className="font-bold text-[#082F24]">{opt.price}</span>
+                <span className="font-bold text-[#062C22]">{opt.price}</span>
                 <span className={`font-bold px-2 py-0.5 rounded-md ${
-                  isSelected ? 'bg-[#0D3B2E] text-white' : 'bg-stone-100 text-stone-700'
+                  isSelected ? 'bg-[#0B3D2E] text-white' : 'bg-stone-100 text-stone-700'
                 }`}>
                   {isSelected ? '✓ Selected' : 'Select'}
                 </span>
@@ -257,8 +257,8 @@ export const Step3Arrival: React.FC<WizardStepProps> = ({ tripState, onChange })
 
       {/* Flight & Airport Details */}
       <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-4">
-        <h4 className="font-serif font-bold text-base text-[#082F24] flex items-center gap-2">
-          <Plane className="w-4 h-4 text-[#C5A059]" />
+        <h4 className="font-serif font-bold text-base text-[#062C22] flex items-center gap-2">
+          <Plane className="w-4 h-4 text-[#176B52]" />
           Flight & Arrival Information
         </h4>
 
@@ -274,7 +274,7 @@ export const Step3Arrival: React.FC<WizardStepProps> = ({ tripState, onChange })
                   airport: e.target.value
                 }
               })}
-              className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2.5 text-sm font-semibold text-[#082F24]"
+              className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2.5 text-sm font-semibold text-[#062C22]"
             >
               <option value="Bandaranaike Intl Airport (CMB) - Colombo">Bandaranaike Intl Airport (CMB - Colombo)</option>
               <option value="Mattala Rajapaksa Intl Airport (HRI) - Hambantota">Mattala Rajapaksa Intl (HRI - Hambantota)</option>
@@ -296,7 +296,7 @@ export const Step3Arrival: React.FC<WizardStepProps> = ({ tripState, onChange })
                 }
               })}
               placeholder="e.g. UL 504 / QR 668 / EK 650 / BA 2042"
-              className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2.5 text-sm text-[#082F24]"
+              className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2.5 text-sm text-[#062C22]"
             />
           </div>
         </div>
@@ -314,7 +314,7 @@ export const Step3Arrival: React.FC<WizardStepProps> = ({ tripState, onChange })
                 arrivalTime: e.target.value
               }
             })}
-            className="w-full sm:w-1/2 bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2.5 text-sm text-[#082F24]"
+            className="w-full sm:w-1/2 bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2.5 text-sm text-[#062C22]"
           />
         </div>
       </div>
@@ -338,7 +338,7 @@ export const Step4Destinations: React.FC<WizardStepProps> = ({ tripState, onChan
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="font-serif text-2xl font-bold text-[#082F24]">Select Destinations to Visit</h3>
+        <h3 className="font-serif text-2xl font-bold text-[#062C22]">Select Destinations to Visit</h3>
         <p className="text-sm text-stone-600">Click to add or remove Sri Lankan regions from your route.</p>
       </div>
 
@@ -351,7 +351,7 @@ export const Step4Destinations: React.FC<WizardStepProps> = ({ tripState, onChan
               onClick={() => toggleDest(dest.id)}
               className={`cursor-pointer rounded-2xl border p-4 transition-all duration-200 relative overflow-hidden flex flex-col justify-between ${
                 isSelected
-                  ? 'border-[#0D3B2E] bg-[#0D3B2E]/5 ring-2 ring-[#C5A059]'
+                  ? 'border-[#0B3D2E] bg-[#0B3D2E]/5 ring-2 ring-[#176B52]'
                   : 'border-stone-200 bg-white hover:border-stone-300 shadow-sm'
               }`}
             >
@@ -362,7 +362,7 @@ export const Step4Destinations: React.FC<WizardStepProps> = ({ tripState, onChan
                   className="w-14 h-14 rounded-xl object-cover"
                 />
                 <div>
-                  <h4 className="font-serif font-bold text-[#082F24] text-base">{dest.name}</h4>
+                  <h4 className="font-serif font-bold text-[#062C22] text-base">{dest.name}</h4>
                   <p className="text-[11px] text-stone-500">{dest.province}</p>
                 </div>
               </div>
@@ -372,7 +372,7 @@ export const Step4Destinations: React.FC<WizardStepProps> = ({ tripState, onChan
               <div className="pt-3 mt-2 border-t border-stone-100 flex items-center justify-between text-xs">
                 <span className="text-stone-500">{dest.recommendedDuration}</span>
                 <span className={`font-bold px-2 py-0.5 rounded-md ${
-                  isSelected ? 'bg-[#0D3B2E] text-white' : 'bg-stone-100 text-stone-700'
+                  isSelected ? 'bg-[#0B3D2E] text-white' : 'bg-stone-100 text-stone-700'
                 }`}>
                   {isSelected ? '✓ Added' : '+ Add'}
                 </span>
@@ -401,7 +401,7 @@ export const Step5Activities: React.FC<WizardStepProps> = ({ tripState, onChange
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="font-serif text-2xl font-bold text-[#082F24]">Select Activities & Experiences</h3>
+        <h3 className="font-serif text-2xl font-bold text-[#062C22]">Select Activities & Experiences</h3>
         <p className="text-sm text-stone-600">Choose the activities and excursions you wish to include in your personalized route.</p>
       </div>
 
@@ -414,7 +414,7 @@ export const Step5Activities: React.FC<WizardStepProps> = ({ tripState, onChange
               onClick={() => toggleActivity(act.id)}
               className={`cursor-pointer rounded-2xl border p-4 transition-all duration-200 relative overflow-hidden flex flex-col justify-between ${
                 isSelected
-                  ? 'border-[#0D3B2E] bg-[#0D3B2E]/5 ring-2 ring-[#C5A059]'
+                  ? 'border-[#0B3D2E] bg-[#0B3D2E]/5 ring-2 ring-[#176B52]'
                   : 'border-stone-200 bg-white hover:border-stone-300 shadow-sm'
               }`}
             >
@@ -425,8 +425,8 @@ export const Step5Activities: React.FC<WizardStepProps> = ({ tripState, onChange
                   className="w-14 h-14 rounded-xl object-cover"
                 />
                 <div>
-                  <h4 className="font-serif font-bold text-[#082F24] text-sm line-clamp-1">{act.title}</h4>
-                  <p className="text-[11px] text-[#8C6D2B] font-semibold">{act.destination}</p>
+                  <h4 className="font-serif font-bold text-[#062C22] text-sm line-clamp-1">{act.title}</h4>
+                  <p className="text-[11px] text-[#176B52] font-semibold">{act.destination}</p>
                 </div>
               </div>
 
@@ -435,7 +435,7 @@ export const Step5Activities: React.FC<WizardStepProps> = ({ tripState, onChange
               <div className="pt-3 mt-2 border-t border-stone-100 flex items-center justify-between text-xs">
                 <span className="text-stone-500 font-medium">{act.duration}</span>
                 <span className={`font-bold px-2.5 py-1 rounded-md transition-colors ${
-                  isSelected ? 'bg-[#0D3B2E] text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+                  isSelected ? 'bg-[#0B3D2E] text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
                 }`}>
                   {isSelected ? '✓ Selected' : '☐ Select'}
                 </span>
@@ -481,7 +481,7 @@ export const Step6Transport: React.FC<WizardStepProps> = ({ tripState, onChange 
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="font-serif text-2xl font-bold text-[#082F24]">Select Chauffeur & Vehicle Type</h3>
+        <h3 className="font-serif text-2xl font-bold text-[#062C22]">Select Chauffeur & Vehicle Type</h3>
         <p className="text-sm text-stone-600">All private vehicles include dedicated English-speaking tourist-board chauffeur.</p>
       </div>
 
@@ -494,23 +494,23 @@ export const Step6Transport: React.FC<WizardStepProps> = ({ tripState, onChange 
               onClick={() => onChange({ transportType: opt.type })}
               className={`cursor-pointer rounded-2xl border p-5 transition-all relative flex flex-col justify-between ${
                 isSelected
-                  ? 'border-[#0D3B2E] bg-[#0D3B2E]/5 ring-2 ring-[#C5A059]'
+                  ? 'border-[#0B3D2E] bg-[#0B3D2E]/5 ring-2 ring-[#176B52]'
                   : 'border-stone-200 bg-white hover:border-stone-300 shadow-sm'
               }`}
             >
               {('popular' in opt && opt.popular) && (
-                <span className="absolute top-3 right-3 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#C5A059] text-[#082F24]">
+                <span className="absolute top-3 right-3 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#176B52] text-[#062C22]">
                   Most Popular
                 </span>
               )}
               <div className="space-y-2">
-                <Car className="w-6 h-6 text-[#0D3B2E]" />
-                <h4 className="font-serif font-bold text-lg text-[#082F24]">{opt.title}</h4>
+                <Car className="w-6 h-6 text-[#0B3D2E]" />
+                <h4 className="font-serif font-bold text-lg text-[#062C22]">{opt.title}</h4>
                 <p className="text-xs text-stone-600 leading-relaxed">{opt.desc}</p>
               </div>
               <div className="pt-4 mt-3 border-t border-stone-100 flex items-center justify-between">
-                <span className="font-bold text-sm text-[#082F24]">{opt.rate}</span>
-                <span className={`text-xs font-bold ${isSelected ? 'text-[#0D3B2E]' : 'text-stone-400'}`}>
+                <span className="font-bold text-sm text-[#062C22]">{opt.rate}</span>
+                <span className={`text-xs font-bold ${isSelected ? 'text-[#0B3D2E]' : 'text-stone-400'}`}>
                   {isSelected ? '✓ Selected' : 'Select'}
                 </span>
               </div>
@@ -527,7 +527,7 @@ export const Step7Review: React.FC<WizardStepProps> = ({ tripState }) => {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="font-serif text-2xl font-bold text-[#082F24]">Review Your Custom Sri Lankan Route</h3>
+        <h3 className="font-serif text-2xl font-bold text-[#062C22]">Review Your Custom Sri Lankan Route</h3>
         <p className="text-sm text-stone-600">Please review all parameters before entering traveler details.</p>
       </div>
 
@@ -535,18 +535,18 @@ export const Step7Review: React.FC<WizardStepProps> = ({ tripState }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4 border-b border-stone-100">
           <div>
             <span className="text-xs text-stone-400 font-semibold block">Travel Dates</span>
-            <span className="font-bold text-[#082F24]">{tripState.arrivalDate} to {tripState.departureDate}</span>
+            <span className="font-bold text-[#062C22]">{tripState.arrivalDate} to {tripState.departureDate}</span>
           </div>
           <div>
             <span className="text-xs text-stone-400 font-semibold block">Party Size</span>
-            <span className="font-bold text-[#082F24]">{tripState.adults} Adults{tripState.children > 0 ? `, ${tripState.children} Children` : ''}{tripState.infants > 0 ? `, ${tripState.infants} Infants` : ''}</span>
+            <span className="font-bold text-[#062C22]">{tripState.adults} Adults{tripState.children > 0 ? `, ${tripState.children} Children` : ''}{tripState.infants > 0 ? `, ${tripState.infants} Infants` : ''}</span>
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4 border-b border-stone-100">
           <div>
             <span className="text-xs text-stone-400 font-semibold block">Airport Transfer</span>
-            <span className="font-bold text-[#082F24]">
+            <span className="font-bold text-[#062C22]">
               {tripState.airportTransferOption === 'both' 
                 ? 'Roundtrip Airport VIP Transfers'
                 : tripState.airportTransferOption === 'dropoff'
@@ -558,7 +558,7 @@ export const Step7Review: React.FC<WizardStepProps> = ({ tripState }) => {
           </div>
           <div>
             <span className="text-xs text-stone-400 font-semibold block">Transportation</span>
-            <span className="font-bold text-[#082F24]">{tripState.transportType}</span>
+            <span className="font-bold text-[#062C22]">{tripState.transportType}</span>
           </div>
         </div>
 
@@ -568,7 +568,7 @@ export const Step7Review: React.FC<WizardStepProps> = ({ tripState }) => {
             {tripState.selectedDestinations.map(dId => {
               const dest = INITIAL_DESTINATIONS.find(d => d.id === dId);
               return (
-                <span key={dId} className="px-3 py-1 bg-[#0D3B2E]/10 text-[#0D3B2E] font-bold text-xs rounded-full">
+                <span key={dId} className="px-3 py-1 bg-[#0B3D2E]/10 text-[#0B3D2E] font-bold text-xs rounded-full">
                   {dest?.name || dId}
                 </span>
               );
@@ -583,7 +583,7 @@ export const Step7Review: React.FC<WizardStepProps> = ({ tripState }) => {
               {tripState.selectedActivities.map(aId => {
                 const act = INITIAL_ACTIVITIES.find(a => a.id === aId);
                 return (
-                  <span key={aId} className="px-3 py-1 bg-[#C5A059]/20 text-[#8C6D2B] font-bold text-xs rounded-full">
+                  <span key={aId} className="px-3 py-1 bg-[#176B52]/20 text-[#176B52] font-bold text-xs rounded-full">
                     ✓ {act?.title || aId}
                   </span>
                 );

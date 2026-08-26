@@ -17,10 +17,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#FAF8F5] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F8F7F2] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-[#C5A059] border-t-transparent rounded-full animate-spin" />
-          <span className="text-xs font-bold text-[#082F24]">Verifying Security Credentials...</span>
+          <div className="w-10 h-10 border-4 border-[#176B52] border-t-transparent rounded-full animate-spin" />
+          <span className="text-xs font-bold text-[#062C22]">Verifying Security Credentials...</span>
         </div>
       </div>
     );
@@ -33,7 +33,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // Strict role check: Customer trying to access Admin Suite
   if (requiredRole === 'admin' && !isAdmin) {
     return (
-      <div className="min-h-[80vh] bg-[#FAF8F5] flex items-center justify-center p-4">
+      <div className="min-h-[80vh] bg-[#F8F7F2] flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white p-8 sm:p-10 rounded-3xl border border-rose-200 shadow-xl text-center space-y-6">
           <div className="w-16 h-16 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center mx-auto">
             <ShieldAlert className="w-8 h-8" />
@@ -42,7 +42,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
             <span className="px-3 py-1 bg-rose-100 text-rose-800 text-[11px] font-bold uppercase rounded-full">
               403 Forbidden
             </span>
-            <h2 className="font-serif text-2xl font-bold text-[#082F24] mt-2">
+            <h2 className="font-serif text-2xl font-bold text-[#062C22] mt-2">
               Administrator Privileges Required
             </h2>
             <p className="text-xs text-stone-600 mt-2 leading-relaxed">
@@ -52,9 +52,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           <div className="flex flex-col gap-2 pt-2">
             <Link
               to="/customer"
-              className="w-full py-3 bg-[#0D3B2E] text-white font-bold text-xs rounded-xl shadow-md hover:bg-[#134E3F] transition-all flex items-center justify-center gap-2"
+              className="w-full py-3 bg-[#0B3D2E] text-white font-bold text-xs rounded-xl shadow-md hover:bg-[#134E3F] transition-all flex items-center justify-center gap-2"
             >
-              <ArrowLeft className="w-4 h-4 text-[#E5C378]" />
+              <ArrowLeft className="w-4 h-4 text-[#39A982]" />
               <span>Return to Customer Dashboard</span>
             </Link>
             <Link

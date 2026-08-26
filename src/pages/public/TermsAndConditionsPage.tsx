@@ -18,23 +18,23 @@ import {
 
 export const TermsAndConditionsPage: React.FC = () => {
   return (
-    <div className="bg-[#FAF8F5] min-h-screen py-12 md:py-16">
+    <div className="bg-[#F8F7F2] min-h-screen py-12 md:py-16">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
         {/* Page Header */}
         <div className="text-center max-w-2xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#0D3B2E]/10 text-[#0D3B2E] text-xs font-bold uppercase tracking-wider">
-            <ShieldCheck className="w-3.5 h-3.5 text-[#C5A059]" />
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#0B3D2E]/10 text-[#0B3D2E] text-xs font-bold uppercase tracking-wider">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#176B52]" />
             Official Booking Agreement
           </div>
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#082F24]">
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#062C22]">
             Terms & Conditions
           </h1>
           <p className="text-sm sm:text-base text-stone-600 leading-relaxed">
             Please read these terms carefully before booking a tour with LankaVoyage.
           </p>
           <div className="pt-2 text-xs font-medium text-stone-500">
-            Last Updated: <span className="font-bold text-[#082F24]">{new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+            Last Updated: <span className="font-bold text-[#062C22]">{new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
           </div>
         </div>
 
@@ -42,7 +42,7 @@ export const TermsAndConditionsPage: React.FC = () => {
         <div className="p-5 sm:p-6 bg-amber-50/80 border-2 border-amber-200 rounded-3xl flex items-start gap-4 text-xs text-amber-900 shadow-xs">
           <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
           <div className="space-y-1">
-            <h4 className="font-bold text-sm text-[#082F24]">Binding Travel Agreement</h4>
+            <h4 className="font-bold text-sm text-[#062C22]">Binding Travel Agreement</h4>
             <p className="leading-relaxed">
               By confirming a reservation, submitting a booking request, or making any payment (full or deposit) for private tours, group excursions, bespoke itineraries, or airport transfers with LankaVoyage, you acknowledge that you have read, understood, and agreed to be bound by these Terms & Conditions.
             </p>
@@ -54,8 +54,8 @@ export const TermsAndConditionsPage: React.FC = () => {
 
           {/* 1. Introduction */}
           <section className="space-y-3">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <FileText className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <FileText className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">1. Introduction</h2>
             </div>
             <p>
@@ -65,12 +65,12 @@ export const TermsAndConditionsPage: React.FC = () => {
 
           {/* 2. Booking & Reservations */}
           <section className="space-y-3">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <Calendar className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <Calendar className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">2. Booking & Reservations</h2>
             </div>
             <p>
-              A booking is officially confirmed once an initial deposit or full payment has been successfully processed through our secure gateway and a formal digital Booking Confirmation Voucher with a unique reference code (e.g., <code className="font-mono bg-stone-100 px-1.5 py-0.5 rounded text-[#082F24]">LV-2026-XXXX</code>) is issued.
+              A booking is officially confirmed once an initial deposit or full payment has been successfully processed through our secure gateway and a formal digital Booking Confirmation Voucher with a unique reference code (e.g., <code className="font-mono bg-stone-100 px-1.5 py-0.5 rounded text-[#062C22]">LV-2026-XXXX</code>) is issued.
             </p>
             <ul className="list-disc pl-5 space-y-1.5 text-xs text-stone-600">
               <li>The person making the booking ("Lead Guest") warrants that they possess the legal authority to accept these terms on behalf of all traveling party members.</li>
@@ -81,8 +81,8 @@ export const TermsAndConditionsPage: React.FC = () => {
 
           {/* 3. Payments */}
           <section className="space-y-3">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <CreditCard className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <CreditCard className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">3. Payments</h2>
             </div>
             <p>
@@ -97,8 +97,8 @@ export const TermsAndConditionsPage: React.FC = () => {
 
           {/* 4. Tour Prices */}
           <section className="space-y-3">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <Sparkles className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <Sparkles className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">4. Tour Prices</h2>
             </div>
             <p>
@@ -111,8 +111,8 @@ export const TermsAndConditionsPage: React.FC = () => {
 
           {/* 5. Customer Responsibilities */}
           <section className="space-y-3">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <Users className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <Users className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">5. Customer Responsibilities</h2>
             </div>
             <ul className="list-disc pl-5 space-y-1.5 text-xs text-stone-600">
@@ -124,8 +124,8 @@ export const TermsAndConditionsPage: React.FC = () => {
 
           {/* 6. Tour Changes */}
           <section className="space-y-3">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <Clock className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <Clock className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">6. Tour Changes</h2>
             </div>
             <p>
@@ -138,14 +138,14 @@ export const TermsAndConditionsPage: React.FC = () => {
 
           {/* 7. Cancellation Policy */}
           <section className="space-y-3">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <Calendar className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <Calendar className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">7. Cancellation Policy</h2>
             </div>
             <p>Cancellation requests must be submitted in writing via email to our concierge team.</p>
             <div className="overflow-x-auto">
               <table className="w-full text-xs text-left border border-stone-200 rounded-xl overflow-hidden">
-                <thead className="bg-[#FAF8F5] text-[#082F24] font-bold border-b border-stone-200">
+                <thead className="bg-[#F8F7F2] text-[#062C22] font-bold border-b border-stone-200">
                   <tr>
                     <th className="p-3">Notice Period Prior to Tour Start</th>
                     <th className="p-3">Cancellation Fee / Refund</th>
@@ -175,8 +175,8 @@ export const TermsAndConditionsPage: React.FC = () => {
 
           {/* 8. Refunds */}
           <section className="space-y-3">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <CreditCard className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <CreditCard className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">8. Refunds</h2>
             </div>
             <p>
@@ -186,8 +186,8 @@ export const TermsAndConditionsPage: React.FC = () => {
 
           {/* 9. Travel Documents */}
           <section className="space-y-3">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <Plane className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <Plane className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">9. Travel Documents</h2>
             </div>
             <p>
@@ -197,8 +197,8 @@ export const TermsAndConditionsPage: React.FC = () => {
 
           {/* 10. Health & Safety */}
           <section className="space-y-3">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <ShieldCheck className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <ShieldCheck className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">10. Health & Safety</h2>
             </div>
             <p>
@@ -208,8 +208,8 @@ export const TermsAndConditionsPage: React.FC = () => {
 
           {/* 11. Liability */}
           <section className="space-y-3">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <Lock className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <Lock className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">11. Limitation of Liability</h2>
             </div>
             <p>
@@ -219,8 +219,8 @@ export const TermsAndConditionsPage: React.FC = () => {
 
           {/* 12. Force Majeure */}
           <section className="space-y-3">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <AlertCircle className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <AlertCircle className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">12. Force Majeure</h2>
             </div>
             <p>
@@ -230,8 +230,8 @@ export const TermsAndConditionsPage: React.FC = () => {
 
           {/* 13. Privacy */}
           <section className="space-y-3">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <Lock className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <Lock className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">13. Privacy & Data Protection</h2>
             </div>
             <p>
@@ -241,8 +241,8 @@ export const TermsAndConditionsPage: React.FC = () => {
 
           {/* 14. Changes to These Terms */}
           <section className="space-y-3">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <HelpCircle className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <HelpCircle className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">14. Changes to These Terms</h2>
             </div>
             <p>
@@ -252,25 +252,25 @@ export const TermsAndConditionsPage: React.FC = () => {
 
           {/* 15. Contact Us */}
           <section className="space-y-4 pt-4 border-t border-stone-100">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <Phone className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <Phone className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">15. Contact Us</h2>
             </div>
             <p className="text-xs text-stone-600">
               For any inquiries, itinerary amendment requests, or legal clarifications regarding these Terms & Conditions, please contact our 24/7 Concierge Office:
             </p>
-            <div className="bg-[#FAF8F5] p-5 rounded-2xl border border-stone-200 space-y-2 text-xs">
+            <div className="bg-[#F8F7F2] p-5 rounded-2xl border border-stone-200 space-y-2 text-xs">
               <div className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 text-[#C5A059] shrink-0 mt-0.5" />
+                <MapPin className="w-4 h-4 text-[#176B52] shrink-0 mt-0.5" />
                 <span>Level 14, World Trade Center, Echelon Square, Colombo 01, Sri Lanka</span>
               </div>
               <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-[#C5A059] shrink-0" />
-                <a href="tel:+94771234567" className="text-[#0D3B2E] font-bold hover:underline">+94 77 123 4567</a>
+                <Phone className="w-4 h-4 text-[#176B52] shrink-0" />
+                <a href="tel:+94771234567" className="text-[#0B3D2E] font-bold hover:underline">+94 77 123 4567</a>
               </div>
               <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-[#C5A059] shrink-0" />
-                <a href="mailto:concierge@lankavoyage.com" className="text-[#0D3B2E] font-bold hover:underline">concierge@lankavoyage.com</a>
+                <Mail className="w-4 h-4 text-[#176B52] shrink-0" />
+                <a href="mailto:concierge@lankavoyage.com" className="text-[#0B3D2E] font-bold hover:underline">concierge@lankavoyage.com</a>
               </div>
             </div>
           </section>

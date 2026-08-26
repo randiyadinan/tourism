@@ -30,7 +30,7 @@ export const ManageCustomersPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#082F24]">Traveler Directory & CRM</h1>
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#062C22]">Traveler Directory & CRM</h1>
           <p className="text-xs text-stone-500">Verified customer accounts, contact details, passport profiles, and booking history.</p>
         </div>
       </div>
@@ -39,8 +39,8 @@ export const ManageCustomersPage: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm space-y-1">
           <span className="text-[10px] text-stone-400 font-bold uppercase block">Registered Customers</span>
-          <span className="font-serif text-2xl font-bold text-[#082F24] flex items-center gap-2">
-            <Users className="w-5 h-5 text-[#C5A059]" />
+          <span className="font-serif text-2xl font-bold text-[#062C22] flex items-center gap-2">
+            <Users className="w-5 h-5 text-[#176B52]" />
             {totalRegistered}
           </span>
           <p className="text-[11px] text-stone-500">Active traveler accounts</p>
@@ -48,8 +48,8 @@ export const ManageCustomersPage: React.FC = () => {
 
         <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm space-y-1">
           <span className="text-[10px] text-stone-400 font-bold uppercase block">Total Bookings Recorded</span>
-          <span className="font-serif text-2xl font-bold text-[#0D3B2E] flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-[#0D3B2E]" />
+          <span className="font-serif text-2xl font-bold text-[#0B3D2E] flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-[#0B3D2E]" />
             {allBookings.length}
           </span>
           <p className="text-[11px] text-stone-500">Bespoke itineraries & transfers</p>
@@ -73,7 +73,7 @@ export const ManageCustomersPage: React.FC = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search customers by name, email, or country..."
-          className="w-full bg-transparent border-none text-xs text-[#082F24] focus:outline-none"
+          className="w-full bg-transparent border-none text-xs text-[#062C22] focus:outline-none"
         />
       </div>
 
@@ -81,7 +81,7 @@ export const ManageCustomersPage: React.FC = () => {
       <div className="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#FAF8F5] text-stone-700 font-bold border-b border-stone-200">
+            <thead className="bg-[#F8F7F2] text-stone-700 font-bold border-b border-stone-200">
               <tr>
                 <th className="py-3.5 px-6">Customer Name</th>
                 <th className="py-3.5 px-4">Contact Details</th>
@@ -102,10 +102,10 @@ export const ManageCustomersPage: React.FC = () => {
                       <img
                         src={cust.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'}
                         alt={cust.name}
-                        className="w-10 h-10 rounded-full object-cover border border-[#C5A059]"
+                        className="w-10 h-10 rounded-full object-cover border border-[#176B52]"
                       />
                       <div>
-                        <h4 className="font-serif font-bold text-xs text-[#082F24] flex items-center gap-1">
+                        <h4 className="font-serif font-bold text-xs text-[#062C22] flex items-center gap-1">
                           {cust.name}
                           <ShieldCheck className="w-3 h-3 text-emerald-600" />
                         </h4>
@@ -114,31 +114,31 @@ export const ManageCustomersPage: React.FC = () => {
                     </td>
                     <td className="py-4 px-4 space-y-0.5">
                       <div className="flex items-center gap-1.5 text-stone-600">
-                        <Mail className="w-3 h-3 text-[#C5A059]" />
+                        <Mail className="w-3 h-3 text-[#176B52]" />
                         <span>{cust.email}</span>
                       </div>
                       {cust.phone && (
                         <div className="flex items-center gap-1.5 text-stone-400">
-                          <Phone className="w-3 h-3 text-[#C5A059]" />
+                          <Phone className="w-3 h-3 text-[#176B52]" />
                           <span>{cust.phone}</span>
                         </div>
                       )}
                     </td>
-                    <td className="py-4 px-4 font-semibold text-[#082F24]">{cust.country || 'International'}</td>
+                    <td className="py-4 px-4 font-semibold text-[#062C22]">{cust.country || 'International'}</td>
                     <td className="py-4 px-4">
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FAF8F5] border border-stone-200 text-[#0D3B2E]">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#F8F7F2] border border-stone-200 text-[#0B3D2E]">
                         {custBookings.length} Trips
                       </span>
                     </td>
-                    <td className="py-4 px-4 font-bold text-[#082F24]">
+                    <td className="py-4 px-4 font-bold text-[#062C22]">
                       ${totalSpend.toLocaleString()} USD
                     </td>
                     <td className="py-4 px-6 text-right">
                       <button
                         onClick={() => setInspectingCustomer(cust)}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#0D3B2E] text-white hover:bg-[#134E3F] text-xs font-bold rounded-xl shadow-xs transition-all"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#0B3D2E] text-white hover:bg-[#134E3F] text-xs font-bold rounded-xl shadow-xs transition-all"
                       >
-                        <Eye className="w-3.5 h-3.5 text-[#E5C378]" />
+                        <Eye className="w-3.5 h-3.5 text-[#39A982]" />
                         <span>View Profile & Trips</span>
                       </button>
                     </td>
@@ -160,13 +160,13 @@ export const ManageCustomersPage: React.FC = () => {
                 <img
                   src={inspectingCustomer.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'}
                   alt={inspectingCustomer.name}
-                  className="w-12 h-12 rounded-full object-cover border-2 border-[#C5A059]"
+                  className="w-12 h-12 rounded-full object-cover border-2 border-[#176B52]"
                 />
                 <div>
-                  <span className="text-[10px] font-bold text-[#8C6D2B] uppercase tracking-wider">
+                  <span className="text-[10px] font-bold text-[#176B52] uppercase tracking-wider">
                     Customer CRM File
                   </span>
-                  <h3 className="font-serif text-xl font-bold text-[#082F24] flex items-center gap-1.5">
+                  <h3 className="font-serif text-xl font-bold text-[#062C22] flex items-center gap-1.5">
                     {inspectingCustomer.name}
                     <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-100 text-emerald-800 font-bold">
                       Verified
@@ -184,16 +184,16 @@ export const ManageCustomersPage: React.FC = () => {
 
             {/* Profile Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-              <div className="bg-[#FAF8F5] p-4 rounded-2xl border border-stone-200/80 space-y-1.5">
-                <span className="font-bold text-[#082F24] block">Contact Details</span>
+              <div className="bg-[#F8F7F2] p-4 rounded-2xl border border-stone-200/80 space-y-1.5">
+                <span className="font-bold text-[#062C22] block">Contact Details</span>
                 <p><strong>Email:</strong> {inspectingCustomer.email}</p>
                 <p><strong>Phone:</strong> {inspectingCustomer.phone || 'Not provided'}</p>
                 <p><strong>Country:</strong> {inspectingCustomer.country || 'International'}</p>
                 <p><strong>Joined:</strong> {inspectingCustomer.createdAt || '2026-05-10'}</p>
               </div>
 
-              <div className="bg-[#FAF8F5] p-4 rounded-2xl border border-stone-200/80 space-y-1.5">
-                <span className="font-bold text-[#082F24] block">Preferences & Safety</span>
+              <div className="bg-[#F8F7F2] p-4 rounded-2xl border border-stone-200/80 space-y-1.5">
+                <span className="font-bold text-[#062C22] block">Preferences & Safety</span>
                 <p><strong>Passport No:</strong> {inspectingCustomer.passportNumber || 'Not provided'}</p>
                 <p><strong>Dietary:</strong> {inspectingCustomer.dietaryPreferences || 'Standard'}</p>
                 {inspectingCustomer.emergencyContact && (
@@ -204,30 +204,30 @@ export const ManageCustomersPage: React.FC = () => {
 
             {/* Customer Bookings History */}
             <div className="space-y-3">
-              <h4 className="font-serif font-bold text-base text-[#082F24]">
+              <h4 className="font-serif font-bold text-base text-[#062C22]">
                 Customer Bookings & Itineraries ({customerBookings.length})
               </h4>
 
               {customerBookings.length > 0 ? (
                 <div className="space-y-2 max-h-60 overflow-y-auto">
                   {customerBookings.map((b) => (
-                    <div key={b.id} className="p-3 bg-[#FAF8F5] rounded-xl border border-stone-200 flex items-center justify-between text-xs">
+                    <div key={b.id} className="p-3 bg-[#F8F7F2] rounded-xl border border-stone-200 flex items-center justify-between text-xs">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-[#8C6D2B]">{b.bookingCode}</span>
+                          <span className="font-bold text-[#176B52]">{b.bookingCode}</span>
                           <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                             b.bookingStatus === 'Confirmed' ? 'bg-emerald-100 text-emerald-800' : b.bookingStatus === 'Pending' ? 'bg-amber-100 text-amber-800' : 'bg-stone-100 text-stone-700'
                           }`}>
                             {b.bookingStatus}
                           </span>
                         </div>
-                        <p className="font-bold text-[#082F24] mt-0.5">{b.tourTitle}</p>
+                        <p className="font-bold text-[#062C22] mt-0.5">{b.tourTitle}</p>
                         <p className="text-[11px] text-stone-500">{b.startDate} to {b.endDate} • ${b.totalAmount.toLocaleString()} USD</p>
                       </div>
 
                       <Link
                         to={`/customer/bookings/${b.id}`}
-                        className="px-3 py-1.5 bg-[#0D3B2E] text-white text-[11px] font-bold rounded-lg hover:bg-[#134E3F] shrink-0"
+                        className="px-3 py-1.5 bg-[#0B3D2E] text-white text-[11px] font-bold rounded-lg hover:bg-[#134E3F] shrink-0"
                       >
                         Voucher
                       </Link>

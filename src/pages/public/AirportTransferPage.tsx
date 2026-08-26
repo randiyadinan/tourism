@@ -129,16 +129,16 @@ export const AirportTransferPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#FAF8F5] min-h-screen py-10">
+    <div className="bg-[#F8F7F2] min-h-screen py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         
         {/* Page Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#0D3B2E]/10 text-[#0D3B2E] text-xs font-bold uppercase tracking-wider">
-            <Plane className="w-3.5 h-3.5 text-[#C5A059]" />
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#0B3D2E]/10 text-[#0B3D2E] text-xs font-bold uppercase tracking-wider">
+            <Plane className="w-3.5 h-3.5 text-[#176B52]" />
             VIP Airport Chauffeur Service
           </div>
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#082F24]">
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#062C22]">
             Sri Lanka Airport Transfers & Private Chauffeur
           </h1>
           <p className="text-sm sm:text-base text-stone-600">
@@ -161,8 +161,8 @@ export const AirportTransferPage: React.FC = () => {
                   onClick={() => setTripType(t)}
                   className={`p-3 rounded-xl border text-xs font-bold text-center transition-all ${
                     tripType === t
-                      ? 'bg-[#0D3B2E] text-white border-[#0D3B2E] shadow-sm'
-                      : 'bg-[#FAF8F5] text-stone-700 border-stone-200 hover:bg-stone-100'
+                      ? 'bg-[#0B3D2E] text-white border-[#0B3D2E] shadow-sm'
+                      : 'bg-[#F8F7F2] text-stone-700 border-stone-200 hover:bg-stone-100'
                   }`}
                 >
                   {t}
@@ -173,14 +173,14 @@ export const AirportTransferPage: React.FC = () => {
             {/* Airport & Drop-off Area */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-bold text-[#082F24] flex items-center gap-1">
-                  <Plane className="w-3.5 h-3.5 text-[#C5A059]" />
+                <label className="text-xs font-bold text-[#062C22] flex items-center gap-1">
+                  <Plane className="w-3.5 h-3.5 text-[#176B52]" />
                   Airport
                 </label>
                 <select
                   value={airport}
                   onChange={(e) => setAirport(e.target.value as any)}
-                  className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-[#082F24]"
+                  className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-[#062C22]"
                 >
                   <option value="Bandaranaike International Airport (CMB - Colombo)">CMB - Colombo International</option>
                   <option value="Mattala Rajapaksa International (HRI - Hambantota)">HRI - Mattala Hambantota</option>
@@ -189,14 +189,14 @@ export const AirportTransferPage: React.FC = () => {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-[#082F24] flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5 text-[#C5A059]" />
+                <label className="text-xs font-bold text-[#062C22] flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5 text-[#176B52]" />
                   Destination Region
                 </label>
                 <select
                   value={destinationArea}
                   onChange={(e) => setDestinationArea(e.target.value)}
-                  className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-[#082F24]"
+                  className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-[#062C22]"
                 >
                   {Object.keys(TRANSFER_RATES).map(dest => (
                     <option key={dest} value={dest}>{dest}</option>
@@ -207,52 +207,52 @@ export const AirportTransferPage: React.FC = () => {
 
             {/* Hotel Address */}
             <div className="space-y-1">
-              <label className="text-xs font-bold text-[#082F24]">Hotel / Villa Name & Full Address</label>
+              <label className="text-xs font-bold text-[#062C22]">Hotel / Villa Name & Full Address</label>
               <input
                 type="text"
                 value={hotelAddress}
                 onChange={(e) => setHotelAddress(e.target.value)}
                 placeholder="e.g. Cinnamon Grand Colombo / Aliya Resort Sigiriya"
-                className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-[#082F24]"
+                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-[#062C22]"
               />
             </div>
 
             {/* Flight Details */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-bold text-[#082F24] flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5 text-[#C5A059]" />
+                <label className="text-xs font-bold text-[#062C22] flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5 text-[#176B52]" />
                   Flight Date
                 </label>
                 <input
                   type="date"
                   value={flightDate}
                   onChange={(e) => setFlightDate(e.target.value)}
-                  className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2.5 text-xs text-[#082F24]"
+                  className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2.5 text-xs text-[#062C22]"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-[#082F24] flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5 text-[#C5A059]" />
+                <label className="text-xs font-bold text-[#062C22] flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5 text-[#176B52]" />
                   Flight Arrival Time
                 </label>
                 <input
                   type="time"
                   value={flightTime}
                   onChange={(e) => setFlightTime(e.target.value)}
-                  className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2.5 text-xs text-[#082F24]"
+                  className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2.5 text-xs text-[#062C22]"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-[#082F24]">Flight Number</label>
+                <label className="text-xs font-bold text-[#062C22]">Flight Number</label>
                 <input
                   type="text"
                   value={flightNumber}
                   onChange={(e) => setFlightNumber(e.target.value)}
                   placeholder="e.g. UL 504 / QR 668"
-                  className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2.5 text-xs text-[#082F24]"
+                  className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2.5 text-xs text-[#062C22]"
                 />
               </div>
             </div>
@@ -260,14 +260,14 @@ export const AirportTransferPage: React.FC = () => {
             {/* Passengers & Luggage */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-bold text-[#082F24] flex items-center gap-1">
-                  <Users className="w-3.5 h-3.5 text-[#C5A059]" />
+                <label className="text-xs font-bold text-[#062C22] flex items-center gap-1">
+                  <Users className="w-3.5 h-3.5 text-[#176B52]" />
                   Passengers
                 </label>
                 <select
                   value={passengers}
                   onChange={(e) => setPassengers(Number(e.target.value))}
-                  className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2.5 text-xs text-[#082F24]"
+                  className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2.5 text-xs text-[#062C22]"
                 >
                   {[1, 2, 3, 4, 5, 6, 7, 8, 12, 16].map(n => (
                     <option key={n} value={n}>{n} Passenger{n > 1 ? 's' : ''}</option>
@@ -276,14 +276,14 @@ export const AirportTransferPage: React.FC = () => {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-[#082F24] flex items-center gap-1">
-                  <Briefcase className="w-3.5 h-3.5 text-[#C5A059]" />
+                <label className="text-xs font-bold text-[#062C22] flex items-center gap-1">
+                  <Briefcase className="w-3.5 h-3.5 text-[#176B52]" />
                   Luggage Bags
                 </label>
                 <select
                   value={luggageCount}
                   onChange={(e) => setLuggageCount(Number(e.target.value))}
-                  className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2.5 text-xs text-[#082F24]"
+                  className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2.5 text-xs text-[#062C22]"
                 >
                   {[1, 2, 3, 4, 5, 6, 8, 10].map(n => (
                     <option key={n} value={n}>{n} Large Suitcase{n > 1 ? 's' : ''}</option>
@@ -294,7 +294,7 @@ export const AirportTransferPage: React.FC = () => {
 
             {/* Vehicle Selection */}
             <div className="space-y-3 pt-2">
-              <label className="text-xs font-bold text-[#082F24] uppercase tracking-wider block">
+              <label className="text-xs font-bold text-[#062C22] uppercase tracking-wider block">
                 Select Vehicle Class
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -306,18 +306,18 @@ export const AirportTransferPage: React.FC = () => {
                       onClick={() => setSelectedVehicleId(veh.id)}
                       className={`cursor-pointer rounded-2xl border p-4 transition-all ${
                         isSelected
-                          ? 'border-[#0D3B2E] bg-[#0D3B2E]/5 ring-2 ring-[#C5A059]'
+                          ? 'border-[#0B3D2E] bg-[#0B3D2E]/5 ring-2 ring-[#176B52]'
                           : 'border-stone-200 bg-white hover:bg-stone-50'
                       }`}
                     >
                       <div className="flex items-center gap-3 mb-2">
                         <img src={veh.image} alt={veh.name} className="w-12 h-12 rounded-xl object-cover" />
                         <div>
-                          <h5 className="font-bold text-xs text-[#082F24] line-clamp-1">{veh.name}</h5>
+                          <h5 className="font-bold text-xs text-[#062C22] line-clamp-1">{veh.name}</h5>
                           <p className="text-[11px] text-stone-500">Max {veh.capacityPassengers} pax • {veh.capacityLuggage} bags</p>
                         </div>
                       </div>
-                      <span className={`text-[11px] font-bold ${isSelected ? 'text-[#0D3B2E]' : 'text-stone-400'}`}>
+                      <span className={`text-[11px] font-bold ${isSelected ? 'text-[#0B3D2E]' : 'text-stone-400'}`}>
                         {isSelected ? '✓ Selected' : 'Select'}
                       </span>
                     </div>
@@ -334,10 +334,10 @@ export const AirportTransferPage: React.FC = () => {
               
               <div className="border-b border-stone-100 pb-4">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-[#C5A059]" />
-                  <span className="text-xs font-bold text-[#8C6D2B] uppercase">Instant Guaranteed Quote</span>
+                  <Sparkles className="w-4 h-4 text-[#176B52]" />
+                  <span className="text-xs font-bold text-[#176B52] uppercase">Instant Guaranteed Quote</span>
                 </div>
-                <h4 className="font-serif text-2xl font-bold text-[#082F24] mt-1">
+                <h4 className="font-serif text-2xl font-bold text-[#062C22] mt-1">
                   ${estimatedQuote} USD
                 </h4>
                 <p className="text-xs text-stone-500">
@@ -348,19 +348,19 @@ export const AirportTransferPage: React.FC = () => {
               <div className="space-y-2 text-xs text-stone-600">
                 <div className="flex justify-between py-1 border-b border-stone-100">
                   <span>Pickup Location:</span>
-                  <strong className="text-[#082F24]">CMB Airport Terminal</strong>
+                  <strong className="text-[#062C22]">CMB Airport Terminal</strong>
                 </div>
                 <div className="flex justify-between py-1 border-b border-stone-100">
                   <span>Drop-off Destination:</span>
-                  <strong className="text-[#082F24] text-right truncate max-w-[200px]">{destinationArea}</strong>
+                  <strong className="text-[#062C22] text-right truncate max-w-[200px]">{destinationArea}</strong>
                 </div>
                 <div className="flex justify-between py-1 border-b border-stone-100">
                   <span>Flight Date & Time:</span>
-                  <strong className="text-[#082F24]">{flightDate} at {flightTime}</strong>
+                  <strong className="text-[#062C22]">{flightDate} at {flightTime}</strong>
                 </div>
                 <div className="flex justify-between py-1 border-b border-stone-100">
                   <span>Passengers & Luggage:</span>
-                  <strong className="text-[#082F24]">{passengers} Pax, {luggageCount} Bags</strong>
+                  <strong className="text-[#062C22]">{passengers} Pax, {luggageCount} Bags</strong>
                 </div>
                 <div className="flex justify-between py-1 border-b border-stone-100">
                   <span>Highway Expressway Tolls:</span>
@@ -371,7 +371,7 @@ export const AirportTransferPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsModalOpen(true)}
-                className="w-full py-4 bg-gradient-to-r from-[#C5A059] to-[#A37F37] text-[#082F24] font-bold text-sm rounded-2xl shadow-xl hover:from-[#E5C378] hover:to-[#C5A059] transition-all flex items-center justify-center gap-2"
+                className="w-full py-4 bg-gradient-to-r from-[#176B52] to-[#A37F37] text-[#062C22] font-bold text-sm rounded-2xl shadow-xl hover:from-[#39A982] hover:to-[#176B52] transition-all flex items-center justify-center gap-2"
               >
                 <CreditCard className="w-4 h-4" />
                 <span>Reserve VIP Transfer • ${estimatedQuote}</span>
@@ -380,11 +380,11 @@ export const AirportTransferPage: React.FC = () => {
 
               <div className="space-y-2 pt-2 border-t border-stone-100 text-[11px] text-stone-500">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-[#0D3B2E] shrink-0" />
+                  <ShieldCheck className="w-4 h-4 text-[#0B3D2E] shrink-0" />
                   <span>Free cancellation up to 24 hours prior to flight arrival.</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#0D3B2E] shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-[#0B3D2E] shrink-0" />
                   <span>Chauffeur waits 90 minutes past actual flight touch-down.</span>
                 </div>
               </div>
@@ -404,8 +404,8 @@ export const AirportTransferPage: React.FC = () => {
         maxWidth="md"
       >
         <form onSubmit={handleConfirmTransfer} className="space-y-4">
-          <div className="bg-[#FAF8F5] p-4 rounded-xl border border-stone-200 space-y-1 text-xs">
-            <h4 className="font-bold text-[#082F24]">{selectedVehicle.name}</h4>
+          <div className="bg-[#F8F7F2] p-4 rounded-xl border border-stone-200 space-y-1 text-xs">
+            <h4 className="font-bold text-[#062C22]">{selectedVehicle.name}</h4>
             <p className="text-stone-600">{destinationArea} • ${estimatedQuote} USD Total</p>
           </div>
 
@@ -417,7 +417,7 @@ export const AirportTransferPage: React.FC = () => {
                 required
                 value={contactName}
                 onChange={(e) => setContactName(e.target.value)}
-                className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-sm text-[#082F24]"
+                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-sm text-[#062C22]"
               />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -428,7 +428,7 @@ export const AirportTransferPage: React.FC = () => {
                   required
                   value={contactEmail}
                   onChange={(e) => setContactEmail(e.target.value)}
-                  className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-sm text-[#082F24]"
+                  className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-sm text-[#062C22]"
                 />
               </div>
               <div className="space-y-1">
@@ -438,7 +438,7 @@ export const AirportTransferPage: React.FC = () => {
                   required
                   value={contactPhone}
                   onChange={(e) => setContactPhone(e.target.value)}
-                  className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-sm text-[#082F24]"
+                  className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-sm text-[#062C22]"
                 />
               </div>
             </div>
@@ -448,7 +448,7 @@ export const AirportTransferPage: React.FC = () => {
                 rows={2}
                 value={specialRequests}
                 onChange={(e) => setSpecialRequests(e.target.value)}
-                className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#082F24]"
+                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
               />
             </div>
           </div>
@@ -456,13 +456,13 @@ export const AirportTransferPage: React.FC = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-3.5 bg-[#0D3B2E] text-white font-bold text-sm rounded-xl shadow-lg hover:bg-[#134E3F] transition-all flex items-center justify-center gap-2"
+            className="w-full py-3.5 bg-[#0B3D2E] text-white font-bold text-sm rounded-xl shadow-lg hover:bg-[#134E3F] transition-all flex items-center justify-center gap-2"
           >
             {isSubmitting ? (
               <span>Confirming Transfer Reservation...</span>
             ) : (
               <>
-                <CreditCard className="w-4 h-4 text-[#E5C378]" />
+                <CreditCard className="w-4 h-4 text-[#39A982]" />
                 <span>Confirm & Issue Transfer Voucher • ${estimatedQuote}</span>
               </>
             )}

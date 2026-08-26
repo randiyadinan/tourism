@@ -52,15 +52,15 @@ export const ManageHotelsPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#082F24]">Manage Partner Hotels & Villas</h1>
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#062C22]">Manage Partner Hotels & Villas</h1>
           <p className="text-xs text-stone-500">Contracted luxury rates, boutique tea bungalows, and 5-star inventory.</p>
         </div>
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#0D3B2E] text-white hover:bg-[#134E3F] text-xs font-bold rounded-xl shadow-sm transition-all"
+          className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#0B3D2E] text-white hover:bg-[#134E3F] text-xs font-bold rounded-xl shadow-sm transition-all"
         >
-          <Plus className="w-4 h-4 text-[#E5C378]" />
+          <Plus className="w-4 h-4 text-[#39A982]" />
           <span>Add Hotel Partner</span>
         </button>
       </div>
@@ -73,7 +73,7 @@ export const ManageHotelsPage: React.FC = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Filter hotels by name or region..."
-          className="w-full bg-transparent border-none text-xs text-[#082F24] focus:outline-none"
+          className="w-full bg-transparent border-none text-xs text-[#062C22] focus:outline-none"
         />
       </div>
 
@@ -81,7 +81,7 @@ export const ManageHotelsPage: React.FC = () => {
       <div className="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#FAF8F5] text-stone-700 font-bold border-b border-stone-200">
+            <thead className="bg-[#F8F7F2] text-stone-700 font-bold border-b border-stone-200">
               <tr>
                 <th className="py-3.5 px-6">Hotel Property</th>
                 <th className="py-3.5 px-4">Region</th>
@@ -97,17 +97,17 @@ export const ManageHotelsPage: React.FC = () => {
                   <td className="py-4 px-6 flex items-center gap-3">
                     <img src={h.image} alt={h.name} className="w-12 h-12 rounded-xl object-cover" />
                     <div>
-                      <h4 className="font-serif font-bold text-xs text-[#082F24]">{h.name}</h4>
+                      <h4 className="font-serif font-bold text-xs text-[#062C22]">{h.name}</h4>
                       <p className="text-[10px] text-stone-400">{h.rating} ★ Rating</p>
                     </div>
                   </td>
-                  <td className="py-4 px-4 font-semibold text-[#8C6D2B]">{h.destination}</td>
+                  <td className="py-4 px-4 font-semibold text-[#176B52]">{h.destination}</td>
                   <td className="py-4 px-4">
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FAF8F5] border border-stone-200 text-[#082F24]">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#F8F7F2] border border-stone-200 text-[#062C22]">
                       {h.starCategory === 'Boutique Luxury' ? 'Boutique' : `${h.starCategory} `}
                     </span>
                   </td>
-                  <td className="py-4 px-4 font-bold text-[#082F24]">${h.pricePerNightUSD} / night</td>
+                  <td className="py-4 px-4 font-bold text-[#062C22]">${h.pricePerNightUSD} / night</td>
                   <td className="py-4 px-4 truncate max-w-[200px]">{h.amenities.join(', ')}</td>
                   <td className="py-4 px-6 text-right">
                     <button
@@ -141,7 +141,7 @@ export const ManageHotelsPage: React.FC = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Ceylon Tea Trails"
-              className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#082F24]"
+              className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
             />
           </div>
 
@@ -154,7 +154,7 @@ export const ManageHotelsPage: React.FC = () => {
                 value={destination}
                 onChange={(e) => setDestination(e.target.value)}
                 placeholder="e.g. Hatton"
-                className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#082F24]"
+                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
               />
             </div>
             <div className="space-y-1">
@@ -162,7 +162,7 @@ export const ManageHotelsPage: React.FC = () => {
               <select
                 value={starCategory}
                 onChange={(e) => setStarCategory(e.target.value as any)}
-                className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#082F24]"
+                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
               >
                 <option value={3}>3 </option>
                 <option value={4}>4 </option>
@@ -179,7 +179,7 @@ export const ManageHotelsPage: React.FC = () => {
               required
               value={pricePerNightUSD}
               onChange={(e) => setPricePerNightUSD(Number(e.target.value))}
-              className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#082F24]"
+              className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
             />
           </div>
 
@@ -189,13 +189,13 @@ export const ManageHotelsPage: React.FC = () => {
               rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#082F24]"
+              className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full py-3.5 bg-[#0D3B2E] text-white font-bold text-xs rounded-xl shadow-md hover:bg-[#134E3F] transition-colors"
+            className="w-full py-3.5 bg-[#0B3D2E] text-white font-bold text-xs rounded-xl shadow-md hover:bg-[#134E3F] transition-colors"
           >
             Save Hotel Partner
           </button>

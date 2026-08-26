@@ -33,22 +33,22 @@ export const StarRating: React.FC<StarRatingProps> = ({
 
   return (
     <div className={`flex items-center gap-1.5 ${className}`}>
-      <div className="flex items-center text-[#C5A059]">
+      <div className="flex items-center text-[#176B52]">
         {[...Array(5)].map((_, i) => (
           <Star
             key={i}
             className={`${starSizes[size]} ${
               i < fullStars
-                ? 'fill-[#C5A059] text-[#C5A059]'
+                ? 'fill-[#176B52] text-[#176B52]'
                 : i === fullStars && hasHalfStar
-                ? 'fill-[#C5A059]/60 text-[#C5A059]'
+                ? 'fill-[#176B52]/60 text-[#176B52]'
                 : 'text-stone-300 fill-transparent'
             }`}
           />
         ))}
       </div>
       {showText && (
-        <span className={`font-bold text-[#082F24] ${textSizes[size]}`}>
+        <span className={`font-bold text-[#062C22] ${textSizes[size]}`}>
           {rating.toFixed(1)}
           {reviewCount !== undefined && (
             <span className="text-stone-500 font-normal ml-1 text-xs">

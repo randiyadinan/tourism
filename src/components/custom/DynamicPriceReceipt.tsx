@@ -107,12 +107,12 @@ export const DynamicPriceReceipt: React.FC<DynamicPriceReceiptProps> = ({
       {/* Header */}
       <div className="border-b border-stone-100 pb-4">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-[#C5A059]" />
-          <span className="text-xs font-bold uppercase tracking-wider text-[#8C6D2B]">
+          <Sparkles className="w-4 h-4 text-[#176B52]" />
+          <span className="text-xs font-bold uppercase tracking-wider text-[#176B52]">
             Real-Time Quotation
           </span>
         </div>
-        <h4 className="font-serif text-xl font-bold text-[#082F24] mt-1">
+        <h4 className="font-serif text-xl font-bold text-[#062C22] mt-1">
           {cost.daysCount}-Day Bespoke Journey
         </h4>
         <p className="text-xs text-stone-500">
@@ -126,39 +126,39 @@ export const DynamicPriceReceipt: React.FC<DynamicPriceReceiptProps> = ({
           
           <div className="flex items-center justify-between py-1 border-b border-stone-100">
             <span className="flex items-center gap-1.5 font-medium">
-              <Calendar className="w-3.5 h-3.5 text-[#C5A059]" />
+              <Calendar className="w-3.5 h-3.5 text-[#176B52]" />
               Base Chauffeur-Guide & Route ({cost.daysCount} Days)
             </span>
-            <span className="font-bold text-[#082F24]">${cost.baseTourTotal.toLocaleString()}</span>
+            <span className="font-bold text-[#062C22]">${cost.baseTourTotal.toLocaleString()}</span>
           </div>
 
           {cost.airportPickupCost > 0 && (
             <div className="flex items-center justify-between py-1 border-b border-stone-100">
               <span className="flex items-center gap-1.5 font-medium">
-                <Plane className="w-3.5 h-3.5 text-[#C5A059]" />
+                <Plane className="w-3.5 h-3.5 text-[#176B52]" />
                 {customTrip.airportTransferOption === 'both'
                   ? 'Roundtrip Airport VIP Transfers'
                   : customTrip.airportTransferOption === 'dropoff'
                   ? 'Hotel to Airport Chauffeur Dropoff'
                   : 'VIP Airport Meet & Pickup'}
               </span>
-              <span className="font-bold text-[#082F24]">${cost.airportPickupCost}</span>
+              <span className="font-bold text-[#062C22]">${cost.airportPickupCost}</span>
             </div>
           )}
 
           <div className="flex items-center justify-between py-1 border-b border-stone-100">
             <span className="flex items-center gap-1.5 font-medium">
-              <Car className="w-3.5 h-3.5 text-[#C5A059]" />
+              <Car className="w-3.5 h-3.5 text-[#176B52]" />
               Transportation ({customTrip.transportType})
             </span>
-            <span className="font-bold text-[#082F24]">${cost.vehicleCost.toLocaleString()}</span>
+            <span className="font-bold text-[#062C22]">${cost.vehicleCost.toLocaleString()}</span>
           </div>
 
           {cost.activitiesList.length > 0 && (
             <div className="space-y-1 py-1 border-b border-stone-100">
               <div className="flex items-center justify-between">
-                <span className="flex items-center gap-1.5 font-bold text-[#082F24]">
-                  <ActivityIcon className="w-3.5 h-3.5 text-[#C5A059]" />
+                <span className="flex items-center gap-1.5 font-bold text-[#062C22]">
+                  <ActivityIcon className="w-3.5 h-3.5 text-[#176B52]" />
                   Included Activities ({cost.activitiesList.length})
                 </span>
                 <span className="text-[11px] font-semibold text-emerald-700">Selected</span>
@@ -183,22 +183,22 @@ export const DynamicPriceReceipt: React.FC<DynamicPriceReceiptProps> = ({
       )}
 
       {/* Grand Total */}
-      <div className="bg-[#FAF8F5] p-4 rounded-2xl border border-stone-200 flex items-center justify-between">
+      <div className="bg-[#F8F7F2] p-4 rounded-2xl border border-stone-200 flex items-center justify-between">
         <div>
-          <span className="text-[10px] uppercase tracking-wider font-bold text-[#8C6D2B] block">
+          <span className="text-[10px] uppercase tracking-wider font-bold text-[#176B52] block">
             Estimated Total
           </span>
           <span className="text-xs text-stone-500">
             For {cost.totalTravelers} Traveler{cost.totalTravelers > 1 ? 's' : ''} ({cost.daysCount} Days)
           </span>
         </div>
-        <span className="font-serif text-3xl font-bold text-[#0D3B2E]">
+        <span className="font-serif text-3xl font-bold text-[#0B3D2E]">
           ${cost.estimatedTotal.toLocaleString()}
         </span>
       </div>
 
       <div className="flex items-center gap-2 text-[11px] text-stone-500">
-        <ShieldCheck className="w-4 h-4 text-[#0D3B2E] shrink-0" />
+        <ShieldCheck className="w-4 h-4 text-[#0B3D2E] shrink-0" />
         <span>Price includes private vehicle, chauffeur guide, taxes, and route toll fees.</span>
       </div>
 

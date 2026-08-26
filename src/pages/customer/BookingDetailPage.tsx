@@ -33,12 +33,12 @@ export const BookingDetailPage: React.FC = () => {
         <span className="px-3 py-1 bg-rose-100 text-rose-800 text-[11px] font-bold uppercase rounded-full">
           403 / 404 Access Denied
         </span>
-        <h3 className="font-serif text-2xl font-bold text-[#082F24]">Booking Voucher Not Accessible</h3>
+        <h3 className="font-serif text-2xl font-bold text-[#062C22]">Booking Voucher Not Accessible</h3>
         <p className="text-xs text-stone-600 leading-relaxed">
           This booking either does not exist or belongs to another registered customer account. Customer data isolation prevents unauthorized voucher access.
         </p>
-        <Link to="/customer/bookings" className="px-5 py-2.5 bg-[#0D3B2E] text-white text-xs font-bold rounded-xl inline-flex items-center gap-2 hover:bg-[#134E3F] transition-all">
-          <ArrowLeft className="w-4 h-4 text-[#E5C378]" />
+        <Link to="/customer/bookings" className="px-5 py-2.5 bg-[#0B3D2E] text-white text-xs font-bold rounded-xl inline-flex items-center gap-2 hover:bg-[#134E3F] transition-all">
+          <ArrowLeft className="w-4 h-4 text-[#39A982]" />
           <span>Return to My Bookings</span>
         </Link>
       </div>
@@ -73,7 +73,7 @@ export const BookingDetailPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <Link
           to={isAdmin ? '/admin/bookings' : '/customer/bookings'}
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-stone-600 hover:text-[#0D3B2E]"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-stone-600 hover:text-[#0B3D2E]"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to {isAdmin ? 'Admin Bookings Management' : 'All Bookings'}</span>
@@ -94,15 +94,15 @@ export const BookingDetailPage: React.FC = () => {
             onClick={handleDownloadInvoice}
             className="flex items-center gap-1.5 px-4 py-2 bg-white border border-stone-300 text-stone-700 text-xs font-bold rounded-xl hover:bg-stone-50 transition-colors shadow-xs"
           >
-            <Download className="w-3.5 h-3.5 text-[#0D3B2E]" />
+            <Download className="w-3.5 h-3.5 text-[#0B3D2E]" />
             <span>Download PDF Invoice</span>
           </button>
 
           <button
             onClick={handlePrint}
-            className="flex items-center gap-1.5 px-4 py-2 bg-[#0D3B2E] text-white text-xs font-bold rounded-xl hover:bg-[#134E3F] transition-colors shadow-sm"
+            className="flex items-center gap-1.5 px-4 py-2 bg-[#0B3D2E] text-white text-xs font-bold rounded-xl hover:bg-[#134E3F] transition-colors shadow-sm"
           >
-            <Printer className="w-3.5 h-3.5 text-[#E5C378]" />
+            <Printer className="w-3.5 h-3.5 text-[#39A982]" />
             <span>Print Travel Voucher</span>
           </button>
         </div>
@@ -121,10 +121,10 @@ export const BookingDetailPage: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b-2 border-stone-100 pb-8">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="font-serif text-3xl font-bold tracking-wider text-[#082F24]">
-                Lanka<span className="text-[#8C6D2B]">Voyage</span>
+              <span className="font-serif text-3xl font-bold tracking-wider text-[#062C22]">
+                Lanka<span className="text-[#176B52]">Voyage</span>
               </span>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#0D3B2E] text-[#E5C378]">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#0B3D2E] text-[#39A982]">
                 Official Travel Voucher
               </span>
             </div>
@@ -132,13 +132,13 @@ export const BookingDetailPage: React.FC = () => {
           </div>
 
           {/* Booking Code & QR Simulator */}
-          <div className="flex items-center gap-4 bg-[#FAF8F5] p-3 rounded-2xl border border-stone-200/80">
-            <div className="w-12 h-12 rounded-xl bg-white border border-stone-300 flex items-center justify-center text-[#082F24]">
+          <div className="flex items-center gap-4 bg-[#F8F7F2] p-3 rounded-2xl border border-stone-200/80">
+            <div className="w-12 h-12 rounded-xl bg-white border border-stone-300 flex items-center justify-center text-[#062C22]">
               <QrCode className="w-8 h-8" />
             </div>
             <div>
               <span className="text-[10px] text-stone-400 font-bold block uppercase">Voucher Reference</span>
-              <span className="font-serif text-lg font-bold text-[#082F24]">{booking.bookingCode}</span>
+              <span className="font-serif text-lg font-bold text-[#062C22]">{booking.bookingCode}</span>
             </div>
           </div>
         </div>
@@ -190,12 +190,12 @@ export const BookingDetailPage: React.FC = () => {
         )}
 
         {/* Tour Title & Status */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#FAF8F5] p-6 rounded-2xl border border-stone-200">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#F8F7F2] p-6 rounded-2xl border border-stone-200">
           <div>
-            <span className="text-xs font-bold text-[#8C6D2B] uppercase tracking-wider">
+            <span className="text-xs font-bold text-[#176B52] uppercase tracking-wider">
               {booking.bookingStatus === 'Confirmed' ? 'Confirmed Itinerary' : 'Bespoke Tour Package'}
             </span>
-            <h2 className="font-serif text-2xl font-bold text-[#082F24] mt-0.5">{booking.tourTitle}</h2>
+            <h2 className="font-serif text-2xl font-bold text-[#062C22] mt-0.5">{booking.tourTitle}</h2>
             <p className="text-xs text-stone-500 mt-1">
               Dates: <strong>{booking.startDate}</strong> to <strong>{booking.endDate}</strong> • {booking.totalTravelers} Travelers ({booking.adultsCount} Adults{booking.childrenCount ? `, ${booking.childrenCount} Children` : ''}{booking.infantsCount ? `, ${booking.infantsCount} Infants` : ''})
             </p>
@@ -213,7 +213,7 @@ export const BookingDetailPage: React.FC = () => {
             }`}>
               {booking.bookingStatus}
             </span>
-            <span className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#0D3B2E] text-[#E5C378]">
+            <span className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#0B3D2E] text-[#39A982]">
               {booking.paymentStatus}
             </span>
           </div>
@@ -223,12 +223,12 @@ export const BookingDetailPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-stone-600">
           
           {/* Column 1: Traveler */}
-          <div className="bg-[#FAF8F5] p-5 rounded-2xl border border-stone-200/80 space-y-2">
-            <span className="font-bold text-[#082F24] uppercase tracking-wider block flex items-center gap-1.5">
-              <Users className="w-4 h-4 text-[#C5A059]" />
+          <div className="bg-[#F8F7F2] p-5 rounded-2xl border border-stone-200/80 space-y-2">
+            <span className="font-bold text-[#062C22] uppercase tracking-wider block flex items-center gap-1.5">
+              <Users className="w-4 h-4 text-[#176B52]" />
               Lead Traveler
             </span>
-            <p className="font-bold text-sm text-[#082F24]">{booking.customerName}</p>
+            <p className="font-bold text-sm text-[#062C22]">{booking.customerName}</p>
             <p><strong>Email:</strong> {booking.customerEmail}</p>
             <p><strong>Phone:</strong> {booking.customerPhone}</p>
             {booking.travelers && booking.travelers[0]?.passportNumber && (
@@ -237,9 +237,9 @@ export const BookingDetailPage: React.FC = () => {
           </div>
 
           {/* Column 2: Transportation & Vehicle */}
-          <div className="bg-[#FAF8F5] p-5 rounded-2xl border border-stone-200/80 space-y-2">
-            <span className="font-bold text-[#082F24] uppercase tracking-wider block flex items-center gap-1.5">
-              <Car className="w-4 h-4 text-[#C5A059]" />
+          <div className="bg-[#F8F7F2] p-5 rounded-2xl border border-stone-200/80 space-y-2">
+            <span className="font-bold text-[#062C22] uppercase tracking-wider block flex items-center gap-1.5">
+              <Car className="w-4 h-4 text-[#176B52]" />
               Transportation
             </span>
             <p><strong>Vehicle:</strong> {booking.vehicleType || 'Toyota KDH Luxury Van'}</p>
@@ -248,12 +248,12 @@ export const BookingDetailPage: React.FC = () => {
           </div>
 
           {/* Column 3: Assigned Guide */}
-          <div className="bg-[#FAF8F5] p-5 rounded-2xl border border-stone-200/80 space-y-2">
-            <span className="font-bold text-[#082F24] uppercase tracking-wider block flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-[#C5A059]" />
+          <div className="bg-[#F8F7F2] p-5 rounded-2xl border border-stone-200/80 space-y-2">
+            <span className="font-bold text-[#062C22] uppercase tracking-wider block flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-[#176B52]" />
               Chauffeur Guide
             </span>
-            <p className="font-bold text-sm text-[#082F24]">
+            <p className="font-bold text-sm text-[#062C22]">
               {booking.bookingStatus === 'Confirmed' ? (booking.assignedGuide?.name || 'Roshan Silva') : 'Allocated upon confirmation'}
             </p>
             <p><strong>Phone:</strong> {booking.bookingStatus === 'Confirmed' ? (booking.assignedGuide?.phone || '+94 77 889 9112') : '+94 77 123 4567'}</p>
@@ -281,16 +281,16 @@ export const BookingDetailPage: React.FC = () => {
 
         {/* Special Requests */}
         {booking.travelers && booking.travelers[0]?.specialRequirements && (
-          <div className="p-4 bg-[#FAF8F5] rounded-2xl border border-stone-200 text-xs">
-            <span className="font-bold text-[#082F24] block uppercase tracking-wider mb-1">Special Requests</span>
+          <div className="p-4 bg-[#F8F7F2] rounded-2xl border border-stone-200 text-xs">
+            <span className="font-bold text-[#062C22] block uppercase tracking-wider mb-1">Special Requests</span>
             <p className="text-stone-700">{booking.travelers[0].specialRequirements}</p>
           </div>
         )}
 
         {/* Selected Activities List if any */}
         {booking.activitiesSelected && booking.activitiesSelected.length > 0 && (
-          <div className="p-5 bg-[#FAF8F5] rounded-2xl border border-stone-200 space-y-2 text-xs">
-            <span className="font-bold text-[#082F24] uppercase tracking-wider block">
+          <div className="p-5 bg-[#F8F7F2] rounded-2xl border border-stone-200 space-y-2 text-xs">
+            <span className="font-bold text-[#062C22] uppercase tracking-wider block">
               Included Activities & Experiences ({booking.activitiesSelected.length})
             </span>
             <div className="flex flex-wrap gap-2">
@@ -305,10 +305,10 @@ export const BookingDetailPage: React.FC = () => {
 
         {/* Financial Breakdown Table */}
         <div className="space-y-3">
-          <h3 className="font-serif text-lg font-bold text-[#082F24]">Financial Breakdown</h3>
+          <h3 className="font-serif text-lg font-bold text-[#062C22]">Financial Breakdown</h3>
           <div className="border border-stone-200 rounded-2xl overflow-hidden text-xs">
             <table className="w-full text-left">
-              <thead className="bg-[#FAF8F5] border-b border-stone-200 text-[#082F24] font-bold">
+              <thead className="bg-[#F8F7F2] border-b border-stone-200 text-[#062C22] font-bold">
                 <tr>
                   <th className="py-3 px-4">Description</th>
                   <th className="py-3 px-4 text-center">Qty / Days</th>
@@ -336,10 +336,10 @@ export const BookingDetailPage: React.FC = () => {
                   </tr>
                 )}
               </tbody>
-              <tfoot className="bg-[#FAF8F5] border-t border-stone-200 font-bold text-sm text-[#082F24]">
+              <tfoot className="bg-[#F8F7F2] border-t border-stone-200 font-bold text-sm text-[#062C22]">
                 <tr>
                   <td className="py-3 px-4" colSpan={2}>Total Amount Paid (via {booking.paymentMethod})</td>
-                  <td className="py-3 px-4 text-right text-base text-[#0D3B2E]">${booking.totalAmount.toLocaleString()} USD</td>
+                  <td className="py-3 px-4 text-right text-base text-[#0B3D2E]">${booking.totalAmount.toLocaleString()} USD</td>
                 </tr>
               </tfoot>
             </table>
@@ -349,7 +349,7 @@ export const BookingDetailPage: React.FC = () => {
         {/* Emergency Contacts & Support */}
         <div className="pt-6 border-t border-stone-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs text-stone-500">
           <div>
-            <p className="font-bold text-[#082F24]">LankaVoyage 24/7 Concierge Hotline: +94 77 123 4567</p>
+            <p className="font-bold text-[#062C22]">LankaVoyage 24/7 Concierge Hotline: +94 77 123 4567</p>
             <p>For urgent flight modifications or chauffeur queries, contact our operations desk on WhatsApp.</p>
           </div>
           <div className="flex items-center gap-2">

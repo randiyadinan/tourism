@@ -62,15 +62,15 @@ export const ManageActivitiesPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#082F24]">Manage Experiences & Activities</h1>
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#062C22]">Manage Experiences & Activities</h1>
           <p className="text-xs text-stone-500">Configure signature wildlife safaris, water sports, and wellness packages.</p>
         </div>
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#0D3B2E] text-white hover:bg-[#134E3F] text-xs font-bold rounded-xl shadow-sm transition-all"
+          className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#0B3D2E] text-white hover:bg-[#134E3F] text-xs font-bold rounded-xl shadow-sm transition-all"
         >
-          <Plus className="w-4 h-4 text-[#E5C378]" />
+          <Plus className="w-4 h-4 text-[#39A982]" />
           <span>Add New Activity</span>
         </button>
       </div>
@@ -83,7 +83,7 @@ export const ManageActivitiesPage: React.FC = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Filter activities by name or destination..."
-          className="w-full bg-transparent border-none text-xs text-[#082F24] focus:outline-none"
+          className="w-full bg-transparent border-none text-xs text-[#062C22] focus:outline-none"
         />
       </div>
 
@@ -91,7 +91,7 @@ export const ManageActivitiesPage: React.FC = () => {
       <div className="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#FAF8F5] text-stone-700 font-bold border-b border-stone-200">
+            <thead className="bg-[#F8F7F2] text-stone-700 font-bold border-b border-stone-200">
               <tr>
                 <th className="py-3.5 px-6">Activity Title</th>
                 <th className="py-3.5 px-4">Category</th>
@@ -108,11 +108,11 @@ export const ManageActivitiesPage: React.FC = () => {
                   <td className="py-4 px-6 flex items-center gap-3">
                     <img src={act.image} alt={act.title} className="w-12 h-12 rounded-xl object-cover" />
                     <div>
-                      <h4 className="font-serif font-bold text-xs text-[#082F24] line-clamp-1">{act.title}</h4>
+                      <h4 className="font-serif font-bold text-xs text-[#062C22] line-clamp-1">{act.title}</h4>
                       <p className="text-[10px] text-stone-400">{act.meetingPoint}</p>
                     </div>
                   </td>
-                  <td className="py-4 px-4 font-semibold text-[#8C6D2B]">{act.category}</td>
+                  <td className="py-4 px-4 font-semibold text-[#176B52]">{act.category}</td>
                   <td className="py-4 px-4">{act.destination}</td>
                   <td className="py-4 px-4">{act.duration}</td>
                   <td className="py-4 px-4">
@@ -120,7 +120,7 @@ export const ManageActivitiesPage: React.FC = () => {
                       {act.difficulty}
                     </span>
                   </td>
-                  <td className="py-4 px-4 font-bold text-[#082F24]">${act.pricePerPerson}</td>
+                  <td className="py-4 px-4 font-bold text-[#062C22]">${act.pricePerPerson}</td>
                   <td className="py-4 px-6 text-right">
                     <button
                       onClick={() => handleDelete(act.id)}
@@ -153,7 +153,7 @@ export const ManageActivitiesPage: React.FC = () => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Ella Mountain Bike Trail"
-              className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#082F24]"
+              className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
             />
           </div>
 
@@ -163,7 +163,7 @@ export const ManageActivitiesPage: React.FC = () => {
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value as any)}
-                className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#082F24]"
+                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
               >
                 <option value="Wildlife">Wildlife</option>
                 <option value="Culture & Heritage">Culture & Heritage</option>
@@ -183,7 +183,7 @@ export const ManageActivitiesPage: React.FC = () => {
                 value={destination}
                 onChange={(e) => setDestination(e.target.value)}
                 placeholder="e.g. Ella"
-                className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#082F24]"
+                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
               />
             </div>
           </div>
@@ -196,7 +196,7 @@ export const ManageActivitiesPage: React.FC = () => {
                 value={duration}
                 onChange={(e) => setDuration(e.target.value)}
                 placeholder="e.g. 3 Hours"
-                className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#082F24]"
+                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
               />
             </div>
             <div className="space-y-1">
@@ -205,7 +205,7 @@ export const ManageActivitiesPage: React.FC = () => {
                 type="number"
                 value={pricePerPerson}
                 onChange={(e) => setPricePerPerson(Number(e.target.value))}
-                className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#082F24]"
+                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
               />
             </div>
             <div className="space-y-1">
@@ -213,7 +213,7 @@ export const ManageActivitiesPage: React.FC = () => {
               <select
                 value={difficulty}
                 onChange={(e) => setDifficulty(e.target.value as any)}
-                className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#082F24]"
+                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
               >
                 <option value="Easy">Easy</option>
                 <option value="Moderate">Moderate</option>
@@ -230,13 +230,13 @@ export const ManageActivitiesPage: React.FC = () => {
               value={shortDescription}
               onChange={(e) => setShortDescription(e.target.value)}
               placeholder="Detailed activity description..."
-              className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#082F24]"
+              className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full py-3.5 bg-[#0D3B2E] text-white font-bold text-xs rounded-xl shadow-md hover:bg-[#134E3F] transition-colors"
+            className="w-full py-3.5 bg-[#0B3D2E] text-white font-bold text-xs rounded-xl shadow-md hover:bg-[#134E3F] transition-colors"
           >
             Save Activity to Catalog
           </button>

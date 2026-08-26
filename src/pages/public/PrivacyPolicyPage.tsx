@@ -17,23 +17,23 @@ import {
 
 export const PrivacyPolicyPage: React.FC = () => {
   return (
-    <div className="bg-[#FAF8F5] min-h-screen py-12 md:py-16">
+    <div className="bg-[#F8F7F2] min-h-screen py-12 md:py-16">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
         {/* Page Header */}
         <div className="text-center max-w-2xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#0D3B2E]/10 text-[#0D3B2E] text-xs font-bold uppercase tracking-wider">
-            <ShieldCheck className="w-3.5 h-3.5 text-[#C5A059]" />
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#0B3D2E]/10 text-[#0B3D2E] text-xs font-bold uppercase tracking-wider">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#176B52]" />
             Data Protection & Privacy
           </div>
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#082F24]">
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#062C22]">
             Privacy Policy
           </h1>
           <p className="text-sm sm:text-base text-stone-600 leading-relaxed">
             How LankaVoyage collects, protects, and handles your personal information when you plan and book travel with us.
           </p>
           <div className="pt-2 text-xs font-medium text-stone-500">
-            Last Updated: <span className="font-bold text-[#082F24]">{new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+            Last Updated: <span className="font-bold text-[#062C22]">{new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
           </div>
         </div>
 
@@ -41,7 +41,7 @@ export const PrivacyPolicyPage: React.FC = () => {
         <div className="p-5 sm:p-6 bg-emerald-50/80 border-2 border-emerald-200 rounded-3xl flex items-start gap-4 text-xs text-emerald-900 shadow-xs">
           <Lock className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
           <div className="space-y-1">
-            <h4 className="font-bold text-sm text-[#082F24]">Our Privacy Commitment</h4>
+            <h4 className="font-bold text-sm text-[#062C22]">Our Privacy Commitment</h4>
             <p className="leading-relaxed">
               At LankaVoyage, protecting your personal privacy and maintaining your trust is foundational to our bespoke travel services. We collect only the information necessary to plan, organize, and execute your journeys across Sri Lanka with maximum safety and personalization.
             </p>
@@ -53,8 +53,8 @@ export const PrivacyPolicyPage: React.FC = () => {
 
           {/* 1. Information We Collect */}
           <section className="space-y-3">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <FileText className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <FileText className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">1. Information We Collect</h2>
             </div>
             <p>
@@ -68,19 +68,19 @@ export const PrivacyPolicyPage: React.FC = () => {
 
           {/* 2. Booking and Customer Information */}
           <section className="space-y-3">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <UserCheck className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <UserCheck className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">2. Booking & Customer Information</h2>
             </div>
             <p>
-              When you book a tour or transfer, we retain your booking history, itinerary configurations, voucher references (e.g. <code className="font-mono bg-stone-100 px-1 py-0.5 rounded text-[#082F24]">LV-2026-XXXX</code>), and assigned chauffeur guide information to manage your ongoing service delivery.
+              When you book a tour or transfer, we retain your booking history, itinerary configurations, voucher references (e.g. <code className="font-mono bg-stone-100 px-1 py-0.5 rounded text-[#062C22]">LV-2026-XXXX</code>), and assigned chauffeur guide information to manage your ongoing service delivery.
             </p>
           </section>
 
           {/* 3. Passport & Travel Information */}
           <section className="space-y-3">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <Globe className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <Globe className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">3. Passport & Flight Information</h2>
             </div>
             <p>
@@ -94,8 +94,8 @@ export const PrivacyPolicyPage: React.FC = () => {
 
           {/* 4. Payment Information & PayHere Processing */}
           <section className="space-y-3">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <CreditCard className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <CreditCard className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">4. Payment Information & Secure Processing</h2>
             </div>
             <p>
@@ -110,8 +110,8 @@ export const PrivacyPolicyPage: React.FC = () => {
 
           {/* 5. Cookies & Tracking Technologies */}
           <section className="space-y-3">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <Cookie className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <Cookie className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">5. Cookies & Local Storage</h2>
             </div>
             <p>
@@ -121,8 +121,8 @@ export const PrivacyPolicyPage: React.FC = () => {
 
           {/* 6. Analytics & Performance Monitoring */}
           <section className="space-y-3">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <Eye className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <Eye className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">6. Analytics & Performance</h2>
             </div>
             <p>
@@ -132,8 +132,8 @@ export const PrivacyPolicyPage: React.FC = () => {
 
           {/* 7. Third-Party Service Providers */}
           <section className="space-y-3">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <Server className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <Server className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">7. Third-Party Service Providers</h2>
             </div>
             <p>
@@ -151,8 +151,8 @@ export const PrivacyPolicyPage: React.FC = () => {
 
           {/* 8. Data Security */}
           <section className="space-y-3">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <Lock className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <Lock className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">8. Data Security</h2>
             </div>
             <p>
@@ -162,8 +162,8 @@ export const PrivacyPolicyPage: React.FC = () => {
 
           {/* 9. Data Retention */}
           <section className="space-y-3">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <Server className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <Server className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">9. Data Retention</h2>
             </div>
             <p>
@@ -173,8 +173,8 @@ export const PrivacyPolicyPage: React.FC = () => {
 
           {/* 10. User Rights */}
           <section className="space-y-3">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <UserCheck className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <UserCheck className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">10. Your Rights</h2>
             </div>
             <p>
@@ -184,8 +184,8 @@ export const PrivacyPolicyPage: React.FC = () => {
 
           {/* 11. International Visitors */}
           <section className="space-y-3">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <Globe className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <Globe className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">11. International Visitors</h2>
             </div>
             <p>
@@ -195,8 +195,8 @@ export const PrivacyPolicyPage: React.FC = () => {
 
           {/* 12. Children's Privacy */}
           <section className="space-y-3">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <ShieldCheck className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <ShieldCheck className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">12. Children's Privacy</h2>
             </div>
             <p>
@@ -206,8 +206,8 @@ export const PrivacyPolicyPage: React.FC = () => {
 
           {/* 13. Policy Updates */}
           <section className="space-y-3">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <HelpCircle className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <HelpCircle className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">13. Policy Updates</h2>
             </div>
             <p>
@@ -217,25 +217,25 @@ export const PrivacyPolicyPage: React.FC = () => {
 
           {/* 14. Contact Information */}
           <section className="space-y-4 pt-4 border-t border-stone-100">
-            <div className="flex items-center gap-2.5 text-[#082F24]">
-              <Phone className="w-5 h-5 text-[#C5A059]" />
+            <div className="flex items-center gap-2.5 text-[#062C22]">
+              <Phone className="w-5 h-5 text-[#176B52]" />
               <h2 className="font-serif text-xl font-bold">14. Contact Us</h2>
             </div>
             <p className="text-xs text-stone-600">
               If you have any questions or data requests regarding this Privacy Policy, please reach out to our team:
             </p>
-            <div className="bg-[#FAF8F5] p-5 rounded-2xl border border-stone-200 space-y-2 text-xs">
+            <div className="bg-[#F8F7F2] p-5 rounded-2xl border border-stone-200 space-y-2 text-xs">
               <div className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 text-[#C5A059] shrink-0 mt-0.5" />
+                <MapPin className="w-4 h-4 text-[#176B52] shrink-0 mt-0.5" />
                 <span>Level 14, World Trade Center, Echelon Square, Colombo 01, Sri Lanka</span>
               </div>
               <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-[#C5A059] shrink-0" />
-                <a href="tel:+94771234567" className="text-[#0D3B2E] font-bold hover:underline">+94 77 123 4567</a>
+                <Phone className="w-4 h-4 text-[#176B52] shrink-0" />
+                <a href="tel:+94771234567" className="text-[#0B3D2E] font-bold hover:underline">+94 77 123 4567</a>
               </div>
               <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-[#C5A059] shrink-0" />
-                <a href="mailto:concierge@lankavoyage.com" className="text-[#0D3B2E] font-bold hover:underline">concierge@lankavoyage.com</a>
+                <Mail className="w-4 h-4 text-[#176B52] shrink-0" />
+                <a href="mailto:concierge@lankavoyage.com" className="text-[#0B3D2E] font-bold hover:underline">concierge@lankavoyage.com</a>
               </div>
             </div>
           </section>

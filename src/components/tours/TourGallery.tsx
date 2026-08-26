@@ -81,7 +81,7 @@ export const TourGallery: React.FC<TourGalleryProps> = ({ heroImage, gallery, ti
               <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors" />
               {i === 1 && (
                 <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center text-white font-bold text-sm gap-2">
-                  <Camera className="w-4 h-4 text-[#E5C378]" />
+                  <Camera className="w-4 h-4 text-[#39A982]" />
                   <span>+{allImages.length} Photos</span>
                 </div>
               )}
