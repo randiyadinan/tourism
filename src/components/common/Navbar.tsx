@@ -45,10 +45,11 @@ export const Navbar: React.FC = () => {
     navigate('/');
   };
 
-  // Simplified 3 Main Navigation Links
+  // Main Navigation Links: Home, Tours, Airport Transfer, Reviews & Gallery
   const navLinks = [
     { name: 'Home', href: '/' },
     { name: 'Tours', href: '/tours' },
+    { name: 'Airport Transfer', href: '/transfers' },
     { name: 'Reviews & Gallery', href: '/reviews' },
   ];
 
@@ -88,7 +89,7 @@ export const Navbar: React.FC = () => {
             </div>
           </Link>
 
-          {/* Desktop Nav Links - Focused 3 Items */}
+          {/* Desktop Nav Links */}
           <nav className="hidden lg:flex items-center gap-8">
             {navLinks.map((link) => (
               <NavLink
