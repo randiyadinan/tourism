@@ -1,10 +1,9 @@
 /**
- * Professional Google Maps, Places API & Routes API Service for LankaVoyage
- * Seamlessly integrates Google Maps Platform (Maps JavaScript, Places Autocomplete / PlacesService, Routes API / Directions)
- * Handles Place details retrieval directly using PlacesService, Geocoder, and AutocompleteService.
+ * Clean Google Maps Platform Loader & Directions Service for LankaVoyage
+ * Uses the official Google Maps JavaScript API dynamic loader pattern.
  */
 
-// Bandaranaike International Airport (CMB) exact coordinates (business pickup origin)
+// Bandaranaike International Airport (CMB) exact coordinates
 export const AIRPORT_COORDINATES = {
   lat: 7.1808,
   lng: 79.8841,
@@ -33,12 +32,14 @@ export interface RouteResult {
   errorMessage?: string;
 }
 
-// Global script loader for Google Maps JavaScript API
 let googleMapsPromise: Promise<any> | null = null;
 let placesServiceInstance: any = null;
 
+/**
+ * Load Google Maps JavaScript API with v=weekly / v=quarterly for crisp Retina/WebGL vector rendering
+ */
 export const loadGoogleMapsScript = (): Promise<any> => {
-  if (typeof window !== 'undefined' && (window as any).google && (window as any).google.maps) {
+  if (typeof window !== 'undefined' && (window as any).google?.maps) {
     return Promise.resolve((window as any).google);
   }
 
@@ -46,13 +47,12 @@ export const loadGoogleMapsScript = (): Promise<any> => {
     return googleMapsPromise;
   }
 
-  // Retrieve public client browser API key from Vite environment variable
   const apiKey = (import.meta as any).env?.VITE_GOOGLE_MAPS_API_KEY || '';
 
   if (!apiKey || apiKey === 'YOUR_GOOGLE_MAPS_API_KEY') {
     if (import.meta.env.DEV) {
       console.info(
-        'Google Maps API Key not yet configured. Set VITE_GOOGLE_MAPS_API_KEY in your .env or Vercel environment variables.'
+        'Google Maps API Key not set. Set VITE_GOOGLE_MAPS_API_KEY in your environment to load live Google Maps.'
       );
     }
     return Promise.resolve(null);
@@ -71,8 +71,8 @@ export const loadGoogleMapsScript = (): Promise<any> => {
 
     const script = document.createElement('script');
     script.id = 'google-maps-script';
-    // Load places, geometry, routes libraries
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,geometry&loading=async`;
+    // Load modern Maps JavaScript API with places, geometry libraries and async loading
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,geometry&v=weekly&loading=async`;
     script.async = true;
     script.defer = true;
 
@@ -85,7 +85,7 @@ export const loadGoogleMapsScript = (): Promise<any> => {
     };
 
     script.onerror = () => {
-      console.warn('Google Maps JavaScript SDK script failed to load.');
+      console.warn('Failed to load Google Maps JavaScript API script.');
       resolve(null);
     };
 
@@ -102,7 +102,6 @@ export async function getGooglePlaceDetails(placeId: string, mapInstance?: any):
   const g = typeof window !== 'undefined' ? (window as any).google : null;
   if (!g?.maps || !placeId) return null;
 
-  // 1. Try PlacesService
   try {
     if (!placesServiceInstance) {
       const dummyDiv = mapInstance || document.createElement('div');
@@ -134,10 +133,9 @@ export async function getGooglePlaceDetails(placeId: string, mapInstance?: any):
       };
     }
   } catch (err) {
-    console.warn('PlacesService.getDetails error, falling back to Geocoder:', err);
+    console.warn('PlacesService.getDetails error, trying Geocoder:', err);
   }
 
-  // 2. Try Geocoder by placeId
   if (g.maps.Geocoder) {
     try {
       const geocoder = new g.maps.Geocoder();
@@ -168,8 +166,7 @@ export async function getGooglePlaceDetails(placeId: string, mapInstance?: any):
 }
 
 /**
- * Perform Google Places Autocomplete or Places Text Search across ANY location in Sri Lanka
- * (Hotels, Resorts, Villas, Airbnbs, Restaurants, Streets, Addresses, Attractions, Landmarks, Train Stations, Towns, Villages)
+ * Perform Google Places Autocomplete across ANY location in Sri Lanka
  */
 export async function searchGooglePlaces(query: string, mapInstance?: any): Promise<PlaceResult[]> {
   if (!query || query.trim().length < 2) return [];
@@ -198,12 +195,11 @@ export async function searchGooglePlaces(query: string, mapInstance?: any): Prom
       });
 
       if (predictions && predictions.length > 0) {
-        // Map predictions directly so suggestions appear instantly without waiting for geocoding
         return predictions.slice(0, 8).map((pred) => ({
           placeId: pred.place_id,
           name: pred.structured_formatting?.main_text || pred.description.split(',')[0],
           formattedAddress: pred.description,
-          lat: 7.8731, // Placeholder until user selects
+          lat: 7.8731,
           lng: 80.7718
         }));
       }
@@ -256,7 +252,7 @@ export async function searchGooglePlaces(query: string, mapInstance?: any): Prom
     }
   }
 
-  // 3. Fallback Places Search API (Nominatim lookup when key is not loaded yet)
+  // 3. Fallback Open Places Search when client key is unconfigured
   try {
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
       trimmedQuery + ', Sri Lanka'
@@ -291,7 +287,7 @@ export async function searchGooglePlaces(query: string, mapInstance?: any): Prom
 }
 
 /**
- * Calculate Real Driving Road Distance & Duration using Google Routes API / Directions Service
+ * Calculate Real Driving Road Distance & Duration using Google Directions / Routes Service
  */
 export async function calculateGoogleRoute(
   origin: { lat: number; lng: number; name?: string },
@@ -299,7 +295,7 @@ export async function calculateGoogleRoute(
 ): Promise<RouteResult> {
   const g = typeof window !== 'undefined' ? (window as any).google : null;
 
-  // 1. Primary Provider: Google Maps Routes / Directions Service
+  // Primary: Google Maps DirectionsService
   if (g?.maps?.DirectionsService) {
     try {
       const directionsService = new g.maps.DirectionsService();
@@ -345,7 +341,7 @@ export async function calculateGoogleRoute(
     }
   }
 
-  // 2. High-precision Driving Route Engine fallback
+  // Fallback Driving Route Engine
   try {
     const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${origin.lng},${origin.lat};${dest.lng},${dest.lat}?overview=false`;
     const response = await fetch(osrmUrl);
@@ -374,7 +370,7 @@ export async function calculateGoogleRoute(
     console.warn('Routing engine error:', err);
   }
 
-  // 3. Precision Road Terrain Model
+  // Precision Road Terrain Model
   const R = 6371;
   const dLat = ((dest.lat - origin.lat) * Math.PI) / 180;
   const dLon = ((dest.lng - origin.lng) * Math.PI) / 180;

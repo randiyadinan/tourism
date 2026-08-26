@@ -50,7 +50,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
     }
   }, [selectedDestination]);
 
-  // Initialize Google Maps JavaScript API once container is available and dimensioned
+  // Clean initialization of native Google Maps JavaScript API
   useEffect(() => {
     let isMounted = true;
 
@@ -61,7 +61,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
         try {
           const container = mapContainerRef.current;
 
-          // Native, sharp vector map options with no artificial scaling
+          // Pure native Google Map canvas with no scaling or distortion
           const map = new googleObj.maps.Map(container, {
             center: { lat: selectedDestination.lat || 7.5, lng: selectedDestination.lng || 80.5 },
             zoom: 9,
@@ -173,7 +173,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
             });
           }
 
-          // Trigger resize immediately and after brief frame to guarantee 1:1 pixel grid
+          // Trigger resize event after initial layout to ensure crisp 1:1 pixel rendering
           googleObj.maps.event.trigger(map, 'resize');
           fitMapBounds();
 
@@ -188,7 +188,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
     };
   }, []);
 
-  // ResizeObserver: Keep map completely sharp and perfectly scaled upon container resizing/orientation change
+  // ResizeObserver: Trigger google.maps.event.trigger(map, 'resize') on container resize
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
@@ -212,7 +212,6 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
   // Update Google Map Route and Bounds when destination or route data changes
   useEffect(() => {
     if (isGoogleSdkReady && googleMapInstanceRef.current && (window as any).google?.maps) {
-      // Update destination marker position
       if (destMarkerRef.current) {
         destMarkerRef.current.setPosition({ lat: selectedDestination.lat, lng: selectedDestination.lng });
         destMarkerRef.current.setTitle(selectedDestination.name);
@@ -302,7 +301,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
   };
 
   return (
-    <div className="bg-white rounded-3xl border border-stone-200 shadow-lg overflow-hidden space-y-0">
+    <div className="bg-white rounded-3xl border border-stone-200 shadow-md overflow-hidden">
       
       {/* 1. Google Places Search Bar */}
       <div className="p-4 sm:p-5 bg-white border-b border-stone-100 relative z-30" ref={searchContainerRef}>
