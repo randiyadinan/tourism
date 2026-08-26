@@ -1,474 +1,628 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import confetti from 'canvas-confetti';
 import { 
   Plane, 
   MapPin, 
   Calendar, 
   Clock, 
-  Users, 
-  Briefcase, 
   ShieldCheck, 
-  CreditCard, 
-  Sparkles, 
-  CheckCircle2, 
-  ArrowRight 
+  ArrowRight,
+  Navigation,
+  AlertCircle,
+  Plus,
+  Minus,
+  Check
 } from 'lucide-react';
-import { airportTransferService, TRANSFER_RATES } from '../../services/airportTransferService';
-import { INITIAL_VEHICLES } from '../../data/vehicles';
-import { useAuth } from '../../context/AuthContext';
-import { Modal } from '../../components/common/Modal';
-import { payhereService } from '../../services/payhereService';
-import { paymentService } from '../../services/paymentService';
+import { 
+  SUPPORTED_AIRPORTS, 
+  DESTINATION_DISTANCES, 
+  TRANSFER_VEHICLE_OPTIONS,
+  calculateRealRoadTransferPrice,
+  type TransferVehicleOption,
+  type DestinationDistance
+} from '../../data/destinationDistances';
 
 export const AirportTransferPage: React.FC = () => {
-  const { user } = useAuth();
   const navigate = useNavigate();
 
-  const [airport, setAirport] = useState<'Bandaranaike International Airport (CMB - Colombo)' | 'Mattala Rajapaksa International (HRI - Hambantota)' | 'Jaffna International Airport (JAF)'>('Bandaranaike International Airport (CMB - Colombo)');
-  const [tripType, setTripType] = useState<'One Way: Airport to Hotel' | 'One Way: Hotel to Airport' | 'Round Trip'>('One Way: Airport to Hotel');
-  const [destinationArea, setDestinationArea] = useState('Colombo City (Hotels / Galle Face / Port City)');
-  const [hotelAddress, setHotelAddress] = useState('The Galle Face Hotel, Colombo');
-  const [flightDate, setFlightDate] = useState('2026-10-15');
-  const [flightTime, setFlightTime] = useState('14:30');
-  const [flightNumber, setFlightNumber] = useState('UL 504');
-  const [passengers, setPassengers] = useState(2);
-  const [luggageCount, setLuggageCount] = useState(2);
-  const [selectedVehicleId, setSelectedVehicleId] = useState('veh-sedan-luxury');
+  // STEP 1: AIRPORT
+  const [selectedAirportId, setSelectedAirportId] = useState<string>('airport-cmb');
 
-  const [contactName, setContactName] = useState(user?.name || 'Sarah Jenkins');
-  const [contactEmail, setContactEmail] = useState(user?.email || 'sarah.traveler@example.com');
-  const [contactPhone, setContactPhone] = useState(user?.phone || '+44 7700 900077');
-  const [specialRequests, setSpecialRequests] = useState('');
+  // STEP 2: FLIGHT DETAILS
+  const [flightNumber, setFlightNumber] = useState<string>('UL 504');
+  const [arrivalDate, setArrivalDate] = useState<string>('2026-10-15');
+  const [arrivalTime, setArrivalTime] = useState<string>('14:30');
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // STEP 3: PASSENGERS
+  const [adults, setAdults] = useState<number>(2);
+  const [children, setChildren] = useState<number>(0);
+  const [infants, setInfants] = useState<number>(0);
 
-  const selectedVehicle = INITIAL_VEHICLES.find(v => v.id === selectedVehicleId) || INITIAL_VEHICLES[0];
+  // STEP 4: DESTINATION
+  const [selectedDestId, setSelectedDestId] = useState<string>('dest-sigiriya');
+
+  // STEP 5: VEHICLE SELECTION
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string>('veh-sedan-luxury');
+  const [tripType, setTripType] = useState<'One Way: Airport to Hotel' | 'Round Trip'>('One Way: Airport to Hotel');
+
+  // Selected entities memo
+  const selectedAirport = useMemo(() => {
+    return SUPPORTED_AIRPORTS.find(a => a.id === selectedAirportId) || SUPPORTED_AIRPORTS[0];
+  }, [selectedAirportId]);
+
+  const selectedDestination: DestinationDistance = useMemo(() => {
+    return DESTINATION_DISTANCES.find(d => d.id === selectedDestId) || DESTINATION_DISTANCES[0];
+  }, [selectedDestId]);
+
+  const totalPassengers = adults + children + infants;
+
+  // Selected vehicle memo
+  const selectedVehicle: TransferVehicleOption = useMemo(() => {
+    return TRANSFER_VEHICLE_OPTIONS.find(v => v.id === selectedVehicleId) || TRANSFER_VEHICLE_OPTIONS[0];
+  }, [selectedVehicleId]);
+
+  // Check vehicle capacity compatibility
+  const isVehicleCapacityValid = totalPassengers <= selectedVehicle.capacityPassengers;
   const isRoundTrip = tripType === 'Round Trip';
-  const estimatedQuote = airportTransferService.calculateQuote(destinationArea, selectedVehicle.dailyRateUSD, isRoundTrip);
 
-  const handleConfirmTransfer = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  // Real road distance price calculation (Road Distance × Vehicle Rate + Base Fee)
+  const calculatedPrice = useMemo(() => {
+    return calculateRealRoadTransferPrice(selectedDestination.distanceKm, selectedVehicle, isRoundTrip);
+  }, [selectedDestination, selectedVehicle, isRoundTrip]);
 
-    try {
-      const newTransfer = airportTransferService.bookTransfer({
-        airport,
-        tripType,
-        destinationArea,
-        hotelAddress,
-        flightDate,
-        flightTime,
-        flightNumber,
-        passengers,
-        luggageCount,
-        vehicleId: selectedVehicle.id,
-        vehicleName: selectedVehicle.name,
-        basePriceUSD: estimatedQuote,
-        totalPriceUSD: estimatedQuote,
-        contactName,
-        contactEmail,
-        contactPhone,
-        specialRequests,
-        paymentStatus: 'Unpaid'
-      });
+  // Re-adjust vehicle if passengers exceed standard car capacity
+  const handlePassengerChange = (type: 'adults' | 'children' | 'infants', delta: number) => {
+    let newAdults = adults;
+    let newChildren = children;
+    let newInfants = infants;
 
-      const payhereData = await payhereService.initiatePayment({
-        orderId: newTransfer.bookingCode,
-        bookingId: newTransfer.id,
-        bookingCode: newTransfer.bookingCode,
-        userId: user?.id,
-        amount: estimatedQuote,
-        currency: 'USD',
-        itemTitle: `VIP Airport Transfer: ${destinationArea}`,
-        customerName: contactName,
-        customerEmail: contactEmail,
-        customerPhone: contactPhone,
-        city: 'Colombo',
-        country: 'Sri Lanka'
-      });
+    if (type === 'adults') newAdults = Math.max(1, Math.min(8, adults + delta));
+    if (type === 'children') newChildren = Math.max(0, Math.min(6, children + delta));
+    if (type === 'infants') newInfants = Math.max(0, Math.min(3, infants + delta));
 
-      setIsSubmitting(false);
-      setIsModalOpen(false);
+    setAdults(newAdults);
+    setChildren(newChildren);
+    setInfants(newInfants);
 
-      payhereService.launchPayment(payhereData, {
-        onCompleted: (orderId: string) => {
-          paymentService.recordTransaction({
-            userId: user?.id,
-            bookingId: newTransfer.id,
-            bookingCode: newTransfer.bookingCode,
-            customerName: contactName,
-            amountUSD: estimatedQuote,
-            paymentMethod: 'Credit / Debit Card',
-            status: 'Successful',
-            transactionReference: `PAYHERE-TRF-${orderId}`,
-            cardBrand: 'Visa/Mastercard'
-          });
-
-          try {
-            confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
-          } catch (err) {}
-
-          navigate('/customer/bookings');
-        },
-        onDismissed: () => {
-          navigate('/customer/bookings');
-        },
-        onError: (err: string) => {
-          alert(`Transfer payment warning: ${err}`);
-          navigate('/customer/bookings');
-        }
-      });
-    } catch (err: any) {
-      console.error('Failed PayHere initiation for transfer:', err);
-      setIsSubmitting(false);
-      setIsModalOpen(false);
-      navigate('/customer/bookings');
+    const newTotal = newAdults + newChildren + newInfants;
+    if (newTotal > 3 && (selectedVehicle.vehicleCode === 'standard-car' || selectedVehicle.vehicleCode === 'luxury-car')) {
+      // Auto-recommend Van
+      setSelectedVehicleId('veh-van-kdh');
     }
   };
 
+  const handleProceedToCheckout = () => {
+    if (!isVehicleCapacityValid) {
+      alert(`The selected vehicle cannot accommodate ${totalPassengers} passengers. Please select a Van.`);
+      return;
+    }
+
+    // Direct integration with standard checkout & booking service
+    navigate('/checkout', {
+      state: {
+        tourId: `transfer-${selectedAirport.code.toLowerCase()}-${selectedDestination.shortName.toLowerCase()}`,
+        tourTitle: `Private Airport Transfer: ${selectedAirport.code} Airport to ${selectedDestination.shortName}`,
+        tourImage: selectedDestination.heroImage,
+        durationDays: isRoundTrip ? 2 : 1,
+        startDate: arrivalDate,
+        adults: adults,
+        children: children,
+        airportPickup: true,
+        totalAmount: calculatedPrice,
+        destinations: [selectedDestination.name],
+        vehicleType: selectedVehicle.name
+      }
+    });
+  };
+
   return (
-    <div className="bg-[#F8F7F2] min-h-screen py-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+    <div className="bg-[#F8F7F2] min-h-screen py-10 sm:py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
-        {/* Page Header */}
+        {/* Page Top Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#0B3D2E]/10 text-[#0B3D2E] text-xs font-bold uppercase tracking-wider">
-            <Plane className="w-3.5 h-3.5 text-[#176B52]" />
-            VIP Airport Chauffeur Service
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white text-[#176B52] border border-stone-200 text-xs font-semibold uppercase tracking-wider shadow-2xs">
+            <Plane className="w-3.5 h-3.5 text-[#39A982]" />
+            <span>VIP SRI LANKA AIRPORT CHAUFFEUR</span>
           </div>
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#062C22]">
-            Sri Lanka Airport Transfers & Private Chauffeur
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#17231F]">
+            Your Journey Starts at the Airport
           </h1>
-          <p className="text-sm sm:text-base text-stone-600">
-            Guaranteed flight monitoring, name sign meet & greet at Colombo (CMB) / Mattala (HRI), air-conditioned luxury fleet, and fixed transparent rates.
+          <p className="text-sm sm:text-base text-[#68736E] leading-relaxed">
+            Book a comfortable private transfer from the airport to your Sri Lankan destination with transparent distance-based pricing.
           </p>
         </div>
 
-        {/* 2-Column Booking Engine Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* 2-Column Responsive Layout: Left Form (7 Cols) & Right Route + Price Summary (5 Cols) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
           
-          {/* Left Column: Form Controls (7 cols) */}
-          <div className="lg:col-span-7 bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-sm space-y-6">
+          {/* LEFT COLUMN: 5 STEP BOOKING FORM */}
+          <div className="lg:col-span-7 space-y-8">
             
-            {/* Trip Type Selector */}
-            <div className="grid grid-cols-3 gap-2">
-              {(['One Way: Airport to Hotel', 'One Way: Hotel to Airport', 'Round Trip'] as const).map(t => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => setTripType(t)}
-                  className={`p-3 rounded-xl border text-xs font-bold text-center transition-all ${
-                    tripType === t
-                      ? 'bg-[#0B3D2E] text-white border-[#0B3D2E] shadow-sm'
-                      : 'bg-[#F8F7F2] text-stone-700 border-stone-200 hover:bg-stone-100'
-                  }`}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
-
-            {/* Airport & Drop-off Area */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-[#062C22] flex items-center gap-1">
-                  <Plane className="w-3.5 h-3.5 text-[#176B52]" />
-                  Airport
-                </label>
-                <select
-                  value={airport}
-                  onChange={(e) => setAirport(e.target.value as any)}
-                  className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-[#062C22]"
-                >
-                  <option value="Bandaranaike International Airport (CMB - Colombo)">CMB - Colombo International</option>
-                  <option value="Mattala Rajapaksa International (HRI - Hambantota)">HRI - Mattala Hambantota</option>
-                  <option value="Jaffna International Airport (JAF)">JAF - Jaffna International</option>
-                </select>
+            {/* STEP 1: ARRIVAL AIRPORT */}
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-stone-200/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.05)] space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-[#176B52] uppercase tracking-wider flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-[#DDEFE8] text-[#176B52] flex items-center justify-center text-[11px] font-bold">1</span>
+                  Arrival Airport
+                </span>
+                <span className="text-[11px] text-[#68736E]">Main International Hub</span>
               </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-[#062C22] flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5 text-[#176B52]" />
-                  Destination Region
-                </label>
+              <div className="space-y-3">
+                {SUPPORTED_AIRPORTS.map((apt) => (
+                  <div
+                    key={apt.id}
+                    onClick={() => setSelectedAirportId(apt.id)}
+                    className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-center justify-between ${
+                      selectedAirportId === apt.id
+                        ? 'bg-[#DDEFE8]/60 border-[#176B52] shadow-xs'
+                        : 'bg-[#F8F7F2] border-stone-200 hover:border-stone-300'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-10 h-10 rounded-xl bg-[#0B3D2E] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                        {apt.code}
+                      </div>
+                      <div>
+                        <h4 className="font-serif font-bold text-sm text-[#17231F]">{apt.name}</h4>
+                        <p className="text-xs text-[#68736E]">{apt.location}</p>
+                      </div>
+                    </div>
+
+                    <input
+                      type="radio"
+                      name="airportSel"
+                      checked={selectedAirportId === apt.id}
+                      onChange={() => setSelectedAirportId(apt.id)}
+                      className="text-[#176B52] focus:ring-[#176B52]"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* STEP 2: FLIGHT DETAILS */}
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-stone-200/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.05)] space-y-4">
+              <span className="text-xs font-bold text-[#176B52] uppercase tracking-wider flex items-center gap-2">
+                <span className="w-5 h-5 rounded-full bg-[#DDEFE8] text-[#176B52] flex items-center justify-center text-[11px] font-bold">2</span>
+                Flight Details
+              </span>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs sm:text-sm">
+                
+                <div className="space-y-1.5">
+                  <label className="font-semibold text-[#17231F] flex items-center gap-1.5">
+                    <Plane className="w-3.5 h-3.5 text-[#176B52]" />
+                    Flight Number
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={flightNumber}
+                    onChange={(e) => setFlightNumber(e.target.value)}
+                    placeholder="e.g. UL 504"
+                    className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-3 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52] uppercase"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="font-semibold text-[#17231F] flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-[#176B52]" />
+                    Arrival Date
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={arrivalDate}
+                    onChange={(e) => setArrivalDate(e.target.value)}
+                    className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-2.5 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="font-semibold text-[#17231F] flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-[#176B52]" />
+                    Arrival Time (Local)
+                  </label>
+                  <input
+                    type="time"
+                    required
+                    value={arrivalTime}
+                    onChange={(e) => setArrivalTime(e.target.value)}
+                    className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-2.5 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
+                  />
+                </div>
+
+              </div>
+
+              <div className="pt-2 flex items-center gap-2">
+                <span className="text-xs font-semibold text-[#17231F]">Trip Direction:</span>
+                <div className="inline-flex rounded-xl bg-[#F8F7F2] p-1 border border-stone-200">
+                  <button
+                    type="button"
+                    onClick={() => setTripType('One Way: Airport to Hotel')}
+                    className={`px-3 py-1 text-xs rounded-lg font-medium transition-colors ${
+                      tripType === 'One Way: Airport to Hotel' ? 'bg-[#0B3D2E] text-white font-semibold' : 'text-stone-600'
+                    }`}
+                  >
+                    One Way (Airport &rarr; Hotel)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTripType('Round Trip')}
+                    className={`px-3 py-1 text-xs rounded-lg font-medium transition-colors ${
+                      tripType === 'Round Trip' ? 'bg-[#0B3D2E] text-white font-semibold' : 'text-stone-600'
+                    }`}
+                  >
+                    Round Trip (15% Off)
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* STEP 3: PASSENGERS QUANTITY PICKER */}
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-stone-200/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.05)] space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-[#176B52] uppercase tracking-wider flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-[#DDEFE8] text-[#176B52] flex items-center justify-center text-[11px] font-bold">3</span>
+                  Passenger Count
+                </span>
+                <span className="text-xs font-bold text-[#0B3D2E] bg-[#DDEFE8] px-3 py-1 rounded-full">
+                  Total: {totalPassengers} Passenger{totalPassengers > 1 ? 's' : ''}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                
+                {/* Adults */}
+                <div className="p-4 bg-[#F8F7F2] rounded-2xl border border-stone-200 flex items-center justify-between">
+                  <div>
+                    <span className="font-semibold text-xs text-[#17231F] block">Adults</span>
+                    <span className="text-[11px] text-[#68736E]">Age 12+</span>
+                  </div>
+                  <div className="flex items-center gap-2.5">
+                    <button
+                      type="button"
+                      onClick={() => handlePassengerChange('adults', -1)}
+                      className="w-7 h-7 rounded-full bg-white border border-stone-300 flex items-center justify-center text-stone-600 hover:bg-stone-100"
+                    >
+                      <Minus className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="font-bold text-sm w-4 text-center">{adults}</span>
+                    <button
+                      type="button"
+                      onClick={() => handlePassengerChange('adults', 1)}
+                      className="w-7 h-7 rounded-full bg-white border border-stone-300 flex items-center justify-center text-stone-600 hover:bg-stone-100"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Children */}
+                <div className="p-4 bg-[#F8F7F2] rounded-2xl border border-stone-200 flex items-center justify-between">
+                  <div>
+                    <span className="font-semibold text-xs text-[#17231F] block">Children</span>
+                    <span className="text-[11px] text-[#68736E]">Age 2–11</span>
+                  </div>
+                  <div className="flex items-center gap-2.5">
+                    <button
+                      type="button"
+                      onClick={() => handlePassengerChange('children', -1)}
+                      className="w-7 h-7 rounded-full bg-white border border-stone-300 flex items-center justify-center text-stone-600 hover:bg-stone-100"
+                    >
+                      <Minus className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="font-bold text-sm w-4 text-center">{children}</span>
+                    <button
+                      type="button"
+                      onClick={() => handlePassengerChange('children', 1)}
+                      className="w-7 h-7 rounded-full bg-white border border-stone-300 flex items-center justify-center text-stone-600 hover:bg-stone-100"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Infants */}
+                <div className="p-4 bg-[#F8F7F2] rounded-2xl border border-stone-200 flex items-center justify-between">
+                  <div>
+                    <span className="font-semibold text-xs text-[#17231F] block">Infants</span>
+                    <span className="text-[11px] text-[#68736E]">Under 2 yrs</span>
+                  </div>
+                  <div className="flex items-center gap-2.5">
+                    <button
+                      type="button"
+                      onClick={() => handlePassengerChange('infants', -1)}
+                      className="w-7 h-7 rounded-full bg-white border border-stone-300 flex items-center justify-center text-stone-600 hover:bg-stone-100"
+                    >
+                      <Minus className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="font-bold text-sm w-4 text-center">{infants}</span>
+                    <button
+                      type="button"
+                      onClick={() => handlePassengerChange('infants', 1)}
+                      className="w-7 h-7 rounded-full bg-white border border-stone-300 flex items-center justify-center text-stone-600 hover:bg-stone-100"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            {/* STEP 4: DESTINATION SELECTOR */}
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-stone-200/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.05)] space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-[#176B52] uppercase tracking-wider flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-[#DDEFE8] text-[#176B52] flex items-center justify-center text-[11px] font-bold">4</span>
+                  Where are you going?
+                </span>
+                <span className="text-[11px] text-[#68736E]">{DESTINATION_DISTANCES.length} Destinations</span>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-[#17231F]">Select Sri Lankan Destination</label>
                 <select
-                  value={destinationArea}
-                  onChange={(e) => setDestinationArea(e.target.value)}
-                  className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-[#062C22]"
+                  value={selectedDestId}
+                  onChange={(e) => setSelectedDestId(e.target.value)}
+                  className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-3.5 text-xs sm:text-sm font-semibold text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
                 >
-                  {Object.keys(TRANSFER_RATES).map(dest => (
-                    <option key={dest} value={dest}>{dest}</option>
+                  {DESTINATION_DISTANCES.map((dest) => (
+                    <option key={dest.id} value={dest.id}>
+                      {dest.name} — ({dest.distanceKm} km &bull; Approx. {dest.estimatedHours})
+                    </option>
                   ))}
                 </select>
               </div>
-            </div>
 
-            {/* Hotel Address */}
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-[#062C22]">Hotel / Villa Name & Full Address</label>
-              <input
-                type="text"
-                value={hotelAddress}
-                onChange={(e) => setHotelAddress(e.target.value)}
-                placeholder="e.g. Cinnamon Grand Colombo / Aliya Resort Sigiriya"
-                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-[#062C22]"
-              />
-            </div>
-
-            {/* Flight Details */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-[#062C22] flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5 text-[#176B52]" />
-                  Flight Date
-                </label>
-                <input
-                  type="date"
-                  value={flightDate}
-                  onChange={(e) => setFlightDate(e.target.value)}
-                  className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2.5 text-xs text-[#062C22]"
+              {/* Destination preview badge */}
+              <div className="p-4 bg-[#F8F7F2] rounded-2xl border border-stone-200 flex items-center gap-3">
+                <img
+                  src={selectedDestination.heroImage}
+                  alt={selectedDestination.shortName}
+                  className="w-14 h-14 rounded-xl object-cover"
                 />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-[#062C22] flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5 text-[#176B52]" />
-                  Flight Arrival Time
-                </label>
-                <input
-                  type="time"
-                  value={flightTime}
-                  onChange={(e) => setFlightTime(e.target.value)}
-                  className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2.5 text-xs text-[#062C22]"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-[#062C22]">Flight Number</label>
-                <input
-                  type="text"
-                  value={flightNumber}
-                  onChange={(e) => setFlightNumber(e.target.value)}
-                  placeholder="e.g. UL 504 / QR 668"
-                  className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2.5 text-xs text-[#062C22]"
-                />
+                <div className="space-y-0.5">
+                  <span className="text-xs font-bold text-[#17231F] block">{selectedDestination.name}</span>
+                  <p className="text-[11px] text-[#68736E]">{selectedDestination.popularFor}</p>
+                </div>
               </div>
             </div>
 
-            {/* Passengers & Luggage */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-[#062C22] flex items-center gap-1">
-                  <Users className="w-3.5 h-3.5 text-[#176B52]" />
-                  Passengers
-                </label>
-                <select
-                  value={passengers}
-                  onChange={(e) => setPassengers(Number(e.target.value))}
-                  className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2.5 text-xs text-[#062C22]"
-                >
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 12, 16].map(n => (
-                    <option key={n} value={n}>{n} Passenger{n > 1 ? 's' : ''}</option>
-                  ))}
-                </select>
+            {/* STEP 5: VEHICLE SELECTION */}
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-stone-200/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.05)] space-y-5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-[#176B52] uppercase tracking-wider flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-[#DDEFE8] text-[#176B52] flex items-center justify-center text-[11px] font-bold">5</span>
+                  Select Vehicle Type
+                </span>
+                <span className="text-[11px] text-[#68736E]">Private Air-Conditioned Fleet</span>
               </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-[#062C22] flex items-center gap-1">
-                  <Briefcase className="w-3.5 h-3.5 text-[#176B52]" />
-                  Luggage Bags
-                </label>
-                <select
-                  value={luggageCount}
-                  onChange={(e) => setLuggageCount(Number(e.target.value))}
-                  className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2.5 text-xs text-[#062C22]"
-                >
-                  {[1, 2, 3, 4, 5, 6, 8, 10].map(n => (
-                    <option key={n} value={n}>{n} Large Suitcase{n > 1 ? 's' : ''}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Vehicle Selection */}
-            <div className="space-y-3 pt-2">
-              <label className="text-xs font-bold text-[#062C22] uppercase tracking-wider block">
-                Select Vehicle Class
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {INITIAL_VEHICLES.map((veh) => {
+              <div className="space-y-3.5">
+                {TRANSFER_VEHICLE_OPTIONS.map((veh) => {
+                  const isCapacityOk = totalPassengers <= veh.capacityPassengers;
                   const isSelected = selectedVehicleId === veh.id;
+                  const itemPrice = calculateRealRoadTransferPrice(selectedDestination.distanceKm, veh, isRoundTrip);
+
                   return (
                     <div
                       key={veh.id}
-                      onClick={() => setSelectedVehicleId(veh.id)}
-                      className={`cursor-pointer rounded-2xl border p-4 transition-all ${
-                        isSelected
-                          ? 'border-[#0B3D2E] bg-[#0B3D2E]/5 ring-2 ring-[#176B52]'
-                          : 'border-stone-200 bg-white hover:bg-stone-50'
+                      onClick={() => {
+                        if (isCapacityOk) setSelectedVehicleId(veh.id);
+                      }}
+                      className={`p-5 rounded-2xl border transition-all ${
+                        !isCapacityOk
+                          ? 'opacity-60 bg-stone-100/60 border-stone-200 cursor-not-allowed'
+                          : isSelected
+                            ? 'bg-[#DDEFE8]/70 border-[#176B52] shadow-sm cursor-pointer'
+                            : 'bg-[#F8F7F2] border-stone-200 hover:border-stone-300 cursor-pointer'
                       }`}
                     >
-                      <div className="flex items-center gap-3 mb-2">
-                        <img src={veh.image} alt={veh.name} className="w-12 h-12 rounded-xl object-cover" />
-                        <div>
-                          <h5 className="font-bold text-xs text-[#062C22] line-clamp-1">{veh.name}</h5>
-                          <p className="text-[11px] text-stone-500">Max {veh.capacityPassengers} pax • {veh.capacityLuggage} bags</p>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        
+                        <div className="flex items-start gap-4">
+                          <img
+                            src={veh.image}
+                            alt={veh.name}
+                            className="w-20 h-16 rounded-xl object-cover shrink-0 border border-stone-200"
+                          />
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h4 className="font-serif font-bold text-base text-[#17231F]">{veh.categoryTitle}</h4>
+                              <span className="text-[10px] font-bold bg-white text-[#176B52] px-2.5 py-0.5 rounded-full border border-stone-200">
+                                {veh.badge}
+                              </span>
+                            </div>
+                            <p className="text-xs text-[#68736E]">{veh.name}</p>
+                            <p className="text-[11px] text-stone-500">{veh.description}</p>
+                          </div>
                         </div>
+
+                        {/* Price & Selection Button */}
+                        <div className="text-right sm:self-center shrink-0">
+                          <div className="flex items-baseline justify-end gap-1">
+                            <span className="font-serif text-2xl font-bold text-[#0B3D2E]">${itemPrice}</span>
+                            <span className="text-xs text-[#68736E]">USD</span>
+                          </div>
+                          <span className="text-[10px] text-[#68736E] block">
+                            (${veh.ratePerKmUSD}/km &bull; {selectedDestination.distanceKm} km)
+                          </span>
+
+                          {!isCapacityOk ? (
+                            <span className="text-[10px] font-bold text-rose-600 block mt-1">
+                              Exceeds {veh.capacityPassengers} Pax limit
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              className={`mt-2 px-4 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
+                                isSelected 
+                                  ? 'bg-[#0B3D2E] text-white' 
+                                  : 'bg-white border border-stone-300 text-stone-700 hover:bg-stone-50'
+                              }`}
+                            >
+                              {isSelected ? 'Selected' : 'Select'}
+                            </button>
+                          )}
+                        </div>
+
                       </div>
-                      <span className={`text-[11px] font-bold ${isSelected ? 'text-[#0B3D2E]' : 'text-stone-400'}`}>
-                        {isSelected ? '✓ Selected' : 'Select'}
-                      </span>
                     </div>
                   );
                 })}
               </div>
+
+              {!isVehicleCapacityValid && (
+                <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl flex items-start gap-2.5 text-xs text-rose-700">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>This vehicle is not suitable for {totalPassengers} passengers. Please select a Van above.</span>
+                </div>
+              )}
             </div>
 
           </div>
 
-          {/* Right Column: Quote Summary Card (5 cols) */}
-          <div className="lg:col-span-5 sticky top-24">
-            <div className="bg-white rounded-3xl border border-stone-200 p-6 sm:p-8 shadow-xl space-y-6">
+          {/* RIGHT COLUMN: ROUTE VISUALIZATION CARD & PRICE SUMMARY (5 COLS) */}
+          <div className="lg:col-span-5 space-y-6 sticky top-24">
+            
+            {/* 1. ROUTE VISUALIZATION CARD */}
+            <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-6 sm:p-7 border border-white/80 shadow-[0_10px_35px_-10px_rgba(6,44,34,0.08)] space-y-5">
               
-              <div className="border-b border-stone-100 pb-4">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-[#176B52]" />
-                  <span className="text-xs font-bold text-[#176B52] uppercase">Instant Guaranteed Quote</span>
-                </div>
-                <h4 className="font-serif text-2xl font-bold text-[#062C22] mt-1">
-                  ${estimatedQuote} USD
-                </h4>
-                <p className="text-xs text-stone-500">
-                  {tripType} • {selectedVehicle.name}
-                </p>
+              <div className="flex items-center justify-between border-b border-stone-100 pb-3.5">
+                <span className="text-xs font-bold text-[#176B52] uppercase tracking-wider flex items-center gap-1.5">
+                  <Navigation className="w-4 h-4 text-[#39A982]" />
+                  Real Road Route
+                </span>
+                <span className="text-xs font-semibold text-[#0B3D2E] bg-[#DDEFE8] px-2.5 py-0.5 rounded-full">
+                  Verified Expressway Route
+                </span>
               </div>
 
-              <div className="space-y-2 text-xs text-stone-600">
-                <div className="flex justify-between py-1 border-b border-stone-100">
-                  <span>Pickup Location:</span>
-                  <strong className="text-[#062C22]">CMB Airport Terminal</strong>
+              {/* Graphical Route Segment */}
+              <div className="bg-[#F8F7F2] p-5 rounded-2xl border border-stone-200 space-y-4">
+                
+                {/* Airport Node */}
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-[#0B3D2E] text-white flex items-center justify-center shrink-0 mt-0.5">
+                    <Plane className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-[#68736E] uppercase font-bold tracking-wider block">Pickup</span>
+                    <h4 className="font-serif font-bold text-sm text-[#17231F]">{selectedAirport.name} ({selectedAirport.code})</h4>
+                    <p className="text-[11px] text-[#68736E]">{selectedAirport.location}</p>
+                  </div>
                 </div>
-                <div className="flex justify-between py-1 border-b border-stone-100">
-                  <span>Drop-off Destination:</span>
-                  <strong className="text-[#062C22] text-right truncate max-w-[200px]">{destinationArea}</strong>
+
+                {/* Road Line with Distance indicator */}
+                <div className="flex items-center gap-3 pl-4">
+                  <div className="w-0.5 h-10 bg-[#176B52]/40" />
+                  <div className="bg-white px-3 py-1 rounded-full border border-stone-200 text-[11px] font-semibold text-[#176B52] shadow-2xs">
+                    {selectedDestination.distanceKm} km Road Distance &bull; {selectedDestination.estimatedHours}
+                  </div>
                 </div>
-                <div className="flex justify-between py-1 border-b border-stone-100">
-                  <span>Flight Date & Time:</span>
-                  <strong className="text-[#062C22]">{flightDate} at {flightTime}</strong>
+
+                {/* Destination Node */}
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-[#176B52] text-white flex items-center justify-center shrink-0 mt-0.5">
+                    <MapPin className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-[#68736E] uppercase font-bold tracking-wider block">Drop-Off Destination</span>
+                    <h4 className="font-serif font-bold text-sm text-[#17231F]">{selectedDestination.name}</h4>
+                    <p className="text-[11px] text-[#68736E]">{selectedDestination.region}</p>
+                  </div>
                 </div>
-                <div className="flex justify-between py-1 border-b border-stone-100">
-                  <span>Passengers & Luggage:</span>
-                  <strong className="text-[#062C22]">{passengers} Pax, {luggageCount} Bags</strong>
-                </div>
-                <div className="flex justify-between py-1 border-b border-stone-100">
-                  <span>Highway Expressway Tolls:</span>
-                  <strong className="text-emerald-700">100% Included</strong>
-                </div>
+
               </div>
 
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(true)}
-                className="w-full py-4 bg-gradient-to-r from-[#176B52] to-[#A37F37] text-[#062C22] font-bold text-sm rounded-2xl shadow-xl hover:from-[#39A982] hover:to-[#176B52] transition-all flex items-center justify-center gap-2"
-              >
-                <CreditCard className="w-4 h-4" />
-                <span>Reserve VIP Transfer • ${estimatedQuote}</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-
-              <div className="space-y-2 pt-2 border-t border-stone-100 text-[11px] text-stone-500">
+              {/* Inclusions summary */}
+              <div className="space-y-2 text-xs text-[#68736E]">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-[#0B3D2E] shrink-0" />
-                  <span>Free cancellation up to 24 hours prior to flight arrival.</span>
+                  <Check className="w-3.5 h-3.5 text-[#176B52]" />
+                  <span>Licensed SLTDA English-speaking chauffeur</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#0B3D2E] shrink-0" />
-                  <span>Chauffeur waits 90 minutes past actual flight touch-down.</span>
+                  <Check className="w-3.5 h-3.5 text-[#176B52]" />
+                  <span>All expressway tolls & airport parking covered</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-3.5 h-3.5 text-[#176B52]" />
+                  <span>Complimentary bottled water & flight delay monitoring</span>
                 </div>
               </div>
 
             </div>
+
+            {/* 2. PRICE SUMMARY CARD */}
+            <div className="bg-[#0B3D2E] text-white rounded-3xl p-6 sm:p-7 shadow-xl space-y-5 border border-white/10">
+              
+              <div className="flex items-center justify-between border-b border-white/15 pb-4">
+                <div>
+                  <span className="text-[10px] text-[#39A982] uppercase font-bold tracking-wider block">Total Transfer Rate</span>
+                  <span className="font-serif text-3xl font-bold">${calculatedPrice} <span className="text-xs font-sans font-normal text-stone-300">USD</span></span>
+                </div>
+                <span className="px-3 py-1 rounded-full text-xs font-semibold bg-white/15 text-[#DDEFE8] border border-white/20">
+                  {tripType === 'Round Trip' ? 'Round Trip' : 'One Way'}
+                </span>
+              </div>
+
+              <div className="space-y-2 text-xs text-stone-200">
+                <div className="flex justify-between">
+                  <span>Airport:</span>
+                  <span className="font-semibold text-white">{selectedAirport.code} Colombo</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Destination:</span>
+                  <span className="font-semibold text-white">{selectedDestination.shortName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Passengers:</span>
+                  <span className="font-semibold text-white">{totalPassengers} ({adults} Ad, {children} Ch, {infants} Inf)</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Vehicle:</span>
+                  <span className="font-semibold text-white">{selectedVehicle.categoryTitle}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Road Distance:</span>
+                  <span className="font-semibold text-[#39A982]">{selectedDestination.distanceKm} km</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Estimated Drive:</span>
+                  <span className="font-semibold text-white">{selectedDestination.estimatedHours}</span>
+                </div>
+              </div>
+
+              {/* Continue Button */}
+              <button
+                onClick={handleProceedToCheckout}
+                disabled={!isVehicleCapacityValid}
+                className={`w-full py-4 rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-md ${
+                  !isVehicleCapacityValid
+                    ? 'bg-stone-500 text-stone-300 cursor-not-allowed'
+                    : 'bg-[#39A982] hover:bg-[#176B52] text-white hover:shadow-lg transform hover:-translate-y-0.5'
+                }`}
+              >
+                <span>Continue to Secure Checkout</span>
+                <ArrowRight className="w-4 h-4 text-white" />
+              </button>
+
+              <div className="flex items-center justify-center gap-2 text-[11px] text-stone-300 pt-1">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#39A982]" />
+                <span>100% Free cancellation up to 24h before flight</span>
+              </div>
+
+            </div>
+
           </div>
 
         </div>
 
       </div>
-
-      {/* Transfer Checkout Modal */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="Confirm Airport Chauffeur Transfer"
-        maxWidth="md"
-      >
-        <form onSubmit={handleConfirmTransfer} className="space-y-4">
-          <div className="bg-[#F8F7F2] p-4 rounded-xl border border-stone-200 space-y-1 text-xs">
-            <h4 className="font-bold text-[#062C22]">{selectedVehicle.name}</h4>
-            <p className="text-stone-600">{destinationArea} • ${estimatedQuote} USD Total</p>
-          </div>
-
-          <div className="space-y-3">
-            <div className="space-y-1">
-              <label className="text-xs text-stone-600">Lead Passenger Name (Signboard name)</label>
-              <input
-                type="text"
-                required
-                value={contactName}
-                onChange={(e) => setContactName(e.target.value)}
-                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-sm text-[#062C22]"
-              />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-xs text-stone-600">Email Address</label>
-                <input
-                  type="email"
-                  required
-                  value={contactEmail}
-                  onChange={(e) => setContactEmail(e.target.value)}
-                  className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-sm text-[#062C22]"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs text-stone-600">WhatsApp / Phone</label>
-                <input
-                  type="tel"
-                  required
-                  value={contactPhone}
-                  onChange={(e) => setContactPhone(e.target.value)}
-                  className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-sm text-[#062C22]"
-                />
-              </div>
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs text-stone-600">Special Notes (e.g. child seat, sim card request)</label>
-              <textarea
-                rows={2}
-                value={specialRequests}
-                onChange={(e) => setSpecialRequests(e.target.value)}
-                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full py-3.5 bg-[#0B3D2E] text-white font-bold text-sm rounded-xl shadow-lg hover:bg-[#134E3F] transition-all flex items-center justify-center gap-2"
-          >
-            {isSubmitting ? (
-              <span>Confirming Transfer Reservation...</span>
-            ) : (
-              <>
-                <CreditCard className="w-4 h-4 text-[#39A982]" />
-                <span>Confirm & Issue Transfer Voucher • ${estimatedQuote}</span>
-              </>
-            )}
-          </button>
-        </form>
-      </Modal>
     </div>
   );
 };
