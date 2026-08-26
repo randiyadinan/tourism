@@ -14,15 +14,17 @@ import {
   Compass, 
   Search,
   Car,
-  CheckCircle2,
   Users,
   Briefcase,
   Sparkles,
-  X
+  X,
+  Star,
+  CheckCircle2
 } from 'lucide-react';
 import { 
   SUPPORTED_AIRPORTS, 
   TRANSFER_VEHICLE_OPTIONS, 
+  DESTINATION_DISTANCES,
   calculateRealRoadTransferPrice, 
   type TransferVehicleOption 
 } from '../../data/destinationDistances';
@@ -34,12 +36,13 @@ import {
 } from '../../services/googleMapsService';
 import { GoogleMapDestinationSelector } from '../../components/transfers/GoogleMapDestinationSelector';
 import { tourService } from '../../services/tourService';
+import { destinationService } from '../../services/destinationService';
 import { TOUR_VEHICLE_OPTIONS, type TourVehicleOption } from '../../data/tourVehiclePricing';
-import type { Tour } from '../../types';
+import type { Tour, ItineraryDay } from '../../types';
 
 export const AirportTransferPage: React.FC = () => {
   const navigate = useNavigate();
-  const tourBookingSectionRef = useRef<HTMLDivElement>(null);
+  const tourDetailSectionRef = useRef<HTMLDivElement>(null);
 
   // 1. AIRPORT (Bandaranaike International CMB default)
   const [selectedAirportId, setSelectedAirportId] = useState<string>('airport-cmb');
@@ -70,13 +73,60 @@ export const AirportTransferPage: React.FC = () => {
   const [tourSearchQuery, setTourSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
-  // 7. DYNAMIC TOUR SELECTION & 2-VEHICLE SELECTION (CAR / VAN)
+  // 7. SELECTED TOUR & CUSTOMIZATION STATE
   const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
   const [customTourDays, setCustomTourDays] = useState<number>(0);
   const [selectedTourVehicleId, setSelectedTourVehicleId] = useState<'car' | 'van' | null>(null);
   const [tourStartDate, setTourStartDate] = useState<string>('2026-10-15');
   const [tourAdults, setTourAdults] = useState<number>(2);
   const [tourChildren, setTourChildren] = useState<number>(0);
+
+  // Destination image lookup map
+  const destinationImageMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    
+    // Seed from destination distances
+    DESTINATION_DISTANCES.forEach(d => {
+      if (d.shortName && d.heroImage) map[d.shortName.toLowerCase()] = d.heroImage;
+      if (d.name && d.heroImage) map[d.name.toLowerCase()] = d.heroImage;
+    });
+
+    // Seed from destination service
+    try {
+      const allDests = destinationService.getAllDestinations();
+      allDests.forEach(d => {
+        if (d.name && d.heroImage) map[d.name.toLowerCase()] = d.heroImage;
+      });
+    } catch {
+      // ignore
+    }
+
+    // Default landmark fallbacks
+    map['sigiriya'] = map['sigiriya'] || 'https://images.unsplash.com/photo-1588598198321-9735fd52455b?auto=format&fit=crop&w=800&q=80';
+    map['kandy'] = map['kandy'] || 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?auto=format&fit=crop&w=800&q=80';
+    map['nuwara eliya'] = map['nuwara eliya'] || 'https://images.unsplash.com/photo-1586861635167-e5223aadc9fe?auto=format&fit=crop&w=800&q=80';
+    map['ella'] = map['ella'] || 'https://images.unsplash.com/photo-1546708973-b339540b5162?auto=format&fit=crop&w=800&q=80';
+    map['yala'] = map['yala'] || 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&w=800&q=80';
+    map['galle'] = map['galle'] || 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&w=800&q=80';
+    map['colombo'] = map['colombo'] || 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=800&q=80';
+    map['bentota'] = map['bentota'] || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80';
+    map['mirissa'] = map['mirissa'] || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80';
+    map['dambulla'] = map['dambulla'] || 'https://images.unsplash.com/photo-1586861635167-e5223aadc9fe?auto=format&fit=crop&w=800&q=80';
+    map['habarana'] = map['habarana'] || 'https://images.unsplash.com/photo-1588598198321-9735fd52455b?auto=format&fit=crop&w=800&q=80';
+    map['anuradhapura'] = map['anuradhapura'] || 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=800&q=80';
+    map['polonnaruwa'] = map['polonnaruwa'] || 'https://images.unsplash.com/photo-1588598198321-9735fd52455b?auto=format&fit=crop&w=800&q=80';
+
+    return map;
+  }, []);
+
+  // Helper to resolve an image for any destination name
+  const getDestinationImage = (destName: string): string => {
+    const clean = destName.toLowerCase().split('/')[0].split('(')[0].trim();
+    for (const [key, url] of Object.entries(destinationImageMap)) {
+      if (clean.includes(key) || key.includes(clean)) return url;
+    }
+    return 'https://images.unsplash.com/photo-1588598198321-9735fd52455b?auto=format&fit=crop&w=800&q=80';
+  };
 
   // Selected airport memo
   const selectedAirport = useMemo(() => {
@@ -175,13 +225,44 @@ export const AirportTransferPage: React.FC = () => {
     return selectedTourVehicle.dailyPriceUSD * customTourDays;
   }, [selectedTourVehicle, customTourDays]);
 
-  // When customer clicks "Select Tour" from tour cards
+  // Dynamic Itinerary Generation based on customTourDays
+  const activeItineraryDays: ItineraryDay[] = useMemo(() => {
+    if (!selectedTour) return [];
+    const baseItinerary = selectedTour.itinerary || [];
+    const count = customTourDays > 0 ? customTourDays : selectedTour.durationDays;
+
+    if (count <= baseItinerary.length) {
+      return baseItinerary.slice(0, count);
+    }
+
+    // If extended beyond base itinerary, generate additional immersive days from tour destinations
+    const result = [...baseItinerary];
+    const availableDests = selectedTour.destinations.length > 0 ? selectedTour.destinations : ['Kandy', 'Ella', 'Galle', 'Sigiriya'];
+
+    for (let d = baseItinerary.length + 1; d <= count; d++) {
+      const destIndex = (d - baseItinerary.length - 1) % availableDests.length;
+      const targetDest = availableDests[destIndex];
+      result.push({
+        day: d,
+        title: `Extended Exploration & Bespoke Leisure in ${targetDest}`,
+        destination: targetDest,
+        description: `Enjoy an extra relaxed chauffeured day in ${targetDest}. Explore local artisan craft markets, scenic viewpoints, hidden waterfalls, and boutique culinary gems at your own personalized pace with your private chauffeur.`,
+        highlights: [`Scenic chauffeured excursion around ${targetDest}`, 'Bespoke leisure & photography', 'Authentic local dining experience'],
+        mealsIncluded: ['Breakfast'],
+        accommodation: 'Boutique Heritage Villa / Luxury Eco Resort'
+      });
+    }
+
+    return result;
+  }, [selectedTour, customTourDays]);
+
+  // When customer clicks "View / Customize Tour" from tour cards
   const handleSelectTour = (tour: Tour) => {
     setSelectedTour(tour);
     setCustomTourDays(tour.durationDays);
-    // Auto-scroll gently to the tour vehicle selection area
+    setSelectedTourVehicleId(null); // Do not automatically select vehicle
     setTimeout(() => {
-      tourBookingSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      tourDetailSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
   };
 
@@ -239,7 +320,7 @@ export const AirportTransferPage: React.FC = () => {
   // Direct checkout execution for Tour Booking (Dynamic Daily Rate * Days)
   const handleBookTour = () => {
     if (!selectedTour) {
-      alert('Please select a tour from below.');
+      alert('Please select a tour.');
       return;
     }
 
@@ -289,7 +370,7 @@ export const AirportTransferPage: React.FC = () => {
             Your Journey Starts at the Airport
           </h1>
           <p className="text-sm sm:text-base text-[#68736E] leading-relaxed">
-            Book a comfortable private transfer from the airport to your destination with transparent distance-based pricing, or select a handcrafted multi-day tour below.
+            Book a comfortable private transfer from the airport to your destination with transparent distance-based pricing, or explore our handcrafted multi-day chauffeured tours below.
           </p>
         </div>
 
@@ -558,7 +639,7 @@ export const AirportTransferPage: React.FC = () => {
               )}
             </div>
 
-            {/* 5. VEHICLE SELECTION */}
+            {/* 5. VEHICLE SELECTION (Airport Transfer) */}
             <div className="bg-white rounded-3xl p-6 sm:p-7 border border-stone-200/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.05)] space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-[#176B52] uppercase tracking-wider flex items-center gap-2">
@@ -773,9 +854,9 @@ export const AirportTransferPage: React.FC = () => {
       </div>
 
       {/* ============================================================ */}
-      {/* 2. EXPLORE OUR TOURS & 2-VEHICLE BOOKING SECTION */}
+      {/* 2. EXPLORE OUR TOURS SECTION */}
       {/* ============================================================ */}
-      <section className="bg-white border-t border-stone-200/80 py-20 sm:py-28" ref={tourBookingSectionRef}>
+      <section className="bg-white border-t border-stone-200/80 py-20 sm:py-28" ref={tourDetailSectionRef}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           
           {/* Section Header */}
@@ -789,7 +870,7 @@ export const AirportTransferPage: React.FC = () => {
                 Explore Our Tours
               </h2>
               <p className="text-sm sm:text-base text-[#68736E] leading-relaxed">
-                Handcrafted multi-day itineraries across Sri Lanka featuring dedicated national chauffeur guides, boutique colonial stays, and private wildlife safaris.
+                Handcrafted multi-day itineraries across Sri Lanka featuring dedicated national chauffeur guides, boutique colonial stays, and private wildlife safaris. Click “View / Customize Tour” to explore day-by-day itineraries and vehicle pricing.
               </p>
             </div>
 
@@ -825,84 +906,189 @@ export const AirportTransferPage: React.FC = () => {
             </div>
           </div>
 
-          {/* DYNAMIC TOUR VEHICLE & PRICE CONFIGURATION MODAL / CARD (WHEN A TOUR IS SELECTED) */}
+          {/* ============================================================ */}
+          {/* 3. FULL TOUR DETAILS & DAY-BY-DAY ITINERARY WITH PHOTOS */}
+          {/* ONLY SHOWN AFTER CUSTOMER CLICKS "VIEW / CUSTOMIZE TOUR" */}
+          {/* ============================================================ */}
           {selectedTour && (
-            <div className="bg-[#DDEFE8]/40 border-2 border-[#176B52] rounded-3xl p-6 sm:p-8 shadow-xl space-y-6 animate-fadeIn relative">
+            <div className="bg-[#F8F7F2] border-2 border-[#176B52] rounded-3xl p-6 sm:p-10 shadow-2xl space-y-10 animate-fadeIn relative">
+              
+              {/* Close Button */}
               <button
                 onClick={() => {
                   setSelectedTour(null);
                   setSelectedTourVehicleId(null);
                 }}
-                className="absolute top-5 right-5 p-2 rounded-full bg-white text-stone-500 hover:text-[#17231F] shadow-xs border border-stone-200"
-                aria-label="Close tour selection panel"
+                className="absolute top-6 right-6 p-2.5 rounded-full bg-white text-stone-600 hover:text-[#17231F] shadow-sm border border-stone-200 transition-colors"
+                aria-label="Close tour details"
               >
                 <X className="w-5 h-5" />
               </button>
 
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-stone-200/80 pb-6">
-                <div className="flex items-start gap-4">
+              {/* Tour Header Banner */}
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-stone-200 pb-8 pr-12">
+                <div className="flex items-start gap-5">
                   <img
                     src={selectedTour.heroImage}
                     alt={selectedTour.title}
-                    className="w-24 h-24 rounded-2xl object-cover shrink-0 border border-stone-300 shadow-xs"
+                    className="w-28 h-28 sm:w-36 sm:h-36 rounded-2xl object-cover shrink-0 border border-stone-300 shadow-md"
                   />
-                  <div className="space-y-1">
-                    <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#176B52] text-white text-[10px] font-bold uppercase tracking-wider">
-                      <Sparkles className="w-3 h-3 text-[#DDEFE8]" />
-                      Selected Tour Package
+                  <div className="space-y-1.5">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#176B52] text-white text-[11px] font-bold uppercase tracking-wider">
+                      <Sparkles className="w-3.5 h-3.5 text-[#DDEFE8]" />
+                      Customizable Private Itinerary
                     </div>
-                    <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#17231F]">
+                    <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#17231F]">
                       {selectedTour.title}
                     </h3>
-                    <p className="text-xs text-[#68736E] line-clamp-1">{selectedTour.subtitle}</p>
-                    <div className="flex items-center gap-3 pt-1 text-xs text-[#0B3D2E] font-medium">
+                    <p className="text-xs sm:text-sm text-[#68736E] max-w-2xl">{selectedTour.subtitle}</p>
+                    
+                    <div className="flex items-center gap-4 pt-2 text-xs text-[#0B3D2E] font-medium flex-wrap">
                       <span className="flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5 text-[#176B52]" />
+                        <Clock className="w-4 h-4 text-[#176B52]" />
                         {selectedTour.durationDays} Days Default Itinerary
                       </span>
                       <span>&bull;</span>
-                      <span>{selectedTour.destinations.join(', ')}</span>
+                      <span className="flex items-center gap-1">
+                        <Star className="w-4 h-4 text-[#39A982] fill-[#39A982]" />
+                        {selectedTour.rating} ({selectedTour.reviewCount} Reviews)
+                      </span>
+                      <span>&bull;</span>
+                      <span className="flex items-center gap-1">
+                        <MapPin className="w-4 h-4 text-[#176B52]" />
+                        {selectedTour.destinations.join(' &bull; ')}
+                      </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Duration Days Increment/Decrement */}
-                <div className="flex items-center gap-3 bg-white p-3 rounded-2xl border border-stone-200 shadow-xs shrink-0">
-                  <div>
-                    <span className="text-[10px] uppercase font-bold text-[#68736E] block">Duration Days</span>
-                    <span className="text-xs font-semibold text-[#17231F]">Customizable</span>
-                  </div>
-                  <div className="flex items-center gap-2">
+                {/* Tour Duration Customizer */}
+                <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm space-y-2 shrink-0">
+                  <span className="text-[10px] uppercase font-bold text-[#68736E] block tracking-wider">
+                    Customize Number of Days
+                  </span>
+                  <div className="flex items-center gap-3">
                     <button
                       type="button"
                       onClick={() => setCustomTourDays(Math.max(1, customTourDays - 1))}
-                      className="w-8 h-8 rounded-full bg-[#F8F7F2] border border-stone-300 flex items-center justify-center text-stone-700 hover:bg-stone-200 font-bold"
+                      className="w-10 h-10 rounded-xl bg-[#F8F7F2] border border-stone-300 flex items-center justify-center text-stone-700 hover:bg-stone-200 font-bold transition-colors"
+                      aria-label="Decrease tour days"
                     >
-                      <Minus className="w-3.5 h-3.5" />
+                      <Minus className="w-4 h-4" />
                     </button>
-                    <span className="font-serif text-lg font-bold w-6 text-center text-[#0B3D2E]">{customTourDays}</span>
+                    <div className="text-center w-16">
+                      <span className="font-serif text-2xl font-bold text-[#0B3D2E] block leading-none">
+                        {customTourDays}
+                      </span>
+                      <span className="text-[10px] font-semibold text-[#68736E] uppercase">Days</span>
+                    </div>
                     <button
                       type="button"
                       onClick={() => setCustomTourDays(Math.min(30, customTourDays + 1))}
-                      className="w-8 h-8 rounded-full bg-[#F8F7F2] border border-stone-300 flex items-center justify-center text-stone-700 hover:bg-stone-200 font-bold"
+                      className="w-10 h-10 rounded-xl bg-[#F8F7F2] border border-stone-300 flex items-center justify-center text-stone-700 hover:bg-stone-200 font-bold transition-colors"
+                      aria-label="Increase tour days"
                     >
-                      <Plus className="w-3.5 h-3.5" />
+                      <Plus className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
               </div>
 
-              {/* ONLY TWO VEHICLE CHOICES FOR TOURS: 1. CAR, 2. VAN */}
-              <div className="space-y-3">
+              {/* Day-by-Day Itinerary with Destination Photos */}
+              <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-bold text-[#176B52] uppercase tracking-wider flex items-center gap-2">
-                    <Car className="w-4 h-4 text-[#176B52]" />
-                    Select Tour Vehicle (Car or Van Only)
-                  </h4>
-                  <span className="text-xs text-[#68736E]">Select exactly one vehicle type</span>
+                  <div>
+                    <h4 className="font-serif text-xl sm:text-2xl font-bold text-[#17231F] flex items-center gap-2">
+                      <Compass className="w-5 h-5 text-[#176B52]" />
+                      Day-by-Day Itinerary ({customTourDays} Days Displayed)
+                    </h4>
+                    <p className="text-xs text-[#68736E] mt-0.5">
+                      Each day is fully chauffeured with your private dedicated English-speaking national chauffeur-guide.
+                    </p>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {activeItineraryDays.map((dayItem) => {
+                    const destImg = getDestinationImage(dayItem.destination || selectedTour.destinations[0] || 'Sri Lanka');
+
+                    return (
+                      <div 
+                        key={dayItem.day}
+                        className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between"
+                      >
+                        {/* Day Photo & Header Badge */}
+                        <div className="relative h-44 overflow-hidden">
+                          <img
+                            src={destImg}
+                            alt={dayItem.destination}
+                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                            loading="lazy"
+                          />
+                          <div className="absolute top-3 left-3 bg-[#0B3D2E] text-white text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-sm">
+                            DAY {dayItem.day}
+                          </div>
+                          <div className="absolute bottom-3 left-3 right-3 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-xl text-white flex items-center gap-1.5 text-xs font-semibold">
+                            <MapPin className="w-3.5 h-3.5 text-[#39A982] shrink-0" />
+                            <span className="truncate">{dayItem.destination}</span>
+                          </div>
+                        </div>
+
+                        {/* Day Details */}
+                        <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
+                          <div className="space-y-1.5">
+                            <h5 className="font-serif text-base font-bold text-[#17231F] leading-snug">
+                              {dayItem.title}
+                            </h5>
+                            <p className="text-xs text-[#68736E] leading-relaxed line-clamp-3">
+                              {dayItem.description}
+                            </p>
+                          </div>
+
+                          {/* Day Highlights / Inclusions */}
+                          {dayItem.highlights && dayItem.highlights.length > 0 && (
+                            <div className="pt-2 border-t border-stone-100 space-y-1">
+                              <span className="text-[10px] uppercase font-bold text-[#176B52] block tracking-wider">
+                                Included Highlights
+                              </span>
+                              <div className="space-y-1">
+                                {dayItem.highlights.slice(0, 2).map((hl, hIdx) => (
+                                  <div key={hIdx} className="flex items-start gap-1.5 text-[11px] text-stone-600">
+                                    <CheckCircle2 className="w-3 h-3 text-[#39A982] shrink-0 mt-0.5" />
+                                    <span className="line-clamp-1">{hl}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* ============================================================ */}
+              {/* 4. VEHICLE SELECTION (ONLY SHOWN INSIDE OPENED TOUR) */}
+              {/* 🚗 CAR OR 🚐 VAN ONLY */}
+              {/* ============================================================ */}
+              <div className="space-y-4 pt-4 border-t border-stone-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-serif text-xl font-bold text-[#17231F] flex items-center gap-2">
+                      <Car className="w-5 h-5 text-[#176B52]" />
+                      Select Tour Vehicle (Car or Van)
+                    </h4>
+                    <p className="text-xs text-[#68736E]">
+                      Select exactly one vehicle type to see daily rate and instant total tour price.
+                    </p>
+                  </div>
+                  <span className="text-xs font-bold text-[#176B52] bg-white px-3 py-1 rounded-full border border-stone-200">
+                    2 Fleet Options
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   {TOUR_VEHICLE_OPTIONS.map((veh) => {
                     const isSelected = selectedTourVehicleId === veh.id;
                     const calculatedDailyTotalLKR = veh.dailyPriceLKR * customTourDays;
@@ -912,28 +1098,30 @@ export const AirportTransferPage: React.FC = () => {
                       <div
                         key={veh.id}
                         onClick={() => setSelectedTourVehicleId(veh.id)}
-                        className={`p-5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                        className={`p-5 sm:p-6 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
                           isSelected
-                            ? 'bg-white border-[#0B3D2E] shadow-md ring-2 ring-[#0B3D2E]/20'
+                            ? 'bg-white border-[#0B3D2E] shadow-xl ring-2 ring-[#0B3D2E]/20'
                             : 'bg-white/80 border-stone-200 hover:border-stone-400 hover:bg-white'
                         }`}
                       >
-                        <div className="space-y-3">
+                        <div className="space-y-4">
                           <div className="flex items-start justify-between gap-3">
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-3.5">
                               <img
                                 src={veh.image}
                                 alt={veh.name}
-                                className="w-16 h-12 rounded-xl object-cover border border-stone-200 shrink-0"
+                                className="w-20 h-14 rounded-xl object-cover border border-stone-200 shrink-0"
                               />
                               <div>
                                 <div className="flex items-center gap-2">
-                                  <h5 className="font-serif text-base font-bold text-[#17231F]">{veh.categoryTitle}</h5>
-                                  <span className="text-[10px] font-bold bg-[#DDEFE8] text-[#176B52] px-2 py-0.5 rounded-full">
+                                  <h5 className="font-serif text-lg font-bold text-[#17231F]">
+                                    {veh.id === 'car' ? '🚗' : '🚐'} {veh.categoryTitle}
+                                  </h5>
+                                  <span className="text-[10px] font-bold bg-[#DDEFE8] text-[#176B52] px-2.5 py-0.5 rounded-full">
                                     {veh.badge}
                                   </span>
                                 </div>
-                                <p className="text-xs text-[#68736E] line-clamp-1">{veh.name}</p>
+                                <p className="text-xs text-[#68736E]">{veh.name}</p>
                               </div>
                             </div>
 
@@ -942,16 +1130,16 @@ export const AirportTransferPage: React.FC = () => {
                               name="tourVehicleChoice"
                               checked={isSelected}
                               onChange={() => setSelectedTourVehicleId(veh.id)}
-                              className="text-[#0B3D2E] focus:ring-[#0B3D2E] w-4 h-4 mt-1"
+                              className="text-[#0B3D2E] focus:ring-[#0B3D2E] w-5 h-5 mt-1"
                             />
                           </div>
 
-                          <p className="text-xs text-stone-600">{veh.description}</p>
+                          <p className="text-xs text-stone-600 leading-relaxed">{veh.description}</p>
 
-                          <div className="pt-2 border-t border-stone-100 flex items-center justify-between">
+                          <div className="p-3.5 bg-[#F8F7F2] rounded-xl border border-stone-200 flex items-center justify-between">
                             <div>
                               <span className="text-[10px] uppercase font-bold text-[#68736E] block">Daily Rate</span>
-                              <span className="text-sm font-bold text-[#0B3D2E]">
+                              <span className="text-base font-bold text-[#0B3D2E]">
                                 Rs. {veh.dailyPriceLKR.toLocaleString()} / day
                               </span>
                               <span className="text-[11px] text-[#68736E] block">
@@ -963,7 +1151,7 @@ export const AirportTransferPage: React.FC = () => {
                               <span className="text-[10px] uppercase font-bold text-[#176B52] block">
                                 Total ({customTourDays} Days)
                               </span>
-                              <span className="font-serif text-lg font-bold text-[#0B3D2E]">
+                              <span className="font-serif text-xl font-bold text-[#0B3D2E]">
                                 Rs. {calculatedDailyTotalLKR.toLocaleString()}
                               </span>
                               <span className="text-xs font-semibold text-[#68736E] block">
@@ -973,15 +1161,15 @@ export const AirportTransferPage: React.FC = () => {
                           </div>
                         </div>
 
-                        <div className="mt-4 pt-3 border-t border-stone-100 flex items-center gap-3 text-[11px] text-[#68736E]">
-                          <span className="flex items-center gap-1">
+                        <div className="mt-4 pt-3 border-t border-stone-100 flex items-center gap-4 text-xs text-[#68736E]">
+                          <span className="flex items-center gap-1.5">
                             <Users className="w-3.5 h-3.5 text-[#176B52]" />
-                            Max {veh.capacityPassengers} Pax
+                            Max {veh.capacityPassengers} Passengers
                           </span>
                           <span>&bull;</span>
-                          <span className="flex items-center gap-1">
+                          <span className="flex items-center gap-1.5">
                             <Briefcase className="w-3.5 h-3.5 text-[#176B52]" />
-                            {veh.capacityLuggage} Luggage
+                            {veh.capacityLuggage} Large Suitcases
                           </span>
                         </div>
                       </div>
@@ -990,7 +1178,7 @@ export const AirportTransferPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Tour Booking Configuration (Dates and Passengers) */}
+              {/* Tour Date & Passenger Configuration */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
                 <div>
                   <label className="text-[10px] font-bold text-[#176B52] uppercase tracking-wider block mb-1">
@@ -1000,7 +1188,7 @@ export const AirportTransferPage: React.FC = () => {
                     type="date"
                     value={tourStartDate}
                     onChange={(e) => setTourStartDate(e.target.value)}
-                    className="w-full bg-white border border-stone-300 rounded-xl p-2.5 text-xs font-medium text-[#17231F] focus:ring-2 focus:ring-[#176B52]"
+                    className="w-full bg-white border border-stone-300 rounded-xl p-3 text-xs font-medium text-[#17231F] focus:ring-2 focus:ring-[#176B52]"
                   />
                 </div>
                 <div>
@@ -1013,7 +1201,7 @@ export const AirportTransferPage: React.FC = () => {
                     max="8"
                     value={tourAdults}
                     onChange={(e) => setTourAdults(Math.max(1, parseInt(e.target.value) || 1))}
-                    className="w-full bg-white border border-stone-300 rounded-xl p-2.5 text-xs font-medium text-[#17231F] focus:ring-2 focus:ring-[#176B52]"
+                    className="w-full bg-white border border-stone-300 rounded-xl p-3 text-xs font-medium text-[#17231F] focus:ring-2 focus:ring-[#176B52]"
                   />
                 </div>
                 <div>
@@ -1026,24 +1214,30 @@ export const AirportTransferPage: React.FC = () => {
                     max="6"
                     value={tourChildren}
                     onChange={(e) => setTourChildren(Math.max(0, parseInt(e.target.value) || 0))}
-                    className="w-full bg-white border border-stone-300 rounded-xl p-2.5 text-xs font-medium text-[#17231F] focus:ring-2 focus:ring-[#176B52]"
+                    className="w-full bg-white border border-stone-300 rounded-xl p-3 text-xs font-medium text-[#17231F] focus:ring-2 focus:ring-[#176B52]"
                   />
                 </div>
               </div>
 
-              {/* TOUR BOOKING SUMMARY & CHECKOUT BUTTON */}
-              <div className="bg-[#0B3D2E] text-white rounded-2xl p-6 shadow-lg space-y-4 border border-white/10">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/15 pb-4">
+              {/* ============================================================ */}
+              {/* 5. TOUR BOOKING SUMMARY & CHECKOUT BUTTON */}
+              {/* ============================================================ */}
+              <div className="bg-[#0B3D2E] text-white rounded-3xl p-6 sm:p-8 shadow-xl space-y-5 border border-white/10">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/15 pb-5">
                   <div>
-                    <span className="text-[10px] text-[#39A982] uppercase font-bold tracking-wider block">TOUR BOOKING SUMMARY</span>
-                    <h4 className="font-serif text-xl font-bold">{selectedTour.title}</h4>
+                    <span className="text-[10px] text-[#39A982] uppercase font-bold tracking-wider block">
+                      TOUR BOOKING SUMMARY
+                    </span>
+                    <h4 className="font-serif text-2xl font-bold">{selectedTour.title}</h4>
                   </div>
                   <div className="text-right">
                     {selectedTourVehicle ? (
                       <>
-                        <span className="text-[10px] text-[#39A982] uppercase font-bold tracking-wider block">TOTAL TOUR PRICE</span>
-                        <div className="flex items-baseline justify-end gap-1.5">
-                          <span className="font-serif text-2xl sm:text-3xl font-bold">
+                        <span className="text-[10px] text-[#39A982] uppercase font-bold tracking-wider block">
+                          TOTAL TOUR PRICE ({customTourDays} DAYS)
+                        </span>
+                        <div className="flex items-baseline justify-end gap-2">
+                          <span className="font-serif text-3xl sm:text-4xl font-bold">
                             Rs. {totalTourPriceLKR.toLocaleString()}
                           </span>
                           <span className="text-xs text-[#DDEFE8]">
@@ -1052,12 +1246,14 @@ export const AirportTransferPage: React.FC = () => {
                         </div>
                       </>
                     ) : (
-                      <span className="text-sm font-semibold text-stone-300">Please select Car or Van above</span>
+                      <span className="text-sm font-semibold text-stone-300">
+                        Please select 🚗 Car or 🚐 Van above to calculate price
+                      </span>
                     )}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-stone-200">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs text-stone-200">
                   <div>
                     <span className="text-stone-400 block text-[10px] uppercase font-semibold">Selected Tour</span>
                     <span className="font-bold text-white truncate block">{selectedTour.title}</span>
@@ -1068,7 +1264,9 @@ export const AirportTransferPage: React.FC = () => {
                   </div>
                   <div>
                     <span className="text-stone-400 block text-[10px] uppercase font-semibold">Selected Vehicle</span>
-                    <span className="font-bold text-white">{selectedTourVehicle ? selectedTourVehicle.categoryTitle : 'Not selected'}</span>
+                    <span className="font-bold text-white">
+                      {selectedTourVehicle ? selectedTourVehicle.categoryTitle : 'Not selected yet'}
+                    </span>
                   </div>
                   <div>
                     <span className="text-stone-400 block text-[10px] uppercase font-semibold">Vehicle Price / Day</span>
@@ -1082,14 +1280,14 @@ export const AirportTransferPage: React.FC = () => {
                   type="button"
                   onClick={handleBookTour}
                   disabled={!selectedTourVehicle}
-                  className={`w-full py-3.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 shadow-md ${
+                  className={`w-full py-4 rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-md ${
                     !selectedTourVehicle
                       ? 'bg-stone-600 text-stone-300 cursor-not-allowed opacity-80'
-                      : 'bg-[#39A982] hover:bg-[#176B52] text-white hover:shadow-lg'
+                      : 'bg-[#39A982] hover:bg-[#176B52] text-white hover:shadow-lg transform hover:-translate-y-0.5'
                   }`}
                 >
                   {!selectedTourVehicle ? (
-                    <span>Please Select a Vehicle (Car or Van) to Book</span>
+                    <span>Please Select a Vehicle (Car or Van) to Continue</span>
                   ) : (
                     <>
                       <span>Book {selectedTour.title} &bull; Rs. {totalTourPriceLKR.toLocaleString()} ({customTourDays} Days with {selectedTourVehicle.categoryTitle})</span>
@@ -1102,7 +1300,9 @@ export const AirportTransferPage: React.FC = () => {
             </div>
           )}
 
-          {/* Tour Cards Grid */}
+          {/* ============================================================ */}
+          {/* TOUR CARDS GRID: ONLY BASIC INFO SHOWN (NO VEHICLE PRICES) */}
+          {/* ============================================================ */}
           {filteredTours.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredTours.map((tour) => {
@@ -1111,32 +1311,43 @@ export const AirportTransferPage: React.FC = () => {
                 return (
                   <div 
                     key={tour.id} 
-                    className={`group bg-white rounded-3xl border overflow-hidden transition-all duration-300 flex flex-col justify-between ${
+                    className={`group bg-white rounded-3xl border overflow-hidden transition-all duration-300 flex flex-col justify-between transform hover:-translate-y-1 ${
                       isCurrentSelected 
-                        ? 'border-[#0B3D2E] shadow-xl ring-2 ring-[#0B3D2E]' 
-                        : 'border-stone-200/70 shadow-sm hover:shadow-lg'
+                        ? 'border-[#0B3D2E] shadow-2xl ring-2 ring-[#0B3D2E]' 
+                        : 'border-stone-200/70 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.05)] hover:shadow-[0_20px_40px_-10px_rgba(6,44,34,0.12)]'
                     }`}
                   >
                     {/* Image */}
-                    <div className="relative h-60 overflow-hidden">
+                    <div className="relative h-64 overflow-hidden">
                       <img
                         src={tour.heroImage}
                         alt={tour.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                         loading="lazy"
                       />
-                      <div className="absolute top-3.5 left-3.5 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full text-white text-xs font-semibold flex items-center gap-1.5">
+                      <div className="absolute top-3.5 left-3.5 bg-black/50 backdrop-blur-md px-3 py-1 rounded-full text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm">
                         <Clock className="w-3.5 h-3.5 text-[#39A982]" />
                         <span>{tour.durationDays} Days / {tour.durationNights} Nights</span>
                       </div>
-                      <div className="absolute top-3.5 right-3.5 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full text-[#0B3D2E] text-xs font-bold shadow-xs">
+                      <div className="absolute top-3.5 right-3.5 bg-white/95 backdrop-blur-md px-3 py-1 rounded-full text-[#0B3D2E] text-xs font-bold shadow-xs">
                         {tour.category}
                       </div>
                     </div>
 
                     {/* Content */}
-                    <div className="p-6 flex flex-col justify-between flex-1 space-y-4">
+                    <div className="p-6 sm:p-7 flex flex-col justify-between flex-1 space-y-4">
                       <div className="space-y-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-bold text-[#176B52] uppercase tracking-wider text-[10px]">
+                            {tour.destinations.length} Destinations Included
+                          </span>
+                          <div className="flex items-center gap-1 font-semibold text-[#17231F]">
+                            <Star className="w-3.5 h-3.5 fill-[#39A982] text-[#39A982]" />
+                            <span>{tour.rating.toFixed(1)}</span>
+                            <span className="text-[#68736E] font-normal">({tour.reviewCount})</span>
+                          </div>
+                        </div>
+
                         <h3 className="font-serif text-xl font-bold text-[#17231F] group-hover:text-[#176B52] transition-colors leading-snug">
                           {tour.title}
                         </h3>
@@ -1144,12 +1355,14 @@ export const AirportTransferPage: React.FC = () => {
                         <p className="text-xs text-[#68736E] line-clamp-2 leading-relaxed">{tour.overview}</p>
                       </div>
 
-                      {/* Main Destinations */}
+                      {/* Main Destinations List */}
                       <div className="space-y-1.5 pt-2 border-t border-stone-100">
-                        <span className="text-[10px] font-bold text-[#68736E] uppercase tracking-wider block">Destinations Covered</span>
+                        <span className="text-[10px] font-bold text-[#68736E] uppercase tracking-wider block">
+                          Destinations Covered
+                        </span>
                         <div className="flex items-center gap-1.5 flex-wrap">
                           {tour.destinations.slice(0, 4).map((dest, i) => (
-                            <span key={i} className="text-[11px] bg-[#F8F7F2] text-[#0B3D2E] px-2 py-0.5 rounded-md font-medium border border-stone-200">
+                            <span key={i} className="text-[11px] bg-[#F8F7F2] text-[#0B3D2E] px-2.5 py-0.5 rounded-md font-medium border border-stone-200">
                               {dest}
                             </span>
                           ))}
@@ -1161,14 +1374,15 @@ export const AirportTransferPage: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Pricing with Vehicle breakdown & Select Button */}
+                      {/* Card Action Button: View / Customize Tour (NO vehicle prices shown on card) */}
                       <div className="pt-4 border-t border-stone-100 flex items-center justify-between gap-3">
                         <div>
-                          <span className="text-[10px] text-[#68736E] block font-medium uppercase tracking-wider">Chauffeured Rates</span>
-                          <div className="text-xs font-bold text-[#0B3D2E]">
-                            <span>Car: Rs. 15,000/day</span>
-                            <span className="text-[#68736E] font-normal block">Van: Rs. 20,000/day</span>
-                          </div>
+                          <span className="text-[10px] text-[#68736E] block font-medium uppercase tracking-wider">
+                            Private Chauffeur Tour
+                          </span>
+                          <span className="text-xs font-bold text-[#0B3D2E]">
+                            {tour.durationDays} Days Itinerary
+                          </span>
                         </div>
 
                         <button
@@ -1183,11 +1397,11 @@ export const AirportTransferPage: React.FC = () => {
                           {isCurrentSelected ? (
                             <>
                               <CheckCircle2 className="w-3.5 h-3.5 text-[#DDEFE8]" />
-                              <span>Configuring</span>
+                              <span>Customizing</span>
                             </>
                           ) : (
                             <>
-                              <span>Select Tour</span>
+                              <span>View / Customize Tour</span>
                               <ArrowRight className="w-3.5 h-3.5 text-[#DDEFE8]" />
                             </>
                           )}
