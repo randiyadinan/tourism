@@ -1,11 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { 
   Calendar, 
-   
   ShieldCheck, 
-  Sparkles, 
-  Check, 
   Plane, 
   ArrowRight,
   CreditCard,
@@ -39,8 +35,6 @@ export const StickyBookingPanel: React.FC<StickyBookingPanelProps> = ({ tour, on
     percent: 10
   });
   const [promoError, setPromoError] = useState<string>('');
-
-  const navigate = useNavigate();
 
   // Price calculations
   const adultBaseTotal = adults * tour.pricePerPerson;
@@ -89,18 +83,18 @@ export const StickyBookingPanel: React.FC<StickyBookingPanelProps> = ({ tour, on
   };
 
   return (
-    <div className="bg-white rounded-3xl border border-stone-200 p-6 sm:p-7 shadow-xl space-y-6 sticky top-24">
+    <div className="bg-white rounded-xl border border-stone-200/90 p-5 sm:p-6 shadow-md space-y-5">
       
       {/* Price Header */}
-      <div className="flex items-baseline justify-between border-b border-stone-100 pb-5">
+      <div className="flex items-baseline justify-between border-b border-stone-100 pb-4">
         <div>
-          <span className="text-xs text-stone-400 font-semibold block uppercase tracking-wider">Price from</span>
-          <div className="flex items-baseline gap-2">
-            <span className="font-serif text-3xl font-bold text-[#082F24]">
+          <span className="text-[11px] text-stone-400 font-semibold block uppercase tracking-wider">Price from</span>
+          <div className="flex items-baseline gap-1.5">
+            <span className="font-serif text-2xl sm:text-3xl font-bold text-[#12372A]">
               ${tour.pricePerPerson.toLocaleString()}
             </span>
             {tour.originalPrice && (
-              <span className="text-sm text-stone-400 line-through">
+              <span className="text-xs text-stone-400 line-through">
                 ${tour.originalPrice.toLocaleString()}
               </span>
             )}
@@ -109,172 +103,167 @@ export const StickyBookingPanel: React.FC<StickyBookingPanelProps> = ({ tour, on
         </div>
 
         <div className="text-right">
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-[#134E3F]/15 text-[#0D3B2E]">
-            <Clock className="w-3.5 h-3.5 text-[#C5A059]" />
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-[#1F6F54]/10 text-[#1F6F54]">
+            <Clock className="w-3.5 h-3.5" />
             {tour.durationDays} Days
           </span>
         </div>
       </div>
 
       {/* Date & Travelers Inputs */}
-      <div className="space-y-4">
+      <div className="space-y-3.5">
         
         {/* Start Date */}
         <div className="space-y-1">
-          <label className="text-xs font-bold text-[#082F24] uppercase tracking-wider flex items-center gap-1.5">
-            <Calendar className="w-3.5 h-3.5 text-[#C5A059]" />
-            Select Tour Start Date
+          <label className="text-xs font-semibold text-[#1F2933] flex items-center gap-1.5">
+            <Calendar className="w-3.5 h-3.5 text-[#1F6F54]" />
+            Tour Start Date
           </label>
           <input
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-[#082F24] focus:outline-none focus:ring-2 focus:ring-[#C5A059]"
+            className="w-full bg-[#FAF8F2] border border-stone-300 rounded-lg px-3 py-2 text-xs sm:text-sm font-medium text-[#1F2933] focus:outline-none focus:ring-2 focus:ring-[#1F6F54]"
           />
         </div>
 
         {/* Travelers Pickers */}
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1">
-            <label className="text-xs font-bold text-[#082F24] uppercase tracking-wider">
+            <label className="text-xs font-semibold text-[#1F2933]">
               Adults (12+ yrs)
             </label>
             <select
               value={adults}
               onChange={(e) => setAdults(Number(e.target.value))}
-              className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-sm font-semibold text-[#082F24] focus:outline-none focus:ring-2 focus:ring-[#C5A059]"
+              className="w-full bg-[#FAF8F2] border border-stone-300 rounded-lg px-3 py-2 text-xs sm:text-sm font-medium text-[#1F2933] focus:outline-none focus:ring-2 focus:ring-[#1F6F54]"
             >
-              {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
-                <option key={n} value={n}>{n} Adult{n > 1 ? 's' : ''}</option>
+              {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
+                <option key={num} value={num}>{num} Adult{num > 1 ? 's' : ''}</option>
               ))}
             </select>
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-bold text-[#082F24] uppercase tracking-wider">
+            <label className="text-xs font-semibold text-[#1F2933]">
               Children (2-11 yrs)
             </label>
             <select
               value={children}
               onChange={(e) => setChildren(Number(e.target.value))}
-              className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-sm font-semibold text-[#082F24] focus:outline-none focus:ring-2 focus:ring-[#C5A059]"
+              className="w-full bg-[#FAF8F2] border border-stone-300 rounded-lg px-3 py-2 text-xs sm:text-sm font-medium text-[#1F2933] focus:outline-none focus:ring-2 focus:ring-[#1F6F54]"
             >
-              {[0, 1, 2, 3, 4].map(n => (
-                <option key={n} value={n}>{n} Child{n !== 1 ? 'ren' : ''}</option>
+              {[0, 1, 2, 3, 4].map(num => (
+                <option key={num} value={num}>{num} {num === 1 ? 'Child' : 'Children'}</option>
               ))}
             </select>
           </div>
         </div>
 
-        {/* Airport Transfer Add-on */}
-        <div className="bg-[#FAF8F5] p-3.5 rounded-2xl border border-stone-200/80 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#0D3B2E]/10 flex items-center justify-center text-[#0D3B2E]">
-              <Plane className="w-4 h-4" />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-[#082F24]">VIP Airport Pickup (CMB)</p>
-              <p className="text-[11px] text-stone-500">Chauffeur Meet & Greet + $40</p>
-            </div>
-          </div>
+        {/* Airport Transfer Toggle */}
+        <label className="flex items-start gap-2.5 p-3 rounded-lg border border-stone-200 bg-[#FAF8F2] cursor-pointer hover:border-[#1F6F54] transition-colors">
           <input
             type="checkbox"
             checked={airportPickup}
             onChange={(e) => setAirportPickup(e.target.checked)}
-            className="w-5 h-5 rounded border-stone-300 text-[#0D3B2E] focus:ring-[#C5A059] accent-[#0D3B2E]"
+            className="rounded text-[#1F6F54] focus:ring-[#1F6F54] mt-0.5"
           />
-        </div>
+          <div className="text-xs">
+            <span className="font-semibold text-[#1F2933] flex items-center gap-1">
+              <Plane className="w-3.5 h-3.5 text-[#1F6F54]" />
+              VIP Airport Pickup (+$40)
+            </span>
+            <span className="text-stone-500 block text-[11px] mt-0.5">CMB Meet & Greet with dedicated chauffeur</span>
+          </div>
+        </label>
 
       </div>
 
-      {/* Promo Code Box */}
-      <div className="space-y-2 pt-2 border-t border-stone-100">
-        <form onSubmit={handleApplyPromo} className="flex gap-2">
+      {/* Promo Code Form */}
+      <form onSubmit={handleApplyPromo} className="space-y-1.5 pt-1">
+        <div className="flex gap-2">
           <input
             type="text"
             value={promoCodeInput}
             onChange={(e) => setPromoCodeInput(e.target.value)}
             placeholder="Promo code (e.g. CEYLON10)"
-            className="flex-1 bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2 text-xs font-medium text-[#082F24] uppercase placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#C5A059]"
+            className="flex-1 bg-[#FAF8F2] border border-stone-300 rounded-lg px-3 py-1.5 text-xs font-medium text-[#1F2933] uppercase placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#1F6F54]"
           />
           <button
             type="submit"
-            className="px-3 py-2 bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-xs rounded-xl transition-colors"
+            className="px-3.5 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold transition-colors"
           >
             Apply
           </button>
-        </form>
-        {appliedDiscount && (
-          <div className="flex items-center justify-between text-xs text-emerald-700 font-semibold bg-emerald-50 px-3 py-1.5 rounded-lg">
-            <span className="flex items-center gap-1">
-              <Percent className="w-3.5 h-3.5" />
-              Code {appliedDiscount.code} applied!
-            </span>
-            <span>-${discountAmount}</span>
-          </div>
-        )}
-        {promoError && <p className="text-xs text-rose-600 font-medium">{promoError}</p>}
-      </div>
-
-      {/* Itemized Price Breakdown */}
-      <div className="space-y-2 text-xs text-stone-600 border-t border-stone-100 pt-3">
-        <div className="flex items-center justify-between">
-          <span>{adults} Adult{adults > 1 ? 's' : ''} Base Tour</span>
-          <span className="font-semibold text-[#082F24]">${adultBaseTotal.toLocaleString()}</span>
         </div>
+
+        {appliedDiscount && (
+          <div className="flex items-center justify-between text-xs text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-md">
+            <span className="flex items-center gap-1 font-medium">
+              <Percent className="w-3 h-3" />
+              Promo "{appliedDiscount.code}" applied!
+            </span>
+            <span className="font-semibold">-${discountAmount}</span>
+          </div>
+        )}
+
+        {promoError && (
+          <span className="text-[11px] text-rose-600 block">{promoError}</span>
+        )}
+      </form>
+
+      {/* Pricing Calculation Summary */}
+      <div className="bg-[#FAF8F2] rounded-lg p-3.5 space-y-2 text-xs border border-stone-200/70">
+        <div className="flex justify-between text-stone-600">
+          <span>{adults} Adult{adults > 1 ? 's' : ''} (${tour.pricePerPerson} ea)</span>
+          <span className="font-semibold">${adultBaseTotal.toLocaleString()}</span>
+        </div>
+
         {children > 0 && (
-          <div className="flex items-center justify-between">
-            <span>{children} Child{children > 1 ? 'ren' : ''} (35% Off)</span>
-            <span className="font-semibold text-[#082F24]">${childBaseTotal.toLocaleString()}</span>
+          <div className="flex justify-between text-stone-600">
+            <span>{children} Child{children > 1 ? 'ren' : ''} (35% off)</span>
+            <span className="font-semibold">${childBaseTotal.toLocaleString()}</span>
           </div>
         )}
+
         {airportPickup && (
-          <div className="flex items-center justify-between">
-            <span>VIP Colombo Airport Pickup</span>
-            <span className="font-semibold text-[#082F24]">$40</span>
+          <div className="flex justify-between text-stone-600">
+            <span>VIP Airport Transfer</span>
+            <span className="font-semibold">+$40</span>
           </div>
         )}
+
         {discountAmount > 0 && (
-          <div className="flex items-center justify-between text-emerald-700 font-semibold">
-            <span>Promotional Savings</span>
+          <div className="flex justify-between text-emerald-800 font-semibold">
+            <span>Discount Savings</span>
             <span>-${discountAmount.toLocaleString()}</span>
           </div>
         )}
-        <div className="flex items-center justify-between text-base font-bold text-[#082F24] pt-2 border-t border-stone-200">
-          <span>Total Investment</span>
-          <span className="font-serif text-2xl text-[#0D3B2E]">${finalTotal.toLocaleString()}</span>
+
+        <div className="flex justify-between text-sm font-bold text-[#12372A] pt-2 border-t border-stone-200">
+          <span>Total (USD)</span>
+          <span className="font-serif text-lg">${finalTotal.toLocaleString()}</span>
         </div>
       </div>
 
-      {/* Main Booking Action Buttons */}
-      <div className="space-y-2.5">
-        <button
-          onClick={handleProceedBooking}
-          className="w-full flex items-center justify-center gap-2 py-4 px-6 rounded-2xl bg-gradient-to-r from-[#C5A059] via-[#DFB76C] to-[#C5A059] text-[#082F24] font-bold text-base shadow-xl hover:shadow-2xl hover:shadow-[#C5A059]/30 transition-all transform hover:-translate-y-0.5"
-        >
-          <CreditCard className="w-5 h-5" />
-          <span>Book Now • Instant Voucher</span>
-          <ArrowRight className="w-4 h-4" />
-        </button>
+      {/* Book Now Button */}
+      <button
+        onClick={handleProceedBooking}
+        className="w-full py-3 px-4 rounded-lg bg-[#12372A] hover:bg-[#1F6F54] text-white font-semibold text-sm transition-all shadow-xs flex items-center justify-center gap-2"
+      >
+        <span>Proceed to Secure Checkout</span>
+        <ArrowRight className="w-4 h-4" />
+      </button>
 
-        <button
-          onClick={() => navigate(`/customize?tourId=${tour.id}`)}
-          className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#0D3B2E]/10 hover:bg-[#0D3B2E]/15 text-[#0D3B2E] font-bold text-xs transition-colors"
-        >
-          <Sparkles className="w-4 h-4 text-[#C5A059]" />
-          <span>Customize Hotels, Route & Activities</span>
-        </button>
-      </div>
-
-      {/* Trust Badges */}
-      <div className="pt-2 border-t border-stone-100 space-y-2 text-[11px] text-stone-500">
-        <div className="flex items-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-[#0D3B2E] shrink-0" />
-          <span>100% Financial Protection & Refund Guarantee</span>
+      {/* Guarantee Notice */}
+      <div className="space-y-1.5 text-[11px] text-stone-500 pt-1">
+        <div className="flex items-center gap-1.5">
+          <ShieldCheck className="w-3.5 h-3.5 text-[#1F6F54]" />
+          <span>100% Secure 256-bit SSL encrypted booking</span>
         </div>
-        <div className="flex items-center gap-2">
-          <Check className="w-4 h-4 text-[#0D3B2E] shrink-0" />
-          <span>Dedicated 24/7 Island Chauffeur & Support</span>
+        <div className="flex items-center gap-1.5">
+          <CreditCard className="w-3.5 h-3.5 text-[#1F6F54]" />
+          <span>PayHere verified Sri Lankan gateway checkout</span>
         </div>
       </div>
 

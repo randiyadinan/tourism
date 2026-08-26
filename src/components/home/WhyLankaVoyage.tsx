@@ -2,12 +2,10 @@ import React from 'react';
 import { 
   ShieldCheck, 
   Sparkles, 
-   
   MapPin, 
   Award, 
   Headphones, 
-  Car, 
-  CheckCircle2 
+  Car 
 } from 'lucide-react';
 
 export const WhyLankaVoyage: React.FC = () => {
@@ -15,81 +13,70 @@ export const WhyLankaVoyage: React.FC = () => {
     {
       icon: Sparkles,
       title: '100% Tailor-Made & Flexible',
-      description: 'Every itinerary is custom designed from scratch around your travel style, pace, and passions with unlimited revisions.'
+      description: 'Every itinerary is crafted around your travel dates, preferred pace, and interests with unlimited adjustments.'
     },
     {
       icon: Award,
-      title: 'Elite Certified Chauffeur-Guides',
-      description: 'Travel with Sri Lanka Tourist Board certified English-speaking chauffeur-guides with 10+ years of unblemished hospitality.'
+      title: 'Certified Chauffeur-Guides',
+      description: 'Travel safely with experienced English-speaking chauffeur-guides certified by the Sri Lanka Tourism Board.'
     },
     {
       icon: Car,
-      title: 'Luxury Private Fleet',
-      description: 'Immaculate air-conditioned Mercedes sedans, high-roof Toyota vans, and 4x4 safari cruisers with Wi-Fi and chilled refreshments.'
+      title: 'Modern Private Fleet',
+      description: 'Clean, air-conditioned sedans, spacious vans, and customized 4x4 safari cruisers with bottled water and Wi-Fi.'
     },
     {
       icon: Headphones,
       title: '24/7 Island Concierge',
-      description: 'Dedicated trip coordinator on WhatsApp and phone from the moment your plane touches down to wheels-up departure.'
+      description: 'Dedicated trip support on WhatsApp and phone from airport arrival to your departure flight.'
     },
     {
       icon: ShieldCheck,
-      title: 'Government Certified & Insured',
-      description: 'Fully licensed Sri Lanka Tourist Development Authority (SLTDA) agency with comprehensive passenger insurance.'
+      title: 'Licensed & Fully Insured',
+      description: 'Registered agency with full passenger vehicle insurance and direct access to local support.'
     },
     {
       icon: MapPin,
-      title: 'Handpicked Luxury Hotels',
-      description: 'Exclusive partner rates at Relais & Châteaux clifftop villas, colonial tea bungalows, and 5-star oceanfront sanctuaries.'
+      title: 'Handpicked Accommodations',
+      description: 'Carefully vetted boutique hotels, colonial tea bungalows, safari camps, and beachfront resorts.'
     }
   ];
 
   return (
-    <section className="py-20 bg-[#FAF8F5] relative overflow-hidden">
+    <section className="py-16 sm:py-20 bg-white border-y border-stone-200/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#0D3B2E]/10 text-[#0D3B2E] text-xs font-bold uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
-            The LankaVoyage Difference
-          </div>
-          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#082F24]">
+        <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16 space-y-3">
+          <span className="text-xs font-semibold text-[#1F6F54] uppercase tracking-wider">
+            Why Travel With Us
+          </span>
+          <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#12372A]">
             Why Discerning Travelers Choose LankaVoyage
           </h2>
-          <p className="text-base text-stone-600 leading-relaxed">
-            We don’t believe in cookie-cutter tours. We blend authentic island heritage with international luxury standards for effortless journeys.
+          <p className="text-sm sm:text-base text-stone-600 leading-relaxed">
+            We blend genuine Sri Lankan hospitality with international travel standards to deliver seamless, memorable journeys.
           </p>
         </div>
 
-        {/* Feature Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, idx) => {
-            const Icon = feature.icon;
-            return (
-              <div 
-                key={idx}
-                className="bg-white rounded-2xl p-8 border border-stone-200 shadow-sm hover:shadow-xl transition-all duration-300 luxury-card group flex flex-col justify-between"
-              >
-                <div className="space-y-4">
-                  <div className="w-14 h-14 rounded-2xl bg-[#0D3B2E]/5 border border-[#C5A059]/30 flex items-center justify-center group-hover:bg-[#0D3B2E] transition-colors duration-300">
-                    <Icon className="w-7 h-7 text-[#0D3B2E] group-hover:text-[#E5C378] transition-colors duration-300" />
-                  </div>
-                  <h3 className="font-serif text-xl font-bold text-[#082F24]">
-                    {feature.title}
-                  </h3>
-                  <p className="text-sm text-stone-600 leading-relaxed">
-                    {feature.description}
-                  </p>
-                </div>
-
-                <div className="pt-6 border-t border-stone-100 flex items-center gap-1 text-xs text-[#C5A059] font-bold">
-                  <CheckCircle2 className="w-4 h-4 text-[#C5A059]" />
-                  <span>Guaranteed Standards</span>
-                </div>
+        {/* 6 Feature Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          {features.map((f, i) => (
+            <div 
+              key={i} 
+              className="bg-[#FAF8F2] rounded-xl border border-stone-200/80 p-6 space-y-3.5 transition-all hover:shadow-xs hover:border-[#1F6F54]/40"
+            >
+              <div className="w-10 h-10 rounded-lg bg-[#12372A] text-[#C8A45D] flex items-center justify-center shadow-xs">
+                <f.icon className="w-5 h-5" />
               </div>
-            );
-          })}
+              <h3 className="font-serif text-lg font-bold text-[#12372A]">
+                {f.title}
+              </h3>
+              <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+                {f.description}
+              </p>
+            </div>
+          ))}
         </div>
 
       </div>

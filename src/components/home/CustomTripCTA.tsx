@@ -1,130 +1,87 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, ArrowRight,  Check, Plane, MapPin, Hotel, Car } from 'lucide-react';
+import { Sparkles, ArrowRight, Check, MapPin, Hotel, Car } from 'lucide-react';
 
 export const CustomTripCTA: React.FC = () => {
   return (
-    <section className="py-20 relative overflow-hidden bg-[#082F24] text-white">
-      {/* Background Graphic Pattern */}
-      <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#C5A059_1px,transparent_1px)] [background-size:24px_24px]" />
-
+    <section className="py-16 sm:py-20 relative overflow-hidden bg-[#12372A] text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           
           {/* Left Column: Copy & CTAs */}
-          <div className="lg:col-span-7 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#C5A059]/20 border border-[#C5A059]/40 text-[#E5C378] text-xs font-bold uppercase tracking-wider">
-              <Sparkles className="w-4 h-4" />
-              Tailor-Made Wizard
+          <div className="lg:col-span-7 space-y-5">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-[#C8A45D] text-xs font-semibold uppercase tracking-wider">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Custom Itinerary Builder</span>
             </div>
 
-            <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight">
-              Can’t Find Your Exact Route? <br />
-              <span className="gold-gradient-text italic font-normal">Build Your Dream Trip in Minutes</span>
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold leading-tight">
+              Looking for a Unique Route? <br />
+              <span className="text-[#C8A45D] italic font-normal">Design Your Dream Trip</span>
             </h2>
 
-            <p className="text-base text-stone-200 leading-relaxed max-w-xl">
-              Use our interactive custom trip calculator. Select your dates, handpick destinations from Sigiriya to Mirissa, add wildlife safaris and train tickets, choose vehicle and hotel tiers, and watch the dynamic price update live.
+            <p className="text-sm sm:text-base text-stone-200 leading-relaxed max-w-xl">
+              Choose your travel dates, select favorite destinations, add safaris or scenic train tickets, choose vehicle styles, and receive an instant price estimation.
             </p>
 
             {/* Feature Checklist */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-sm text-stone-200">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 text-xs sm:text-sm text-stone-200">
               <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-full bg-[#C5A059]/30 flex items-center justify-center text-[#E5C378]">
-                  <Check className="w-3.5 h-3.5" />
-                </div>
-                <span>100% Real-Time Transparent Pricing</span>
+                <Check className="w-4 h-4 text-[#C8A45D] shrink-0" />
+                <span>Transparent instant pricing</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-full bg-[#C5A059]/30 flex items-center justify-center text-[#E5C378]">
-                  <Check className="w-3.5 h-3.5" />
-                </div>
-                <span>VIP Airport Pickup Guaranteed</span>
+                <Check className="w-4 h-4 text-[#C8A45D] shrink-0" />
+                <span>VIP Airport Pickup included</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-full bg-[#C5A059]/30 flex items-center justify-center text-[#E5C378]">
-                  <Check className="w-3.5 h-3.5" />
-                </div>
-                <span>Private Chauffeur & Vehicle</span>
+                <Check className="w-4 h-4 text-[#C8A45D] shrink-0" />
+                <span>Dedicated chauffeur-guide</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-full bg-[#C5A059]/30 flex items-center justify-center text-[#E5C378]">
-                  <Check className="w-3.5 h-3.5" />
-                </div>
-                <span>Zero Commitment to Request Quote</span>
+                <Check className="w-4 h-4 text-[#C8A45D] shrink-0" />
+                <span>Flexible free consultation</span>
               </div>
             </div>
 
-            <div className="pt-4 flex flex-wrap items-center gap-4">
+            <div className="pt-3">
               <Link
                 to="/customize"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#C5A059] via-[#DFB76C] to-[#C5A059] text-[#082F24] text-base font-bold rounded-xl shadow-xl hover:shadow-2xl hover:shadow-[#C5A059]/30 transition-all transform hover:-translate-y-0.5"
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-lg bg-[#C8A45D] hover:bg-[#dfb96f] text-[#12372A] font-semibold text-sm transition-all shadow-xs"
               >
-                <Sparkles className="w-5 h-5" />
-                Start 10-Step Trip Builder
+                <span>Launch Custom Trip Builder</span>
                 <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link
-                to="/contact"
-                className="inline-flex items-center gap-2 px-6 py-4 bg-white/10 hover:bg-white/15 text-white text-sm font-semibold rounded-xl border border-white/20 transition-colors"
-              >
-                Speak with a Specialist
               </Link>
             </div>
           </div>
 
-          {/* Right Column: Visual Interactive Preview Card */}
+          {/* Right Column: Visual Trip Preview Card */}
           <div className="lg:col-span-5">
-            <div className="bg-[#0D3B2E] p-6 sm:p-8 rounded-3xl border border-[#C5A059]/30 shadow-2xl space-y-6 relative">
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/15 space-y-4 shadow-xl">
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
                 <div>
-                  <p className="text-xs text-[#E5C378] font-bold uppercase tracking-wider">Live Quotation Preview</p>
-                  <h4 className="font-serif text-lg font-bold text-white">Custom Ceylon Itinerary</h4>
+                  <span className="text-[11px] text-stone-300 uppercase tracking-wider block">Trip Preview</span>
+                  <span className="font-serif text-lg font-bold text-white">Ceylon Explorer</span>
                 </div>
-                <span className="px-3 py-1 bg-[#C5A059]/20 text-[#E5C378] text-xs font-bold rounded-full border border-[#C5A059]/40">
-                  Instant Estimate
+                <span className="px-2.5 py-1 rounded-md text-xs font-semibold bg-[#1F6F54] text-white">
+                  7 Days
                 </span>
               </div>
 
-              {/* Sample Live Line Items */}
-              <div className="space-y-3 text-xs text-stone-200">
-                <div className="flex items-center justify-between py-1.5 border-b border-white/5">
-                  <span className="flex items-center gap-2"><MapPin className="w-3.5 h-3.5 text-[#C5A059]" /> 8 Days / 4 Destinations</span>
-                  <span className="font-semibold text-white">$640</span>
+              <div className="space-y-2 text-xs text-stone-200">
+                <div className="flex items-center gap-2.5 bg-black/20 p-2.5 rounded-lg">
+                  <MapPin className="w-4 h-4 text-[#C8A45D] shrink-0" />
+                  <span>Sigiriya &bull; Kandy &bull; Ella &bull; Yala Safari</span>
                 </div>
-                <div className="flex items-center justify-between py-1.5 border-b border-white/5">
-                  <span className="flex items-center gap-2"><Plane className="w-3.5 h-3.5 text-[#C5A059]" /> Airport VIP Transfer</span>
-                  <span className="font-semibold text-white">$40</span>
+                <div className="flex items-center gap-2.5 bg-black/20 p-2.5 rounded-lg">
+                  <Car className="w-4 h-4 text-[#C8A45D] shrink-0" />
+                  <span>Private Air-Conditioned Sedan + Chauffeur</span>
                 </div>
-                <div className="flex items-center justify-between py-1.5 border-b border-white/5">
-                  <span className="flex items-center gap-2"><Hotel className="w-3.5 h-3.5 text-[#C5A059]" /> 5-Star Luxury Resorts</span>
-                  <span className="font-semibold text-white">$320</span>
-                </div>
-                <div className="flex items-center justify-between py-1.5 border-b border-white/5">
-                  <span className="flex items-center gap-2"><Car className="w-3.5 h-3.5 text-[#C5A059]" /> Private AC Van</span>
-                  <span className="font-semibold text-white">$120</span>
-                </div>
-                <div className="flex items-center justify-between py-1.5 border-b border-white/5">
-                  <span className="flex items-center gap-2"><Sparkles className="w-3.5 h-3.5 text-[#C5A059]" /> Yala Safari + Blue Train</span>
-                  <span className="font-semibold text-white">$110</span>
+                <div className="flex items-center gap-2.5 bg-black/20 p-2.5 rounded-lg">
+                  <Hotel className="w-4 h-4 text-[#C8A45D] shrink-0" />
+                  <span>Boutique Eco-Lodges & 5-Star Stays</span>
                 </div>
               </div>
-
-              {/* Total Box */}
-              <div className="bg-[#082F24] p-4 rounded-xl border border-[#C5A059]/30 flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] uppercase text-[#E5C378] font-bold block">Estimated Total</span>
-                  <span className="text-xs text-stone-400">For 2 Travelers</span>
-                </div>
-                <span className="font-serif text-2xl font-bold text-white">$1,230</span>
-              </div>
-
-              <Link
-                to="/customize"
-                className="w-full block text-center py-3 bg-[#C5A059] hover:bg-[#E5C378] text-[#082F24] font-bold rounded-xl text-sm transition-all shadow-md"
-              >
-                Customize This Itinerary &rarr;
-              </Link>
             </div>
           </div>
 

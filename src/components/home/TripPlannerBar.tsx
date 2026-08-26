@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Calendar, Users, DollarSign, Search, Sparkles } from 'lucide-react';
+import { MapPin, Calendar, Users, DollarSign, Search } from 'lucide-react';
 import { INITIAL_DESTINATIONS } from '../../data/destinations';
 
 export const TripPlannerBar: React.FC = () => {
@@ -29,45 +29,37 @@ export const TripPlannerBar: React.FC = () => {
   };
 
   return (
-    <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-[#C5A059]/30 p-4 sm:p-6 text-stone-800">
-      <div className="flex items-center justify-between pb-3 mb-4 border-b border-stone-200/80">
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-[#C5A059]" />
-          <span className="font-serif font-bold text-sm sm:text-base text-[#082F24]">Quick Trip Planner</span>
-        </div>
-        <span className="text-xs text-stone-500 hidden sm:inline">Find your perfect bespoke Sri Lankan itinerary</span>
-      </div>
-
-      <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-center">
+    <div className="bg-white rounded-xl shadow-lg border border-stone-200/80 p-4 sm:p-5 text-stone-800">
+      <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 items-end">
         
         {/* Destination Dropdown */}
         <div className="space-y-1">
-          <label className="text-[11px] font-bold text-stone-500 uppercase tracking-wider flex items-center gap-1">
-            <MapPin className="w-3.5 h-3.5 text-[#C5A059]" />
+          <label className="text-xs font-semibold text-stone-600 flex items-center gap-1.5">
+            <MapPin className="w-3.5 h-3.5 text-[#1F6F54]" />
             Destination
           </label>
           <select
             value={destination}
             onChange={(e) => setDestination(e.target.value)}
-            className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2.5 text-sm font-semibold text-[#082F24] focus:outline-none focus:ring-2 focus:ring-[#C5A059] transition-all"
+            className="w-full bg-[#FAF8F2] border border-stone-300 rounded-lg px-3 py-2.5 text-xs sm:text-sm font-medium text-[#1F2933] focus:outline-none focus:ring-2 focus:ring-[#1F6F54] transition-colors"
           >
             <option value="All">All Sri Lanka (Islandwide)</option>
             {INITIAL_DESTINATIONS.map(d => (
-              <option key={d.id} value={d.name}>{d.name} ({d.province})</option>
+              <option key={d.id} value={d.name}>{d.name}</option>
             ))}
           </select>
         </div>
 
         {/* Duration */}
         <div className="space-y-1">
-          <label className="text-[11px] font-bold text-stone-500 uppercase tracking-wider flex items-center gap-1">
-            <Calendar className="w-3.5 h-3.5 text-[#C5A059]" />
+          <label className="text-xs font-semibold text-stone-600 flex items-center gap-1.5">
+            <Calendar className="w-3.5 h-3.5 text-[#1F6F54]" />
             Duration
           </label>
           <select
             value={duration}
             onChange={(e) => setDuration(e.target.value)}
-            className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2.5 text-sm font-semibold text-[#082F24] focus:outline-none focus:ring-2 focus:ring-[#C5A059] transition-all"
+            className="w-full bg-[#FAF8F2] border border-stone-300 rounded-lg px-3 py-2.5 text-xs sm:text-sm font-medium text-[#1F2933] focus:outline-none focus:ring-2 focus:ring-[#1F6F54] transition-colors"
           >
             <option value="any">Any Duration</option>
             <option value="short">Short Getaway (1 - 5 Days)</option>
@@ -78,47 +70,47 @@ export const TripPlannerBar: React.FC = () => {
 
         {/* Number of Travelers */}
         <div className="space-y-1">
-          <label className="text-[11px] font-bold text-stone-500 uppercase tracking-wider flex items-center gap-1">
-            <Users className="w-3.5 h-3.5 text-[#C5A059]" />
+          <label className="text-xs font-semibold text-stone-600 flex items-center gap-1.5">
+            <Users className="w-3.5 h-3.5 text-[#1F6F54]" />
             Travelers
           </label>
           <select
             value={travelers}
             onChange={(e) => setTravelers(Number(e.target.value))}
-            className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2.5 text-sm font-semibold text-[#082F24] focus:outline-none focus:ring-2 focus:ring-[#C5A059] transition-all"
+            className="w-full bg-[#FAF8F2] border border-stone-300 rounded-lg px-3 py-2.5 text-xs sm:text-sm font-medium text-[#1F2933] focus:outline-none focus:ring-2 focus:ring-[#1F6F54] transition-colors"
           >
             <option value={1}>1 Solo Traveler</option>
             <option value={2}>2 Adults (Couple)</option>
             <option value={4}>3 - 4 Travelers (Family)</option>
-            <option value={8}>5 - 8+ Travelers (Group)</option>
+            <option value={8}>5+ Travelers (Group)</option>
           </select>
         </div>
 
         {/* Budget */}
         <div className="space-y-1">
-          <label className="text-[11px] font-bold text-stone-500 uppercase tracking-wider flex items-center gap-1">
-            <DollarSign className="w-3.5 h-3.5 text-[#C5A059]" />
-            Budget Per Person
+          <label className="text-xs font-semibold text-stone-600 flex items-center gap-1.5">
+            <DollarSign className="w-3.5 h-3.5 text-[#1F6F54]" />
+            Budget Tier
           </label>
           <select
             value={budget}
             onChange={(e) => setBudget(e.target.value)}
-            className="w-full bg-[#FAF8F5] border border-stone-300 rounded-xl px-3 py-2.5 text-sm font-semibold text-[#082F24] focus:outline-none focus:ring-2 focus:ring-[#C5A059] transition-all"
+            className="w-full bg-[#FAF8F2] border border-stone-300 rounded-lg px-3 py-2.5 text-xs sm:text-sm font-medium text-[#1F2933] focus:outline-none focus:ring-2 focus:ring-[#1F6F54] transition-colors"
           >
-            <option value="any">Any Budget</option>
-            <option value="budget">Comfort ($300 - $600)</option>
-            <option value="mid">Premium ($600 - $1,200)</option>
-            <option value="luxury">Ultra Luxury ($1,200+)</option>
+            <option value="any">All Price Tiers</option>
+            <option value="luxury">Luxury & Villas ($1,200+)</option>
+            <option value="mid">Mid-Range Premium ($600 - $1,200)</option>
+            <option value="budget">Comfort & Discovery (&lt; $600)</option>
           </select>
         </div>
 
-        {/* Search CTA */}
-        <div className="space-y-1 sm:col-span-2 lg:col-span-1 pt-1 sm:pt-4 lg:pt-5">
+        {/* Search Submit Button */}
+        <div>
           <button
             type="submit"
-            className="w-full flex items-center justify-center gap-2 bg-[#0D3B2E] hover:bg-[#134E3F] text-white font-bold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5"
+            className="w-full py-2.5 px-4 rounded-lg bg-[#12372A] hover:bg-[#1F6F54] text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-all"
           >
-            <Search className="w-4 h-4 text-[#E5C378]" />
+            <Search className="w-4 h-4" />
             <span>Search Tours</span>
           </button>
         </div>

@@ -1,92 +1,47 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   --font-serif: 'Playfair Display', Georgia, Cambria, 'Times New Roman', Times, serif;
 
-  --color-primary-50: #f0f7f4;
-  --color-primary-100: #dceee6;
-  --color-primary-200: #bdded0;
-  --color-primary-300: #90c6b2;
-  --color-primary-400: #5fa890;
-  --color-primary-500: #3b8c73;
-  --color-primary-600: #2b705c;
-  --color-primary-700: #23594b;
-  --color-primary-800: #1d483d;
-  --color-primary-900: #134e3f;
-  --color-primary-950: #082f24;
+  /* Refined Ceylon Palette */
+  --color-ceylon-primary: #12372A;
+  --color-ceylon-emerald: #1F6F54;
+  --color-ceylon-gold: #C8A45D;
+  --color-ceylon-ivory: #FAF8F2;
+  --color-ceylon-charcoal: #1F2933;
+  --color-ceylon-muted: #6B7280;
 
-  --color-emerald-dark: #082F24;
-  --color-emerald-deep: #0D3B2E;
-  --color-emerald-forest: #134E3F;
-  --color-emerald-muted: #1E6B57;
-
-  --color-gold-light: #F4E8C1;
-  --color-gold-300: #E5C378;
-  --color-gold: #C5A059;
-  --color-gold-dark: #A37F37;
-  --color-gold-deep: #7D5F23;
-
-  --color-sand-50: #FDFAF6;
-  --color-sand-100: #FAF8F5;
-  --color-sand-200: #F3EFEA;
-  --color-sand-300: #E7DFD5;
-  --color-sand-400: #D0C3B2;
-
-  --color-charcoal-900: #121715;
-  --color-charcoal-800: #1A201C;
-  --color-charcoal-700: #2A332E;
-  --color-charcoal-600: #3F4C45;
-  --color-charcoal-500: #5D6D64;
+  --color-primary-950: #12372A;
+  --color-primary-900: #12372A;
+  --color-primary-800: #174837;
+  --color-primary-700: #1F6F54;
+  --color-primary-600: #298263;
+  --color-primary-500: #349673;
 }
 
-/* Custom luxury scrollbar */
+/* Custom refined scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: #F3EFEA;
+  background: #FAF8F2;
 }
 ::-webkit-scrollbar-thumb {
-  background: #C5A059;
+  background: #C8A45D;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #A37F37;
+  background: #B38E46;
 }
 
-/* Glassmorphism helpers */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(197, 160, 89, 0.2);
+/* Base typography helpers */
+h1, h2, h3, .font-serif {
+  font-feature-settings: "kern" 1, "liga" 1;
 }
 
-.glass-dark {
-  background: rgba(8, 47, 36, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(197, 160, 89, 0.25);
-}
-
-/* Luxury card hover glow */
-.luxury-card {
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.luxury-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 30px -10px rgba(13, 59, 46, 0.12), 0 0 0 1px rgba(197, 160, 89, 0.3);
-}
-
-/* Hero background overlay gradient */
-.hero-gradient {
-  background: linear-gradient(180deg, rgba(8, 47, 36, 0.45) 0%, rgba(8, 47, 36, 0.75) 70%, rgba(8, 47, 36, 0.95) 100%);
-}
-
-.gold-gradient-text {
-  background: linear-gradient(135deg, #DFB76C 0%, #C5A059 50%, #A37F37 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+/* Smooth transitions */
+.transition-smooth {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
