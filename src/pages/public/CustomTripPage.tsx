@@ -236,25 +236,24 @@ export const CustomTripPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#FAF8F5] min-h-screen py-10">
+    <div className="bg-[#FAF8F3] min-h-screen py-10 sm:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
         {/* Header Title */}
-        <div className="text-center max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#C5A059]/20 text-[#8C6D2B] text-xs font-bold uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5" />
-            8-Step Custom Tour Wizard
-          </div>
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#082F24]">
+        <div className="text-center max-w-2xl mx-auto space-y-2.5">
+          <span className="text-xs font-semibold text-[#1F6B50] uppercase tracking-wider">
+            Custom Itinerary Wizard
+          </span>
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#0D3B2E]">
             Design Your Bespoke Sri Lankan Journey
           </h1>
-          <p className="text-sm sm:text-base text-stone-600">
+          <p className="text-sm sm:text-base text-[#66716C]">
             Customize dates, group size, private vehicle, destinations, and activities with real-time price updates.
           </p>
         </div>
 
         {/* 8-Step Progress Stepper Bar */}
-        <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm overflow-x-auto">
+        <div className="bg-white p-4 rounded-xl border border-stone-200/80 shadow-xs overflow-x-auto">
           <div className="flex items-center justify-between min-w-[650px] gap-2">
             {stepsList.map((st) => {
               const isPast = st.num < currentStep;
@@ -272,14 +271,14 @@ export const CustomTripPage: React.FC = () => {
                         : 'text-stone-400 opacity-60'
                   }`}
                 >
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                     isCurrent 
-                      ? 'bg-[#0D3B2E] text-[#E5C378] ring-4 ring-[#C5A059]/30' 
+                      ? 'bg-[#0D3B2E] text-white shadow-xs' 
                       : isPast 
-                        ? 'bg-emerald-100 text-emerald-800' 
+                        ? 'bg-[#EEF5F1] text-[#1F6B50]' 
                         : 'bg-stone-100 text-stone-500'
                   }`}>
-                    {isPast ? <Check className="w-4 h-4" /> : st.num}
+                    {isPast ? <Check className="w-3.5 h-3.5" /> : st.num}
                   </div>
                   <span className="text-xs">{st.label}</span>
                 </div>

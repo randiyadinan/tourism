@@ -548,22 +548,22 @@ export const CheckoutPage: React.FC = () => {
 
   // ─── MAIN CHECKOUT FORM ─────────────────────────────
   return (
-    <div className="bg-[#FAF8F5] min-h-screen py-8 sm:py-12">
+    <div className="bg-[#FAF8F3] min-h-screen py-8 sm:py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Breadcrumbs */}
-        <div className="flex items-center gap-2 text-xs text-stone-500 font-medium">
+        <div className="flex items-center gap-2 text-xs text-[#66716C] font-medium">
           <Link to="/" className="hover:text-[#0D3B2E]">Home</Link>
           <span>/</span>
           <Link to="/tours" className="hover:text-[#0D3B2E]">Tours</Link>
           <span>/</span>
-          <span className="text-[#8C6D2B] font-bold">Secure Checkout</span>
+          <span className="text-[#1F6B50] font-semibold">Secure Checkout</span>
         </div>
 
         {/* Page Header */}
         <div className="space-y-1">
-          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#082F24]">Secure Checkout</h1>
-          <p className="flex items-center gap-1.5 text-xs text-stone-500">
-            <Lock className="w-3.5 h-3.5 text-emerald-600" />
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#0D3B2E]">Secure Checkout</h1>
+          <p className="flex items-center gap-1.5 text-xs text-[#66716C]">
+            <Lock className="w-3.5 h-3.5 text-[#1F6B50]" />
             256-bit SSL encrypted · Verified PayHere Gateway · Instant digital e-voucher
           </p>
         </div>

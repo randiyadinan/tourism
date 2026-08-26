@@ -1,15 +1,13 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Clock, MapPin,  Heart, ArrowRight, Plus } from 'lucide-react';
+import { Clock, MapPin, Star, Heart, ArrowRight } from 'lucide-react';
 import type { Activity } from '../../types';
 import { useWishlist } from '../../context/WishlistContext';
 
 interface ActivityCardProps {
   activity: Activity;
-  onAddToTrip?: (activity: Activity) => void;
 }
 
-export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onAddToTrip }) => {
+export const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
   const { isInWishlist, toggleWishlist } = useWishlist();
   const isSaved = isInWishlist(activity.id);
 
@@ -21,29 +19,29 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onAddToTri
       type: 'activity',
       targetId: activity.id,
       title: activity.title,
+      subtitle: activity.destination,
       image: activity.image,
       price: activity.pricePerPerson,
       duration: activity.duration,
-      location: activity.destination,
-      slug: activity.slug
+      slug: activity.id
     });
   };
 
   return (
-    <div className="group bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between luxury-card">
-      {/* Top Image */}
-      <div className="relative h-52 overflow-hidden">
+    <div className="group bg-white rounded-xl border border-stone-200/90 overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between">
+      {/* Image Container */}
+      <div className="relative h-56 overflow-hidden">
         <img
           src={activity.image}
           alt={activity.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
-        {/* Category Pill */}
+        {/* Category Badge */}
         <div className="absolute top-3 left-3">
-          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-[#0D3B2E] text-[#E5C378] border border-[#C5A059]/40 shadow-sm">
+          <span className="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-[#0D3B2E]/90 text-white backdrop-blur-xs">
             {activity.category}
           </span>
         </div>
@@ -51,76 +49,63 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onAddToTri
         {/* Wishlist Button */}
         <button
           onClick={handleWishlistToggle}
-          className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-all shadow-md ${
+          className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-colors shadow-xs ${
             isSaved 
-              ? 'bg-rose-500 text-white' 
-              : 'bg-black/40 text-white hover:bg-white hover:text-rose-500'
+              ? 'bg-rose-600 text-white' 
+              : 'bg-black/40 text-white hover:bg-white hover:text-rose-600'
           }`}
           title={isSaved ? 'Remove from Saved' : 'Save to Wishlist'}
+          aria-label="Save to Wishlist"
         >
           <Heart className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
         </button>
 
-        {/* Duration & Difficulty */}
-        <div className="absolute bottom-3 left-3 flex items-center gap-2">
-          <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-md text-white text-[11px]">
-            <Clock className="w-3 h-3 text-[#E5C378]" />
-            <span>{activity.duration}</span>
-          </div>
-          <span className="px-2 py-0.5 rounded-md bg-white/20 backdrop-blur-md text-white text-[11px] font-medium border border-white/20">
-            {activity.difficulty}
-          </span>
+        {/* Location on image */}
+        <div className="absolute bottom-3 left-3 flex items-center gap-1.5 text-white text-xs font-semibold drop-shadow-xs">
+          <MapPin className="w-3.5 h-3.5 text-[#C5A059]" />
+          <span>{activity.destination}</span>
         </div>
       </div>
 
-      {/* Body */}
-      <div className="p-5 flex flex-col justify-between flex-1 space-y-3">
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-1 text-xs text-stone-500 font-medium">
-            <MapPin className="w-3 h-3 text-[#C5A059] shrink-0" />
-            <span>{activity.destination}</span>
+      {/* Body Content */}
+      <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-xs text-[#66716C]">
+            <span className="flex items-center gap-1">
+              <Clock className="w-3.5 h-3.5 text-[#1F6B50]" />
+              {activity.duration}
+            </span>
+            <div className="flex items-center gap-1 font-semibold text-[#17231F]">
+              <Star className="w-3.5 h-3.5 fill-[#C5A059] text-[#C5A059]" />
+              <span>{activity.rating.toFixed(1)}</span>
+              <span className="text-[#66716C] font-normal">({activity.reviewCount})</span>
+            </div>
           </div>
 
-          <Link to={`/activities/${activity.slug}`}>
-            <h3 className="font-serif text-lg font-bold text-[#082F24] group-hover:text-[#2b705c] transition-colors leading-snug line-clamp-2">
-              {activity.title}
-            </h3>
-          </Link>
-          <p className="text-xs text-stone-600 line-clamp-2 leading-relaxed">{activity.shortDescription}</p>
+          <h3 className="font-serif text-lg font-bold text-[#0D3B2E] group-hover:text-[#1F6B50] transition-colors leading-snug line-clamp-1">
+            {activity.title}
+          </h3>
+          <p className="text-xs sm:text-sm text-[#66716C] line-clamp-2 leading-relaxed">
+            {activity.shortDescription}
+          </p>
         </div>
 
-        {/* Actions */}
+        {/* Price & Action */}
         <div className="pt-3 border-t border-stone-100 flex items-center justify-between">
-          <div className="flex items-center gap-1 text-[11px] font-semibold text-[#8C6D2B]">
+          <div>
+            <span className="text-[10px] text-[#66716C] block font-medium uppercase tracking-wider">From</span>
+            <div className="flex items-baseline gap-1">
+              <span className="font-serif text-xl font-bold text-[#0D3B2E]">
+                ${activity.pricePerPerson}
+              </span>
+              <span className="text-[11px] text-[#66716C]">/ person</span>
+            </div>
+          </div>
+
+          <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#0D3B2E] group-hover:text-[#1F6B50] transition-colors">
             <span>Experience</span>
-          </div>
-
-          <div className="flex items-center gap-1.5">
-            {onAddToTrip ? (
-              <button
-                onClick={() => onAddToTrip(activity)}
-                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#134E3F] text-white hover:bg-[#0D3B2E] transition-colors"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                Select
-              </button>
-            ) : (
-              <Link
-                to={`/customize?activityId=${activity.id}`}
-                className="px-2.5 py-1.5 text-[11px] font-semibold rounded-lg bg-[#0D3B2E]/10 text-[#0D3B2E] hover:bg-[#0D3B2E] hover:text-white transition-colors"
-              >
-                + Add to Trip
-              </Link>
-            )}
-
-            <Link
-              to={`/activities/${activity.slug}`}
-              className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-lg bg-[#0D3B2E] text-white hover:bg-[#C5A059] hover:text-[#082F24] transition-colors shadow-sm"
-            >
-              Details
-              <ArrowRight className="w-3 h-3" />
-            </Link>
-          </div>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </span>
         </div>
       </div>
     </div>

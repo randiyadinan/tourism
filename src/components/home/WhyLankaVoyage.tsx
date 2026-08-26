@@ -43,18 +43,18 @@ export const WhyLankaVoyage: React.FC = () => {
   ];
 
   return (
-    <section className="py-16 sm:py-20 bg-white border-y border-stone-200/80">
+    <section className="py-20 sm:py-24 bg-white border-y border-stone-200/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16 space-y-3">
-          <span className="text-xs font-semibold text-[#1F6F54] uppercase tracking-wider">
-            Why Travel With Us
+        <div className="text-center max-w-2xl mx-auto mb-14 sm:mb-16 space-y-3">
+          <span className="text-xs font-semibold text-[#1F6B50] uppercase tracking-wider">
+            Why Choose LankaVoyage
           </span>
-          <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#12372A]">
+          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#0D3B2E]">
             Why Discerning Travelers Choose LankaVoyage
           </h2>
-          <p className="text-sm sm:text-base text-stone-600 leading-relaxed">
+          <p className="text-sm sm:text-base text-[#66716C] leading-relaxed">
             We blend genuine Sri Lankan hospitality with international travel standards to deliver seamless, memorable journeys.
           </p>
         </div>
@@ -64,15 +64,15 @@ export const WhyLankaVoyage: React.FC = () => {
           {features.map((f, i) => (
             <div 
               key={i} 
-              className="bg-[#FAF8F2] rounded-xl border border-stone-200/80 p-6 space-y-3.5 transition-all hover:shadow-xs hover:border-[#1F6F54]/40"
+              className="bg-[#FAF8F3] rounded-xl border border-stone-200/80 p-7 space-y-3.5 transition-all hover:shadow-xs hover:border-[#1F6B50]/40"
             >
-              <div className="w-10 h-10 rounded-lg bg-[#12372A] text-[#C8A45D] flex items-center justify-center shadow-xs">
+              <div className="w-10 h-10 rounded-lg bg-[#0D3B2E] text-[#C5A059] flex items-center justify-center shadow-xs">
                 <f.icon className="w-5 h-5" />
               </div>
-              <h3 className="font-serif text-lg font-bold text-[#12372A]">
+              <h3 className="font-serif text-lg font-bold text-[#0D3B2E]">
                 {f.title}
               </h3>
-              <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+              <p className="text-xs sm:text-sm text-[#66716C] leading-relaxed">
                 {f.description}
               </p>
             </div>

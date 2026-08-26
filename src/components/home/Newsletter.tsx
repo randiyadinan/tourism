@@ -14,14 +14,14 @@ export const Newsletter: React.FC = () => {
   };
 
   return (
-    <section className="py-14 sm:py-16 bg-[#1F6F54] text-white">
+    <section className="py-16 sm:py-20 bg-[#1F6B50] text-white">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
         
         <span className="text-xs font-semibold uppercase tracking-wider text-stone-200">
           Stay Inspired
         </span>
 
-        <h2 className="font-serif text-2xl sm:text-3xl font-bold">
+        <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold">
           Get Seasonal Sri Lanka Travel Inspiration
         </h2>
 
@@ -30,8 +30,8 @@ export const Newsletter: React.FC = () => {
         </p>
 
         {subscribed ? (
-          <div className="bg-[#12372A] border border-white/20 p-3.5 rounded-xl max-w-md mx-auto flex items-center justify-center gap-2 text-white text-xs sm:text-sm font-medium">
-            <CheckCircle2 className="w-4 h-4 text-[#C8A45D]" />
+          <div className="bg-[#0D3B2E] border border-white/20 p-3.5 rounded-xl max-w-md mx-auto flex items-center justify-center gap-2 text-white text-xs sm:text-sm font-medium">
+            <CheckCircle2 className="w-4 h-4 text-[#C5A059]" />
             <span>Thank you for subscribing to LankaVoyage updates!</span>
           </div>
         ) : (
@@ -44,15 +44,15 @@ export const Newsletter: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email address..."
-                className="w-full pl-10 pr-3.5 py-2.5 rounded-lg bg-white text-[#1F2933] placeholder-stone-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#12372A]"
+                className="w-full pl-10 pr-3.5 py-2.5 rounded-lg bg-white text-[#17231F] placeholder-stone-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#0D3B2E]"
               />
             </div>
             <button
               type="submit"
-              className="px-5 py-2.5 bg-[#12372A] hover:bg-[#174837] text-white font-semibold text-xs sm:text-sm rounded-lg transition-colors flex items-center justify-center gap-1.5 shrink-0 shadow-xs"
+              className="px-5 py-2.5 bg-[#0D3B2E] hover:bg-[#144d3d] text-white font-semibold text-xs sm:text-sm rounded-lg transition-colors flex items-center justify-center gap-1.5 shrink-0 shadow-xs border border-white/20"
             >
               <span>Subscribe</span>
-              <ArrowRight className="w-3.5 h-3.5 text-[#C8A45D]" />
+              <ArrowRight className="w-3.5 h-3.5 text-[#C5A059]" />
             </button>
           </form>
         )}

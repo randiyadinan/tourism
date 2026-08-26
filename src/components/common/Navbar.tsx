@@ -29,7 +29,7 @@ export const Navbar: React.FC = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 15);
+      setIsScrolled(window.scrollY > 20);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -55,6 +55,7 @@ export const Navbar: React.FC = () => {
     { name: 'Customize', href: '/customize' },
     { name: 'Reviews', href: '/reviews' },
     { name: 'About', href: '/about' },
+    { name: 'Contact', href: '/contact' },
   ];
 
   const adminMgmtLinks = [
@@ -70,42 +71,38 @@ export const Navbar: React.FC = () => {
     <header 
       className={`sticky top-0 z-50 transition-all duration-300 ${
         isScrolled 
-          ? 'bg-[#12372A]/95 backdrop-blur-md shadow-md border-b border-[#C8A45D]/20 py-3' 
-          : 'bg-[#12372A] border-b border-white/10 py-4'
+          ? 'bg-[#0D3B2E]/95 backdrop-blur-md shadow-sm border-b border-[#0D3B2E] py-3' 
+          : 'bg-[#0D3B2E] border-b border-white/10 py-4'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-11">
           
-          {/* ========================================================= */}
-          {/* LEFT: LankaVoyage Brand Logo */}
-          {/* ========================================================= */}
+          {/* Brand Logo */}
           <Link to="/" className="flex items-center gap-3 shrink-0 group">
-            <div className="w-8 h-8 rounded-lg bg-[#C8A45D] flex items-center justify-center shadow-xs group-hover:bg-[#dfb96f] transition-colors">
-              <Compass className="w-4 h-4 text-[#12372A]" />
+            <div className="w-8 h-8 rounded-lg bg-[#C5A059] flex items-center justify-center shadow-xs transition-transform group-hover:scale-105">
+              <Compass className="w-4 h-4 text-[#0D3B2E]" />
             </div>
             <div className="flex flex-col">
               <span className="font-serif text-xl font-bold tracking-tight text-white leading-none">
-                Lanka<span className="text-[#C8A45D]">Voyage</span>
+                Lanka<span className="text-[#C5A059]">Voyage</span>
               </span>
               <span className="text-[9px] uppercase tracking-[0.2em] text-stone-300 mt-0.5 font-medium">
-                Sri Lanka Travel
+                Bespoke Sri Lanka
               </span>
             </div>
           </Link>
 
-          {/* ========================================================= */}
-          {/* CENTER: Clean Navigation Links */}
-          {/* ========================================================= */}
+          {/* Desktop Navigation Links */}
           <nav className="hidden lg:flex items-center gap-7">
             {navLinks.map((link) => (
               <NavLink
                 key={link.name}
                 to={link.href}
                 className={({ isActive }) => `
-                  relative py-1 text-sm font-medium tracking-normal transition-colors duration-150
+                  text-sm font-medium tracking-normal transition-colors duration-150
                   ${isActive 
-                    ? 'text-[#C8A45D] font-semibold' 
+                    ? 'text-[#C5A059] font-semibold' 
                     : 'text-stone-200 hover:text-white'
                   }
                 `}
@@ -115,12 +112,10 @@ export const Navbar: React.FC = () => {
             ))}
           </nav>
 
-          {/* ========================================================= */}
-          {/* RIGHT: Role-Based Controls & Primary CTA */}
-          {/* ========================================================= */}
+          {/* Right Controls & Primary CTA */}
           <div className="hidden lg:flex items-center gap-5">
             
-            {/* 1. GUEST VIEW */}
+            {/* Guest View */}
             {!isAuthenticated && (
               <div className="flex items-center gap-4">
                 <Link
@@ -131,19 +126,19 @@ export const Navbar: React.FC = () => {
                 </Link>
                 <Link
                   to="/customize"
-                  className="px-4 py-2 text-xs font-semibold rounded-lg bg-[#C8A45D] hover:bg-[#dfb96f] text-[#12372A] shadow-xs hover:shadow-sm transition-all"
+                  className="px-4 py-2 text-xs font-semibold rounded-lg bg-[#1F6B50] hover:bg-[#267c5d] text-white shadow-xs border border-white/20 transition-all"
                 >
                   Plan Your Trip
                 </Link>
               </div>
             )}
 
-            {/* 2. CUSTOMER VIEW */}
+            {/* Customer View */}
             {isAuthenticated && !isAdmin && user && (
               <div className="flex items-center gap-3">
                 <Link
                   to="/customer"
-                  className="flex items-center gap-1.5 text-xs font-medium text-stone-200 hover:text-[#C8A45D] transition-colors py-1"
+                  className="flex items-center gap-1.5 text-xs font-medium text-stone-200 hover:text-[#C5A059] transition-colors py-1"
                 >
                   <LayoutDashboard className="w-3.5 h-3.5" />
                   <span>Dashboard</span>
@@ -151,7 +146,7 @@ export const Navbar: React.FC = () => {
 
                 <Link
                   to="/customer/bookings"
-                  className="flex items-center gap-1.5 text-xs font-medium text-stone-200 hover:text-[#C8A45D] transition-colors py-1"
+                  className="flex items-center gap-1.5 text-xs font-medium text-stone-200 hover:text-[#C5A059] transition-colors py-1"
                 >
                   <Calendar className="w-3.5 h-3.5" />
                   <span>Bookings</span>
@@ -182,13 +177,13 @@ export const Navbar: React.FC = () => {
               </div>
             )}
 
-            {/* 3. ADMIN VIEW */}
+            {/* Admin View */}
             {isAuthenticated && isAdmin && user && (
               <div className="flex items-center gap-3">
                 <Link
                   to="/admin"
                   className={`flex items-center gap-1.5 text-xs font-medium transition-colors py-1 ${
-                    location.pathname === '/admin' ? 'text-[#C8A45D] font-semibold' : 'text-stone-200 hover:text-white'
+                    location.pathname === '/admin' ? 'text-[#C5A059] font-semibold' : 'text-stone-200 hover:text-white'
                   }`}
                 >
                   <LayoutDashboard className="w-3.5 h-3.5" />
@@ -198,7 +193,7 @@ export const Navbar: React.FC = () => {
                 <Link
                   to="/admin/bookings"
                   className={`flex items-center gap-1.5 text-xs font-medium transition-colors py-1 ${
-                    location.pathname === '/admin/bookings' ? 'text-[#C8A45D] font-semibold' : 'text-stone-200 hover:text-white'
+                    location.pathname === '/admin/bookings' ? 'text-[#C5A059] font-semibold' : 'text-stone-200 hover:text-white'
                   }`}
                 >
                   <Calendar className="w-3.5 h-3.5" />
@@ -211,20 +206,20 @@ export const Navbar: React.FC = () => {
                     onClick={() => setAdminMenuOpen(!adminMenuOpen)}
                     className={`flex items-center gap-1 text-xs font-medium transition-colors py-1 ${
                       location.pathname.startsWith('/admin') && location.pathname !== '/admin' && location.pathname !== '/admin/bookings'
-                        ? 'text-[#C8A45D] font-semibold'
+                        ? 'text-[#C5A059] font-semibold'
                         : 'text-stone-200 hover:text-white'
                     }`}
                   >
                     <span>Management</span>
-                    <ChevronDown className="w-3 h-3 text-[#C8A45D]" />
+                    <ChevronDown className="w-3 h-3 text-[#C5A059]" />
                   </button>
 
                   {adminMenuOpen && (
                     <div 
-                      className="absolute right-0 mt-2 w-52 bg-[#12372A] border border-[#C8A45D]/30 rounded-xl shadow-xl py-2 z-50 animate-fadeIn text-xs text-stone-200"
+                      className="absolute right-0 mt-2 w-52 bg-[#0D3B2E] border border-white/15 rounded-xl shadow-xl py-2 z-50 animate-fadeIn text-xs text-stone-200"
                       onMouseLeave={() => setAdminMenuOpen(false)}
                     >
-                      <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#C8A45D] border-b border-white/10">
+                      <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#C5A059] border-b border-white/10">
                         Admin Controls
                       </div>
                       {adminMgmtLinks.map((item) => (
@@ -232,9 +227,9 @@ export const Navbar: React.FC = () => {
                           key={item.name}
                           to={item.href}
                           onClick={() => setAdminMenuOpen(false)}
-                          className="flex items-center gap-2.5 px-3.5 py-2 hover:bg-white/10 text-stone-200 hover:text-[#C8A45D] transition-colors"
+                          className="flex items-center gap-2.5 px-3.5 py-2 hover:bg-white/10 text-stone-200 hover:text-[#C5A059] transition-colors"
                         >
-                          <item.icon className="w-3.5 h-3.5 text-[#C8A45D]" />
+                          <item.icon className="w-3.5 h-3.5 text-[#C5A059]" />
                           <span>{item.name}</span>
                         </Link>
                       ))}
@@ -255,27 +250,23 @@ export const Navbar: React.FC = () => {
 
           </div>
 
-          {/* ========================================================= */}
-          {/* MOBILE HAMBURGER BUTTON */}
-          {/* ========================================================= */}
+          {/* Mobile Hamburger Button */}
           <div className="flex lg:hidden items-center">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-lg text-stone-200 hover:text-white hover:bg-white/10 focus:outline-none transition-colors"
               aria-label="Toggle Navigation Menu"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5 text-[#C8A45D]" /> : <Menu className="w-5 h-5 text-[#C8A45D]" />}
+              {mobileMenuOpen ? <X className="w-5 h-5 text-[#C5A059]" /> : <Menu className="w-5 h-5 text-[#C5A059]" />}
             </button>
           </div>
 
         </div>
       </div>
 
-      {/* ========================================================= */}
-      {/* MOBILE DRAWER / MENU */}
-      {/* ========================================================= */}
+      {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-[#12372A] border-t border-white/10 px-4 pt-3 pb-6 space-y-3 shadow-xl">
+        <div className="lg:hidden bg-[#0D3B2E] border-t border-white/10 px-4 pt-3 pb-6 space-y-3 shadow-xl animate-fadeIn">
           
           {/* Public Nav Links */}
           {!isAdmin && (
@@ -287,7 +278,7 @@ export const Navbar: React.FC = () => {
                   onClick={() => setMobileMenuOpen(false)}
                   className={({ isActive }) => `
                     block px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                    ${isActive ? 'bg-white/10 text-[#C8A45D] font-semibold' : 'text-stone-200 hover:text-white'}
+                    ${isActive ? 'bg-white/10 text-[#C5A059] font-semibold' : 'text-stone-200 hover:text-white'}
                   `}
                 >
                   {link.name}
@@ -296,13 +287,13 @@ export const Navbar: React.FC = () => {
             </div>
           )}
 
-          {/* 1. GUEST MOBILE LINKS */}
+          {/* Guest Mobile Links */}
           {!isAuthenticated && (
             <div className="border-t border-white/10 pt-3 space-y-2">
               <Link
                 to="/customize"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block w-full py-2.5 text-center text-xs font-semibold rounded-lg bg-[#C8A45D] text-[#12372A]"
+                className="block w-full py-2.5 text-center text-xs font-semibold rounded-lg bg-[#1F6B50] text-white"
               >
                 Plan Your Trip
               </Link>
@@ -316,7 +307,7 @@ export const Navbar: React.FC = () => {
             </div>
           )}
 
-          {/* 2. CUSTOMER MOBILE LINKS */}
+          {/* Customer Mobile Links */}
           {isAuthenticated && !isAdmin && user && (
             <div className="border-t border-white/10 pt-3 space-y-1.5 text-xs text-stone-200">
               <div className="px-3 py-1 flex items-center gap-2 border-b border-white/10 mb-2">
@@ -332,7 +323,7 @@ export const Navbar: React.FC = () => {
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10 text-stone-200"
               >
-                <LayoutDashboard className="w-4 h-4 text-[#C8A45D]" />
+                <LayoutDashboard className="w-4 h-4 text-[#C5A059]" />
                 <span>Dashboard Overview</span>
               </Link>
               <Link
@@ -340,7 +331,7 @@ export const Navbar: React.FC = () => {
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10 text-stone-200"
               >
-                <Calendar className="w-4 h-4 text-[#C8A45D]" />
+                <Calendar className="w-4 h-4 text-[#C5A059]" />
                 <span>My Bookings</span>
               </Link>
               <Link
@@ -348,7 +339,7 @@ export const Navbar: React.FC = () => {
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10 text-stone-200"
               >
-                <UserIcon className="w-4 h-4 text-[#C8A45D]" />
+                <UserIcon className="w-4 h-4 text-[#C5A059]" />
                 <span>My Profile</span>
               </Link>
               <button
@@ -361,10 +352,10 @@ export const Navbar: React.FC = () => {
             </div>
           )}
 
-          {/* 3. ADMIN MOBILE LINKS */}
+          {/* Admin Mobile Links */}
           {isAuthenticated && isAdmin && (
             <div className="border-t border-white/10 pt-3 space-y-1 text-xs text-stone-200">
-              <div className="px-3 py-1 font-bold uppercase tracking-wider text-[#C8A45D] text-[10px]">
+              <div className="px-3 py-1 font-bold uppercase tracking-wider text-[#C5A059] text-[10px]">
                 Admin Console
               </div>
               <Link
@@ -372,7 +363,7 @@ export const Navbar: React.FC = () => {
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10 text-stone-200"
               >
-                <LayoutDashboard className="w-4 h-4 text-[#C8A45D]" />
+                <LayoutDashboard className="w-4 h-4 text-[#C5A059]" />
                 <span>Dashboard Overview</span>
               </Link>
               <Link
@@ -380,7 +371,7 @@ export const Navbar: React.FC = () => {
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10 text-stone-200"
               >
-                <Calendar className="w-4 h-4 text-[#C8A45D]" />
+                <Calendar className="w-4 h-4 text-[#C5A059]" />
                 <span>All Tour Bookings</span>
               </Link>
               {adminMgmtLinks.map((item) => (
@@ -390,7 +381,7 @@ export const Navbar: React.FC = () => {
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10 text-stone-200"
                 >
-                  <item.icon className="w-4 h-4 text-[#C8A45D]" />
+                  <item.icon className="w-4 h-4 text-[#C5A059]" />
                   <span>{item.name}</span>
                 </Link>
               ))}

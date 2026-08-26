@@ -29,19 +29,19 @@ export const TripPlannerBar: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-stone-200/80 p-4 sm:p-5 text-stone-800">
+    <div className="bg-white rounded-xl shadow-lg border border-stone-200/80 p-4 sm:p-5 text-[#17231F]">
       <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 items-end">
         
         {/* Destination Dropdown */}
         <div className="space-y-1">
-          <label className="text-xs font-semibold text-stone-600 flex items-center gap-1.5">
-            <MapPin className="w-3.5 h-3.5 text-[#1F6F54]" />
+          <label className="text-xs font-semibold text-[#17231F] flex items-center gap-1.5">
+            <MapPin className="w-3.5 h-3.5 text-[#1F6B50]" />
             Destination
           </label>
           <select
             value={destination}
             onChange={(e) => setDestination(e.target.value)}
-            className="w-full bg-[#FAF8F2] border border-stone-300 rounded-lg px-3 py-2.5 text-xs sm:text-sm font-medium text-[#1F2933] focus:outline-none focus:ring-2 focus:ring-[#1F6F54] transition-colors"
+            className="w-full bg-[#FAF8F3] border border-stone-300 rounded-lg px-3 py-2.5 text-xs sm:text-sm font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#1F6B50] transition-colors"
           >
             <option value="All">All Sri Lanka (Islandwide)</option>
             {INITIAL_DESTINATIONS.map(d => (
@@ -50,16 +50,16 @@ export const TripPlannerBar: React.FC = () => {
           </select>
         </div>
 
-        {/* Duration */}
+        {/* Travel Dates / Duration */}
         <div className="space-y-1">
-          <label className="text-xs font-semibold text-stone-600 flex items-center gap-1.5">
-            <Calendar className="w-3.5 h-3.5 text-[#1F6F54]" />
-            Duration
+          <label className="text-xs font-semibold text-[#17231F] flex items-center gap-1.5">
+            <Calendar className="w-3.5 h-3.5 text-[#1F6B50]" />
+            Travel Duration
           </label>
           <select
             value={duration}
             onChange={(e) => setDuration(e.target.value)}
-            className="w-full bg-[#FAF8F2] border border-stone-300 rounded-lg px-3 py-2.5 text-xs sm:text-sm font-medium text-[#1F2933] focus:outline-none focus:ring-2 focus:ring-[#1F6F54] transition-colors"
+            className="w-full bg-[#FAF8F3] border border-stone-300 rounded-lg px-3 py-2.5 text-xs sm:text-sm font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#1F6B50] transition-colors"
           >
             <option value="any">Any Duration</option>
             <option value="short">Short Getaway (1 - 5 Days)</option>
@@ -70,14 +70,14 @@ export const TripPlannerBar: React.FC = () => {
 
         {/* Number of Travelers */}
         <div className="space-y-1">
-          <label className="text-xs font-semibold text-stone-600 flex items-center gap-1.5">
-            <Users className="w-3.5 h-3.5 text-[#1F6F54]" />
+          <label className="text-xs font-semibold text-[#17231F] flex items-center gap-1.5">
+            <Users className="w-3.5 h-3.5 text-[#1F6B50]" />
             Travelers
           </label>
           <select
             value={travelers}
             onChange={(e) => setTravelers(Number(e.target.value))}
-            className="w-full bg-[#FAF8F2] border border-stone-300 rounded-lg px-3 py-2.5 text-xs sm:text-sm font-medium text-[#1F2933] focus:outline-none focus:ring-2 focus:ring-[#1F6F54] transition-colors"
+            className="w-full bg-[#FAF8F3] border border-stone-300 rounded-lg px-3 py-2.5 text-xs sm:text-sm font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#1F6B50] transition-colors"
           >
             <option value={1}>1 Solo Traveler</option>
             <option value={2}>2 Adults (Couple)</option>
@@ -88,14 +88,14 @@ export const TripPlannerBar: React.FC = () => {
 
         {/* Budget */}
         <div className="space-y-1">
-          <label className="text-xs font-semibold text-stone-600 flex items-center gap-1.5">
-            <DollarSign className="w-3.5 h-3.5 text-[#1F6F54]" />
+          <label className="text-xs font-semibold text-[#17231F] flex items-center gap-1.5">
+            <DollarSign className="w-3.5 h-3.5 text-[#1F6B50]" />
             Budget Tier
           </label>
           <select
             value={budget}
             onChange={(e) => setBudget(e.target.value)}
-            className="w-full bg-[#FAF8F2] border border-stone-300 rounded-lg px-3 py-2.5 text-xs sm:text-sm font-medium text-[#1F2933] focus:outline-none focus:ring-2 focus:ring-[#1F6F54] transition-colors"
+            className="w-full bg-[#FAF8F3] border border-stone-300 rounded-lg px-3 py-2.5 text-xs sm:text-sm font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#1F6B50] transition-colors"
           >
             <option value="any">All Price Tiers</option>
             <option value="luxury">Luxury & Villas ($1,200+)</option>
@@ -104,14 +104,14 @@ export const TripPlannerBar: React.FC = () => {
           </select>
         </div>
 
-        {/* Search Submit Button */}
+        {/* Plan My Trip Button */}
         <div>
           <button
             type="submit"
-            className="w-full py-2.5 px-4 rounded-lg bg-[#12372A] hover:bg-[#1F6F54] text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-all"
+            className="w-full py-2.5 px-4 rounded-lg bg-[#0D3B2E] hover:bg-[#1F6B50] text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-colors"
           >
-            <Search className="w-4 h-4" />
-            <span>Search Tours</span>
+            <Search className="w-4 h-4 text-[#C5A059]" />
+            <span>Plan My Trip</span>
           </button>
         </div>
 
