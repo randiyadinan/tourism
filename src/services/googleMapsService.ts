@@ -1,10 +1,10 @@
 /**
  * Professional Google Maps, Places API & Routes API Service for LankaVoyage
  * Seamlessly integrates Google Maps Platform (Maps JavaScript, Places Autocomplete, Routes API / Directions)
- * with robust, developer-friendly fallback routing and live Sri Lanka places lookup.
+ * with developer-friendly diagnostics when the Google Cloud API key is being configured.
  */
 
-// Bandaranaike International Airport (CMB) exact coordinates
+// Bandaranaike International Airport (CMB) exact coordinates (business pickup origin)
 export const AIRPORT_COORDINATES = {
   lat: 7.1808,
   lng: 79.8841,
@@ -48,8 +48,12 @@ export const loadGoogleMapsScript = (): Promise<any> => {
   // Retrieve public client browser API key from environment variable
   const apiKey = (import.meta as any).env?.VITE_GOOGLE_MAPS_API_KEY || '';
 
-  if (!apiKey) {
-    // If no key configured in development, resolve null so the application delivers fallback places search & routing safely
+  if (!apiKey || apiKey === 'YOUR_GOOGLE_MAPS_API_KEY') {
+    if (import.meta.env.DEV) {
+      console.info(
+        'Google Maps API Key not yet configured. To enable live Google Maps Places & Routes, set VITE_GOOGLE_MAPS_API_KEY in your .env / .env.local file.'
+      );
+    }
     return Promise.resolve(null);
   }
 
@@ -79,7 +83,7 @@ export const loadGoogleMapsScript = (): Promise<any> => {
     };
 
     script.onerror = () => {
-      console.warn('Google Maps JS script load failed, falling back to direct Places search.');
+      console.warn('Google Maps JavaScript SDK load failed.');
       resolve(null);
     };
 
@@ -99,7 +103,7 @@ export async function searchGooglePlaces(query: string): Promise<PlaceResult[]> 
   const trimmedQuery = query.trim();
   const g = typeof window !== 'undefined' ? (window as any).google : null;
 
-  // 1. Google Maps Places AutocompleteService
+  // 1. Primary Provider: Google Maps Places AutocompleteService
   if (g?.maps?.places?.AutocompleteService) {
     try {
       const autocompleteService = new g.maps.places.AutocompleteService();
@@ -158,12 +162,11 @@ export async function searchGooglePlaces(query: string): Promise<PlaceResult[]> 
         return placeResults;
       }
     } catch (err) {
-      console.warn('Google Places Autocomplete exception:', err);
+      console.warn('Google Places Autocomplete error:', err);
     }
   }
 
-  // 2. Open Geographic Places Search API (Nominatim search biased to Sri Lanka)
-  // Allows search for ANY hotel, villa, street, attraction, railway station or business in Sri Lanka
+  // 2. Fallback lookup when key is not yet set in environment
   try {
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
       trimmedQuery + ', Sri Lanka'
@@ -191,7 +194,7 @@ export async function searchGooglePlaces(query: string): Promise<PlaceResult[]> 
       }
     }
   } catch (err) {
-    console.warn('Live Places search error:', err);
+    console.warn('Places search error:', err);
   }
 
   return [];
@@ -206,7 +209,7 @@ export async function calculateGoogleRoute(
 ): Promise<RouteResult> {
   const g = typeof window !== 'undefined' ? (window as any).google : null;
 
-  // 1. Google Maps Routes / Directions Service
+  // 1. Primary Provider: Google Maps Routes / Directions Service
   if (g?.maps?.DirectionsService) {
     try {
       const directionsService = new g.maps.DirectionsService();
@@ -248,11 +251,11 @@ export async function calculateGoogleRoute(
         status: 'SUCCESS'
       };
     } catch (err) {
-      console.warn('Google Directions API fallback to OSRM real road engine:', err);
+      console.warn('Google Directions API error:', err);
     }
   }
 
-  // 2. High-precision Driving Route Engine (OSRM Driving API for exact road network distances)
+  // 2. High-precision Driving Route Engine fallback
   try {
     const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${origin.lng},${origin.lat};${dest.lng},${dest.lat}?overview=false`;
     const response = await fetch(osrmUrl);
@@ -272,13 +275,13 @@ export async function calculateGoogleRoute(
           distanceKm: Math.max(8, distanceKm),
           durationText: durationText,
           durationMinutes: durationMinutes,
-          isLiveGoogleRoute: true,
+          isLiveGoogleRoute: false,
           status: 'SUCCESS'
         };
       }
     }
   } catch (err) {
-    console.warn('Live OSRM routing engine fallback to precision road terrain calculation:', err);
+    console.warn('Routing engine error:', err);
   }
 
   // 3. Precision Road Terrain Model
