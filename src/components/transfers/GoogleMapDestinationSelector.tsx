@@ -5,7 +5,8 @@ import {
   type PlaceResult, 
   type RouteResult, 
   loadGoogleMapsScript,
-  searchGooglePlaces
+  searchGooglePlaces,
+  getGooglePlaceDetails
 } from '../../services/googleMapsService';
 
 interface GoogleMapDestinationSelectorProps {
@@ -24,6 +25,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState<PlaceResult[]>([]);
   const [isSearchingPlaces, setIsSearchingPlaces] = useState(false);
+  const [isResolvingPlace, setIsResolvingPlace] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isGoogleSdkReady, setIsGoogleSdkReady] = useState(false);
 
@@ -96,7 +98,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
           });
           directionsRendererRef.current = directionsRenderer;
 
-          // Google Places Autocomplete (Unrestricted for any hotel, attraction, street or city)
+          // Google Places Autocomplete on input element
           if (searchBoxRef.current && googleObj.maps.places) {
             const autocomplete = new googleObj.maps.places.Autocomplete(searchBoxRef.current, {
               componentRestrictions: { country: 'lk' },
@@ -106,12 +108,13 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
             autocomplete.addListener('place_changed', () => {
               const place = autocomplete.getPlace();
               if (place.geometry && place.geometry.location) {
+                const loc = place.geometry.location;
                 const newPlace: PlaceResult = {
                   placeId: place.place_id,
                   name: place.name || 'Selected Place',
                   formattedAddress: place.formatted_address || place.name || '',
-                  lat: place.geometry.location.lat(),
-                  lng: place.geometry.location.lng()
+                  lat: typeof loc.lat === 'function' ? loc.lat() : loc.lat,
+                  lng: typeof loc.lng === 'function' ? loc.lng() : loc.lng
                 };
                 onSelectPlace(newPlace);
                 setSearchQuery(newPlace.name);
@@ -120,7 +123,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
             });
           }
         } catch (err: any) {
-          console.warn('Google Map JS SDK init:', err);
+          console.warn('Google Map JS SDK init error:', err);
         }
       }
     });
@@ -130,7 +133,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
     };
   }, []);
 
-  // Update Google Map Route and Markers when selectedDestination changes
+  // Update Google Map Route and Bounds when destination changes
   useEffect(() => {
     if (isGoogleSdkReady && googleMapInstanceRef.current && (window as any).google?.maps) {
       const g = (window as any).google;
@@ -150,7 +153,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
     }
   }, [selectedDestination, routeData, isGoogleSdkReady]);
 
-  // Live Places Search as customer types
+  // Live Places Search as customer types (Debounced)
   useEffect(() => {
     let active = true;
     if (!searchQuery || searchQuery.trim().length < 2) {
@@ -161,14 +164,14 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
 
     setIsSearchingPlaces(true);
     const delayTimer = setTimeout(() => {
-      searchGooglePlaces(searchQuery).then((results) => {
+      searchGooglePlaces(searchQuery, googleMapInstanceRef.current).then((results) => {
         if (active) {
           setSuggestions(results);
           setIsSearchingPlaces(false);
           setShowSuggestions(true);
         }
       });
-    }, 280);
+    }, 250);
 
     return () => {
       active = false;
@@ -176,7 +179,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
     };
   }, [searchQuery]);
 
-  // Click outside to close dropdown
+  // Click outside to close suggestions dropdown
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
@@ -187,16 +190,40 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleSelectPlace = (place: PlaceResult) => {
-    onSelectPlace(place);
-    setSearchQuery(place.name);
+  const handleSelectPlace = async (place: PlaceResult) => {
     setShowSuggestions(false);
+    setSearchQuery(place.name);
+
+    // If coordinates are already exact (not placeholder)
+    if (place.lat && place.lat !== 7.8731 && place.lng !== 80.7718) {
+      onSelectPlace(place);
+      return;
+    }
+
+    // Resolve full geometry if place came from AutocompleteService prediction
+    if (place.placeId) {
+      setIsResolvingPlace(true);
+      const details = await getGooglePlaceDetails(place.placeId, googleMapInstanceRef.current);
+      setIsResolvingPlace(false);
+
+      if (details) {
+        onSelectPlace({
+          ...place,
+          lat: details.lat,
+          lng: details.lng,
+          formattedAddress: details.formattedAddress || place.formattedAddress
+        });
+        return;
+      }
+    }
+
+    onSelectPlace(place);
   };
 
   const handleExplicitSearch = () => {
     if (!searchQuery.trim()) return;
     setIsSearchingPlaces(true);
-    searchGooglePlaces(searchQuery).then((results) => {
+    searchGooglePlaces(searchQuery, googleMapInstanceRef.current).then((results) => {
       setSuggestions(results);
       setIsSearchingPlaces(false);
       setShowSuggestions(true);
@@ -232,13 +259,13 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
                 handleExplicitSearch();
               }
             }}
-            placeholder="Search any place, hotel, attraction or address in Sri Lanka (e.g. Shangri-La Colombo, Sigiriya, Ella)..."
+            placeholder="Search any hotel, villa, resort, attraction, town or address (e.g. Heritance Kandalama, Ella, Galle)..."
             className="w-full pl-11 pr-24 py-3.5 bg-[#F8F7F2] border border-stone-300 rounded-2xl text-xs sm:text-sm font-semibold text-[#17231F] placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#176B52] shadow-2xs"
             aria-label="Search destination location using Google Maps Places"
           />
 
           <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
-            {isSearchingPlaces && (
+            {(isSearchingPlaces || isResolvingPlace) && (
               <Loader2 className="w-4 h-4 text-[#176B52] animate-spin" aria-label="Searching Google Places" />
             )}
             {searchQuery && (
@@ -261,13 +288,13 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
         {showSuggestions && (
           <div className="absolute left-4 right-4 mt-2 bg-white/95 backdrop-blur-2xl border border-stone-200 rounded-2xl shadow-2xl py-2 max-h-80 overflow-y-auto animate-fadeIn z-50">
             <div className="px-3.5 py-1.5 text-[10px] font-bold text-[#176B52] uppercase tracking-wider border-b border-stone-100 flex items-center justify-between">
-              <span>Google Maps Places Results</span>
-              <span className="text-[10px] text-[#68736E] font-normal">Islandwide Search</span>
+              <span>Google Maps Places Suggestions</span>
+              <span className="text-[10px] text-[#68736E] font-normal">Any Sri Lanka Location</span>
             </div>
 
             {suggestions.length === 0 && !isSearchingPlaces ? (
               <div className="p-4 text-center text-xs text-[#68736E] space-y-2">
-                <p>No direct match for "{searchQuery}".</p>
+                <p>No immediate suggestions for "{searchQuery}".</p>
                 <button
                   type="button"
                   onClick={handleExplicitSearch}
@@ -332,10 +359,12 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
         </div>
 
         {/* Loading Route Overlay */}
-        {isLoadingRoute && (
+        {(isLoadingRoute || isResolvingPlace) && (
           <div className="absolute inset-0 bg-white/75 backdrop-blur-xs flex flex-col items-center justify-center gap-2 z-30 animate-fadeIn">
             <Loader2 className="w-8 h-8 text-[#176B52] animate-spin" />
-            <span className="text-xs font-bold text-[#0B3D2E]">Calculating driving route & distance...</span>
+            <span className="text-xs font-bold text-[#0B3D2E]">
+              {isResolvingPlace ? 'Resolving place location...' : 'Calculating driving route & distance...'}
+            </span>
           </div>
         )}
 
@@ -348,7 +377,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
                 BANDARANAIKE (CMB) &rarr; {selectedDestination.name.split(',')[0].toUpperCase()}
               </span>
               <span className="text-[10px] font-bold text-[#0B3D2E] bg-[#DDEFE8] px-2 py-0.5 rounded-full">
-                {routeData.isLiveGoogleRoute ? 'Live Google Route' : 'Expressway Verified'}
+                {routeData.isLiveGoogleRoute ? 'Live Google Route' : 'Verified Route'}
               </span>
             </div>
 

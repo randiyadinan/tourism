@@ -1,7 +1,7 @@
 /**
  * Professional Google Maps, Places API & Routes API Service for LankaVoyage
- * Seamlessly integrates Google Maps Platform (Maps JavaScript, Places Autocomplete, Routes API / Directions)
- * with developer-friendly diagnostics when the Google Cloud API key is being configured.
+ * Seamlessly integrates Google Maps Platform (Maps JavaScript, Places Autocomplete / PlacesService, Routes API / Directions)
+ * Handles Place details retrieval directly using PlacesService, Geocoder, and AutocompleteService.
  */
 
 // Bandaranaike International Airport (CMB) exact coordinates (business pickup origin)
@@ -35,6 +35,7 @@ export interface RouteResult {
 
 // Global script loader for Google Maps JavaScript API
 let googleMapsPromise: Promise<any> | null = null;
+let placesServiceInstance: any = null;
 
 export const loadGoogleMapsScript = (): Promise<any> => {
   if (typeof window !== 'undefined' && (window as any).google && (window as any).google.maps) {
@@ -45,13 +46,13 @@ export const loadGoogleMapsScript = (): Promise<any> => {
     return googleMapsPromise;
   }
 
-  // Retrieve public client browser API key from environment variable
+  // Retrieve public client browser API key from Vite environment variable
   const apiKey = (import.meta as any).env?.VITE_GOOGLE_MAPS_API_KEY || '';
 
   if (!apiKey || apiKey === 'YOUR_GOOGLE_MAPS_API_KEY') {
     if (import.meta.env.DEV) {
       console.info(
-        'Google Maps API Key not yet configured. To enable live Google Maps Places & Routes, set VITE_GOOGLE_MAPS_API_KEY in your .env / .env.local file.'
+        'Google Maps API Key not yet configured. Set VITE_GOOGLE_MAPS_API_KEY in your .env or Vercel environment variables.'
       );
     }
     return Promise.resolve(null);
@@ -70,12 +71,13 @@ export const loadGoogleMapsScript = (): Promise<any> => {
 
     const script = document.createElement('script');
     script.id = 'google-maps-script';
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,geometry,routes&loading=async`;
+    // Load places, geometry, routes libraries
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,geometry&loading=async`;
     script.async = true;
     script.defer = true;
 
     script.onload = () => {
-      if ((window as any).google) {
+      if ((window as any).google?.maps) {
         resolve((window as any).google);
       } else {
         resolve(null);
@@ -83,7 +85,7 @@ export const loadGoogleMapsScript = (): Promise<any> => {
     };
 
     script.onerror = () => {
-      console.warn('Google Maps JavaScript SDK load failed.');
+      console.warn('Google Maps JavaScript SDK script failed to load.');
       resolve(null);
     };
 
@@ -94,16 +96,88 @@ export const loadGoogleMapsScript = (): Promise<any> => {
 };
 
 /**
- * Perform Google Places Autocomplete or Live Places Search across ANY location in Sri Lanka
- * (Hotels, Resorts, Villas, Airbnbs, Restaurants, Streets, Addresses, Attractions, Landmarks, Train Stations, Businesses)
+ * Fetch full place geometry (lat, lng, formatted address) using Google PlacesService / Geocoder
  */
-export async function searchGooglePlaces(query: string): Promise<PlaceResult[]> {
+export async function getGooglePlaceDetails(placeId: string, mapInstance?: any): Promise<{ lat: number; lng: number; formattedAddress?: string } | null> {
+  const g = typeof window !== 'undefined' ? (window as any).google : null;
+  if (!g?.maps || !placeId) return null;
+
+  // 1. Try PlacesService
+  try {
+    if (!placesServiceInstance) {
+      const dummyDiv = mapInstance || document.createElement('div');
+      placesServiceInstance = new g.maps.places.PlacesService(dummyDiv);
+    }
+
+    const placeDetails = await new Promise<any>((resolve) => {
+      placesServiceInstance.getDetails(
+        {
+          placeId: placeId,
+          fields: ['geometry', 'name', 'formatted_address']
+        },
+        (result: any, status: string) => {
+          if (status === g.maps.places.PlacesServiceStatus.OK && result?.geometry?.location) {
+            resolve(result);
+          } else {
+            resolve(null);
+          }
+        }
+      );
+    });
+
+    if (placeDetails?.geometry?.location) {
+      const loc = placeDetails.geometry.location;
+      return {
+        lat: typeof loc.lat === 'function' ? loc.lat() : loc.lat,
+        lng: typeof loc.lng === 'function' ? loc.lng() : loc.lng,
+        formattedAddress: placeDetails.formatted_address
+      };
+    }
+  } catch (err) {
+    console.warn('PlacesService.getDetails error, falling back to Geocoder:', err);
+  }
+
+  // 2. Try Geocoder by placeId
+  if (g.maps.Geocoder) {
+    try {
+      const geocoder = new g.maps.Geocoder();
+      const geoResult = await new Promise<any>((resolve) => {
+        geocoder.geocode({ placeId: placeId }, (results: any[], status: string) => {
+          if (status === 'OK' && results?.[0]?.geometry?.location) {
+            resolve(results[0]);
+          } else {
+            resolve(null);
+          }
+        });
+      });
+
+      if (geoResult?.geometry?.location) {
+        const loc = geoResult.geometry.location;
+        return {
+          lat: typeof loc.lat === 'function' ? loc.lat() : loc.lat,
+          lng: typeof loc.lng === 'function' ? loc.lng() : loc.lng,
+          formattedAddress: geoResult.formatted_address
+        };
+      }
+    } catch (err) {
+      console.warn('Geocoder.geocode error:', err);
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Perform Google Places Autocomplete or Places Text Search across ANY location in Sri Lanka
+ * (Hotels, Resorts, Villas, Airbnbs, Restaurants, Streets, Addresses, Attractions, Landmarks, Train Stations, Towns, Villages)
+ */
+export async function searchGooglePlaces(query: string, mapInstance?: any): Promise<PlaceResult[]> {
   if (!query || query.trim().length < 2) return [];
 
   const trimmedQuery = query.trim();
   const g = typeof window !== 'undefined' ? (window as any).google : null;
 
-  // 1. Primary Provider: Google Maps Places AutocompleteService
+  // 1. Primary: Google Maps Places AutocompleteService
   if (g?.maps?.places?.AutocompleteService) {
     try {
       const autocompleteService = new g.maps.places.AutocompleteService();
@@ -114,7 +188,7 @@ export async function searchGooglePlaces(query: string): Promise<PlaceResult[]> 
             componentRestrictions: { country: 'lk' }
           },
           (results: any[], status: string) => {
-            if (status === 'OK' && results) {
+            if (status === 'OK' && results && results.length > 0) {
               resolve(results);
             } else {
               resolve([]);
@@ -124,49 +198,65 @@ export async function searchGooglePlaces(query: string): Promise<PlaceResult[]> 
       });
 
       if (predictions && predictions.length > 0) {
-        const geocoder = g.maps.Geocoder ? new g.maps.Geocoder() : null;
-        
-        const placeResults: PlaceResult[] = await Promise.all(
-          predictions.slice(0, 8).map(async (pred) => {
-            let lat = 7.8731;
-            let lng = 80.7718;
-
-            if (geocoder && pred.place_id) {
-              try {
-                const geoRes = await new Promise<any>((res) => {
-                  geocoder.geocode({ placeId: pred.place_id }, (r: any[], s: string) => {
-                    if (s === 'OK' && r?.[0]?.geometry?.location) {
-                      res(r[0]);
-                    } else {
-                      res(null);
-                    }
-                  });
-                });
-                if (geoRes?.geometry?.location) {
-                  lat = geoRes.geometry.location.lat();
-                  lng = geoRes.geometry.location.lng();
-                }
-              } catch (e) {}
-            }
-
-            return {
-              placeId: pred.place_id,
-              name: pred.structured_formatting?.main_text || pred.description.split(',')[0],
-              formattedAddress: pred.description,
-              lat,
-              lng
-            };
-          })
-        );
-
-        return placeResults;
+        // Map predictions directly so suggestions appear instantly without waiting for geocoding
+        return predictions.slice(0, 8).map((pred) => ({
+          placeId: pred.place_id,
+          name: pred.structured_formatting?.main_text || pred.description.split(',')[0],
+          formattedAddress: pred.description,
+          lat: 7.8731, // Placeholder until user selects
+          lng: 80.7718
+        }));
       }
     } catch (err) {
       console.warn('Google Places Autocomplete error:', err);
     }
   }
 
-  // 2. Fallback lookup when key is not yet set in environment
+  // 2. Google Places TextSearchService
+  if (g?.maps?.places?.PlacesService) {
+    try {
+      if (!placesServiceInstance) {
+        const dummyDiv = mapInstance || document.createElement('div');
+        placesServiceInstance = new g.maps.places.PlacesService(dummyDiv);
+      }
+
+      const textResults = await new Promise<any[]>((resolve) => {
+        placesServiceInstance.textSearch(
+          {
+            query: `${trimmedQuery}, Sri Lanka`,
+            bounds: new g.maps.LatLngBounds(
+              new g.maps.LatLng(5.9, 79.5),
+              new g.maps.LatLng(9.9, 81.9)
+            )
+          },
+          (results: any[], status: string) => {
+            if (status === g.maps.places.PlacesServiceStatus.OK && results && results.length > 0) {
+              resolve(results);
+            } else {
+              resolve([]);
+            }
+          }
+        );
+      });
+
+      if (textResults && textResults.length > 0) {
+        return textResults.slice(0, 8).map((p) => {
+          const loc = p.geometry?.location;
+          return {
+            placeId: p.place_id,
+            name: p.name,
+            formattedAddress: p.formatted_address || p.name,
+            lat: loc ? (typeof loc.lat === 'function' ? loc.lat() : loc.lat) : 7.8731,
+            lng: loc ? (typeof loc.lng === 'function' ? loc.lng() : loc.lng) : 80.7718
+          };
+        });
+      }
+    } catch (err) {
+      console.warn('Google Places textSearch error:', err);
+    }
+  }
+
+  // 3. Fallback Places Search API (Nominatim lookup when key is not loaded yet)
   try {
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
       trimmedQuery + ', Sri Lanka'
@@ -194,7 +284,7 @@ export async function searchGooglePlaces(query: string): Promise<PlaceResult[]> 
       }
     }
   } catch (err) {
-    console.warn('Places search error:', err);
+    console.warn('Places search lookup error:', err);
   }
 
   return [];
