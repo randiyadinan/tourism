@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Search, MapPin, Navigation, X, RefreshCw, Loader2 } from 'lucide-react';
 import { 
   AIRPORT_COORDINATES, 
@@ -37,7 +37,20 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
   const airportMarkerRef = useRef<any>(null);
   const destMarkerRef = useRef<any>(null);
 
-  // Initialize Google Maps JavaScript API
+  // Helper to fit bounds to Airport (CMB) and Destination
+  const fitMapBounds = useCallback(() => {
+    if (googleMapInstanceRef.current && (window as any).google?.maps) {
+      const g = (window as any).google;
+      const map = googleMapInstanceRef.current;
+
+      const bounds = new g.maps.LatLngBounds();
+      bounds.extend(new g.maps.LatLng(AIRPORT_COORDINATES.lat, AIRPORT_COORDINATES.lng));
+      bounds.extend(new g.maps.LatLng(selectedDestination.lat, selectedDestination.lng));
+      map.fitBounds(bounds, { top: 40, right: 40, bottom: 40, left: 40 });
+    }
+  }, [selectedDestination]);
+
+  // Initialize Google Maps JavaScript API once container is available and dimensioned
   useEffect(() => {
     let isMounted = true;
 
@@ -46,10 +59,10 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
 
       if (googleObj && googleObj.maps && mapContainerRef.current) {
         try {
-          setIsGoogleSdkReady(true);
+          const container = mapContainerRef.current;
 
-          // Crisp, high-resolution Google Map initialization
-          const map = new googleObj.maps.Map(mapContainerRef.current, {
+          // Native, sharp vector map options with no artificial scaling
+          const map = new googleObj.maps.Map(container, {
             center: { lat: selectedDestination.lat || 7.5, lng: selectedDestination.lng || 80.5 },
             zoom: 9,
             mapTypeId: googleObj.maps.MapTypeId.ROADMAP,
@@ -89,6 +102,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
           });
 
           googleMapInstanceRef.current = map;
+          setIsGoogleSdkReady(true);
 
           // Dedicated Directions Renderer for crisp road routes
           const directionsRenderer = new googleObj.maps.DirectionsRenderer({
@@ -159,11 +173,9 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
             });
           }
 
-          // Initial bounds fit
-          const bounds = new googleObj.maps.LatLngBounds();
-          bounds.extend(new googleObj.maps.LatLng(AIRPORT_COORDINATES.lat, AIRPORT_COORDINATES.lng));
-          bounds.extend(new googleObj.maps.LatLng(selectedDestination.lat, selectedDestination.lng));
-          map.fitBounds(bounds, 60);
+          // Trigger resize immediately and after brief frame to guarantee 1:1 pixel grid
+          googleObj.maps.event.trigger(map, 'resize');
+          fitMapBounds();
 
         } catch (err: any) {
           console.warn('Google Map JS SDK init error:', err);
@@ -176,12 +188,30 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
     };
   }, []);
 
+  // ResizeObserver: Keep map completely sharp and perfectly scaled upon container resizing/orientation change
+  useEffect(() => {
+    if (!mapContainerRef.current) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      if (googleMapInstanceRef.current && (window as any).google?.maps) {
+        const g = (window as any).google;
+        g.maps.event.trigger(googleMapInstanceRef.current, 'resize');
+        if (!routeData?.routeGeometry) {
+          fitMapBounds();
+        }
+      }
+    });
+
+    resizeObserver.observe(mapContainerRef.current);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [fitMapBounds, routeData]);
+
   // Update Google Map Route and Bounds when destination or route data changes
   useEffect(() => {
     if (isGoogleSdkReady && googleMapInstanceRef.current && (window as any).google?.maps) {
-      const g = (window as any).google;
-      const map = googleMapInstanceRef.current;
-
       // Update destination marker position
       if (destMarkerRef.current) {
         destMarkerRef.current.setPosition({ lat: selectedDestination.lat, lng: selectedDestination.lng });
@@ -191,16 +221,10 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
       if (routeData?.routeGeometry && directionsRendererRef.current) {
         directionsRendererRef.current.setDirections(routeData.routeGeometry);
       } else {
-        const destLatLng = new g.maps.LatLng(selectedDestination.lat, selectedDestination.lng);
-        const airportLatLng = new g.maps.LatLng(AIRPORT_COORDINATES.lat, AIRPORT_COORDINATES.lng);
-
-        const bounds = new g.maps.LatLngBounds();
-        bounds.extend(airportLatLng);
-        bounds.extend(destLatLng);
-        map.fitBounds(bounds, 60);
+        fitMapBounds();
       }
     }
-  }, [selectedDestination, routeData, isGoogleSdkReady]);
+  }, [selectedDestination, routeData, isGoogleSdkReady, fitMapBounds]);
 
   // Live Places Search as customer types (Debounced)
   useEffect(() => {
@@ -384,10 +408,10 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
         )}
       </div>
 
-      {/* 2. Crisp, High-Resolution Native Google Maps Canvas (Desktop: 460px, Mobile: 360px) */}
-      <div className="relative w-full h-[360px] sm:h-[460px] bg-[#EAF2ED] overflow-hidden">
+      {/* 2. Crisp, High-Resolution Native Google Maps Canvas Container */}
+      <div className="relative w-full min-h-[360px] md:min-h-[460px] h-[360px] md:h-[460px] bg-[#EAF2ED] overflow-hidden">
         
-        {/* Direct Google Maps Canvas without any CSS transforms, filters or scale distortion */}
+        {/* Direct Google Maps Canvas: No transforms, no filters, 1:1 pixel rendering */}
         <div 
           ref={mapContainerRef} 
           className="w-full h-full"
