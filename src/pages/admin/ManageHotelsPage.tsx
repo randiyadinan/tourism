@@ -3,6 +3,7 @@ import { Plus, Trash2, Search } from 'lucide-react';
 import { INITIAL_HOTELS } from '../../data/hotels';
 import type { Hotel } from '../../types';
 import { Modal } from '../../components/common/Modal';
+import { formatPrice } from '../../utils/formatters';
 
 export const ManageHotelsPage: React.FC = () => {
   const [hotels, setHotels] = useState<Hotel[]>(INITIAL_HOTELS);
@@ -12,8 +13,8 @@ export const ManageHotelsPage: React.FC = () => {
   const [name, setName] = useState('');
   const [destination, setDestination] = useState('Sigiriya');
   const [starCategory, setStarCategory] = useState<3 | 4 | 5 | 'Boutique Luxury'>(5);
-  const [pricePerNightUSD, setPricePerNightUSD] = useState(180);
-  const [image, ] = useState('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80');
+  const [pricePerNightUSD, setPricePerNightUSD] = useState(55000);
+  const [image] = useState('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80');
   const [description, setDescription] = useState('');
 
   const filtered = hotels.filter(h =>
@@ -53,7 +54,7 @@ export const ManageHotelsPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#062C22]">Manage Partner Hotels & Villas</h1>
-          <p className="text-xs text-stone-500">Contracted luxury rates, boutique tea bungalows, and 5-star inventory.</p>
+          <p className="text-xs text-stone-500">Contracted luxury rates, boutique tea bungalows, and 5-star inventory in <strong>Sri Lankan Rupees (LKR)</strong>.</p>
         </div>
 
         <button
@@ -86,7 +87,7 @@ export const ManageHotelsPage: React.FC = () => {
                 <th className="py-3.5 px-6">Hotel Property</th>
                 <th className="py-3.5 px-4">Region</th>
                 <th className="py-3.5 px-4">Category</th>
-                <th className="py-3.5 px-4">Contract Rate</th>
+                <th className="py-3.5 px-4">Contract Rate (LKR)</th>
                 <th className="py-3.5 px-4">Key Amenities</th>
                 <th className="py-3.5 px-6 text-right">Actions</th>
               </tr>
@@ -104,10 +105,10 @@ export const ManageHotelsPage: React.FC = () => {
                   <td className="py-4 px-4 font-semibold text-[#176B52]">{h.destination}</td>
                   <td className="py-4 px-4">
                     <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#F8F7F2] border border-stone-200 text-[#062C22]">
-                      {h.starCategory === 'Boutique Luxury' ? 'Boutique' : `${h.starCategory} `}
+                      {h.starCategory === 'Boutique Luxury' ? 'Boutique' : `${h.starCategory} Star`}
                     </span>
                   </td>
-                  <td className="py-4 px-4 font-bold text-[#062C22]">${h.pricePerNightUSD} / night</td>
+                  <td className="py-4 px-4 font-bold text-[#062C22]">{formatPrice(h.pricePerNightUSD)} / night</td>
                   <td className="py-4 px-4 truncate max-w-[200px]">{h.amenities.join(', ')}</td>
                   <td className="py-4 px-6 text-right">
                     <button
@@ -164,18 +165,19 @@ export const ManageHotelsPage: React.FC = () => {
                 onChange={(e) => setStarCategory(e.target.value as any)}
                 className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
               >
-                <option value={3}>3 </option>
-                <option value={4}>4 </option>
-                <option value={5}>5 </option>
+                <option value={3}>3 Star</option>
+                <option value={4}>4 Star</option>
+                <option value={5}>5 Star</option>
                 <option value="Boutique Luxury">Boutique Luxury / Relais</option>
               </select>
             </div>
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-bold text-stone-700">Contract Rate ($ USD/night)</label>
+            <label className="text-xs font-bold text-stone-700">Contract Rate (LKR / night)</label>
             <input
               type="number"
+              step="1000"
               required
               value={pricePerNightUSD}
               onChange={(e) => setPricePerNightUSD(Number(e.target.value))}

@@ -7,20 +7,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 model User {
-  id                 String         @id @default(cuid())
-  name               String
-  email              String         @unique
-  role               String         @default("customer")
-  passwordHash       String?
-  phone              String?
-  country            String?
-  avatar             String?
-  passportNumber     String?
-  dietaryPreferences String?
-  emergencyContact   Json?
-  createdAt          DateTime       @default(now())
-  bookings           Booking[]
-  notifications      Notification[]
+  id                         String         @id @default(cuid())
+  name                       String
+  email                      String         @unique
+  role                       String         @default("customer")
+  passwordHash               String?
+  phone                      String?
+  country                    String?
+  avatar                     String?
+  passportNumber             String?
+  dietaryPreferences         String?
+  emergencyContact           Json?
+  emailVerified              Boolean        @default(false)
+  emailVerificationTokenHash String?
+  emailVerificationExpiresAt DateTime?
+  createdAt                  DateTime       @default(now())
+  bookings                   Booking[]
+  notifications              Notification[]
 }
 
 model Tour {

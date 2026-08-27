@@ -1,5 +1,6 @@
 import type { Context } from 'hono';
 import { paymentStore } from '../services/paymentStore.js';
+import { bookingStore } from '../services/bookingStore.js';
 import { md5 } from '../utils/crypto.js';
 
 export interface Bindings {
@@ -69,15 +70,22 @@ export async function initiatePayment(c: Context<{ Bindings: Bindings }>) {
       bookingCode,
       userId,
       amount,
-      currency = 'USD',
+      currency = 'LKR',
       itemTitle,
       customerName,
       customerEmail,
       customerPhone,
+      flightNumber,
       address = 'No. 12, Galle Road',
       city = 'Colombo',
       country = 'Sri Lanka'
     } = body;
+
+    if (!flightNumber || typeof flightNumber !== 'string' || !flightNumber.trim()) {
+      return c.json({
+        error: 'Flight number is required.'
+      }, 400);
+    }
 
     if (!orderId || !amount || !customerName || !customerEmail) {
       return c.json({
@@ -129,6 +137,7 @@ export async function initiatePayment(c: Context<{ Bindings: Bindings }>) {
       customerName,
       customerEmail,
       customerPhone: customerPhone || '',
+      flightNumber: flightNumber.trim(),
       amount: numAmount,
       currency,
       itemTitle: itemTitle || 'LankaVoyage Travel Experience',
@@ -242,6 +251,15 @@ export async function handleNotification(c: Context<{ Bindings: Bindings }>) {
       statusMessage: status_message,
       rawNotification: payload,
     });
+
+    // Also update server-side bookingStore if order matches a booking
+    const paymentRecord = paymentStore.getPayment(order_id);
+    const bookingIdentifier = paymentRecord?.bookingId || paymentRecord?.bookingCode || order_id;
+    if (mappedStatus === 'SUCCESS') {
+      bookingStore.markAsPaid(bookingIdentifier);
+    } else if (mappedStatus === 'FAILED' || mappedStatus === 'CANCELLED') {
+      bookingStore.updatePaymentStatus(bookingIdentifier, mappedStatus);
+    }
 
     console.log(`[PayHere IPN] Order ${order_id} updated to ${mappedStatus}`);
     return c.text('OK', 200);

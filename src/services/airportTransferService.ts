@@ -81,7 +81,7 @@ export const airportTransferService = {
     // Also register in central bookingService for customer portal & admin management
     const currentUser = authService.getCurrentUser();
     bookingService.createBooking({
-      userId: currentUser?.id || 'user-customer-1',
+      userId: currentUser?.id || 'guest-user',
       customerName: data.contactName,
       customerEmail: data.contactEmail,
       customerPhone: data.contactPhone,

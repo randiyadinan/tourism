@@ -169,26 +169,26 @@ export const Step3Arrival: React.FC<WizardStepProps> = ({ tripState, onChange })
       id: 'both' as const,
       title: 'Roundtrip Airport VIP Transfers',
       desc: 'Arrival VIP Chauffeur meet & greeting + Departure hotel-to-airport dropoff.',
-      price: '+$75 (Best Value)',
+      price: '+LKR 22,000 (Best Value)',
       popular: true
     },
     {
       id: 'pickup' as const,
       title: 'Arrival Pickup Only',
       desc: 'Dedicated chauffeur meets you at Arrivals with personalized name signboard & garlands.',
-      price: '+$40'
+      price: '+LKR 12,000'
     },
     {
       id: 'dropoff' as const,
       title: 'Departure Dropoff Only',
       desc: 'Chauffeur picks you up from your hotel and transfers smoothly to the airport terminal.',
-      price: '+$40'
+      price: '+LKR 12,000'
     },
     {
       id: 'none' as const,
       title: 'No Airport Transfer Needed',
       desc: 'You will arrange your own airport transfers independently.',
-      price: '$0'
+      price: 'LKR 0'
     }
   ];
 
@@ -203,7 +203,7 @@ export const Step3Arrival: React.FC<WizardStepProps> = ({ tripState, onChange })
         flightNumber: tripState.flightNumber,
         arrivalTime: tripState.arrivalTime,
         passengers: tripState.adults + tripState.children,
-        priceUSD: option === 'both' ? 75 : option === 'pickup' || option === 'dropoff' ? 40 : 0
+        priceUSD: option === 'both' ? 22000 : option === 'pickup' || option === 'dropoff' ? 12000 : 0
       }
     });
   };
@@ -230,8 +230,8 @@ export const Step3Arrival: React.FC<WizardStepProps> = ({ tripState, onChange })
               }`}
             >
               {('popular' in opt && opt.popular) && (
-                <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#176B52] text-[#062C22]">
-                  Save $5
+                <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#176B52] text-white">
+                  Save LKR 2,000
                 </span>
               )}
               <div className="space-y-1.5">
@@ -283,9 +283,12 @@ export const Step3Arrival: React.FC<WizardStepProps> = ({ tripState, onChange })
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-bold text-stone-600">Inbound Flight Number (If known)</label>
+            <label className="text-xs font-bold text-stone-600">
+              Inbound Flight Number <span className="text-rose-500">*</span>
+            </label>
             <input
               type="text"
+              required
               value={tripState.flightNumber}
               onChange={(e) => onChange({ 
                 flightNumber: e.target.value,
@@ -295,8 +298,8 @@ export const Step3Arrival: React.FC<WizardStepProps> = ({ tripState, onChange })
                   flightNumber: e.target.value
                 }
               })}
-              placeholder="e.g. UL 504 / QR 668 / EK 650 / BA 2042"
-              className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2.5 text-sm text-[#062C22]"
+              placeholder="e.g. UL 504 / QR 668 / EK 650"
+              className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2.5 text-sm uppercase text-[#062C22] focus:ring-2 focus:ring-[#176B52]"
             />
           </div>
         </div>
@@ -455,26 +458,26 @@ export const Step6Transport: React.FC<WizardStepProps> = ({ tripState, onChange 
       type: 'Private Car',
       title: 'Toyota Executive Sedan',
       desc: 'Ideal for 1 - 3 travelers with moderate luggage. Climate control, bottled water & Wi-Fi.',
-      rate: '$65 / day'
+      rate: 'LKR 15,000 / day'
     },
     {
       type: 'Private Van',
       title: 'Toyota KDH High-Roof Luxury Van',
       desc: 'Top choice for 3 - 6 travelers. Reclining velvet seats, panoramic windows & large luggage space.',
-      rate: '$95 / day',
+      rate: 'LKR 20,000 / day',
       popular: true
     },
     {
       type: 'Luxury SUV',
       title: 'Toyota Land Cruiser Prado 4x4',
       desc: 'Leather interior, premium sound system, all-terrain luxury for demanding travelers.',
-      rate: '$140 / day'
+      rate: 'LKR 35,000 / day'
     },
     {
       type: 'Shared Transport',
       title: 'Air-Conditioned Shared Coach / Train',
       desc: 'Cost-conscious option for budget explorers with express intercity connections.',
-      rate: '$35 / day'
+      rate: 'LKR 10,000 / day'
     }
   ] as const;
 

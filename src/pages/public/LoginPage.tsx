@@ -10,12 +10,16 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { authService } from '../../services/authService';
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showResendPrompt, setShowResendPrompt] = useState(false);
+  const [resendStatus, setResendStatus] = useState<string | null>(null);
+  const [resending, setResending] = useState(false);
 
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -26,6 +30,8 @@ export const LoginPage: React.FC = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setShowResendPrompt(false);
+    setResendStatus(null);
     setLoading(true);
 
     const res = await login(email, password);
@@ -38,7 +44,25 @@ export const LoginPage: React.FC = () => {
         navigate(from === '/admin' ? '/customer' : from);
       }
     } else {
-      setError(res.error || 'Invalid email or password.');
+      if (res.requiresVerification) {
+        setShowResendPrompt(true);
+        setError('Please verify your email before signing in.');
+      } else {
+        setError(res.error || 'Invalid email or password.');
+      }
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!email) return;
+    setResending(true);
+    setResendStatus(null);
+    const res = await authService.resendVerification(email);
+    setResending(false);
+    if (res.success) {
+      setResendStatus('Verification link re-sent! Please check your email inbox.');
+    } else {
+      setResendStatus(res.error || 'Failed to resend verification email.');
     }
   };
 
@@ -109,9 +133,31 @@ export const LoginPage: React.FC = () => {
         {/* Standard Login Form */}
         <form onSubmit={handleLogin} className="space-y-4">
           {error && (
-            <div className="p-3 bg-rose-50 text-rose-700 text-xs rounded-xl flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              <span>{error}</span>
+            <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-2xl flex flex-col gap-2 animate-fadeIn">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                <span className="font-semibold">{error}</span>
+              </div>
+              {showResendPrompt && (
+                <div className="pt-1 border-t border-rose-200/60 flex items-center justify-between">
+                  <span className="text-[11px] text-rose-700">Need a new verification email?</span>
+                  <button
+                    type="button"
+                    onClick={handleResendVerification}
+                    disabled={resending}
+                    className="text-[11px] font-bold text-[#176B52] hover:underline disabled:opacity-50"
+                  >
+                    {resending ? 'Sending...' : 'Resend Email'}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {resendStatus && (
+            <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>{resendStatus}</span>
             </div>
           )}
 

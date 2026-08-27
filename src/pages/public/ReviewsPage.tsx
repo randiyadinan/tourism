@@ -8,9 +8,11 @@ import {
   CheckCircle2,
   Quote,
   Sparkles,
-  Camera
+  Camera,
+  Compass
 } from 'lucide-react';
 import { reviewService } from '../../services/reviewService';
+import { tourService } from '../../services/tourService';
 import type { Review } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 import { EmptyState } from '../../components/common/EmptyState';
@@ -20,7 +22,11 @@ export const ReviewsPage: React.FC = () => {
   const [reviewsList, setReviewsList] = useState<Review[]>(() => reviewService.getAllReviews());
   const [selectedRating, setSelectedRating] = useState<number | 'All'>('All');
   const [selectedTripType, setSelectedTripType] = useState<string>('All');
+  const [selectedTourFilter, setSelectedTourFilter] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
+
+  // Available tours from tourService
+  const allTours = useMemo(() => tourService.getAllTours(), []);
 
   // Gallery Active Filter
   const [galleryCategory, setGalleryCategory] = useState<string>('All');
@@ -31,6 +37,7 @@ export const ReviewsPage: React.FC = () => {
   const [formRating, setFormRating] = useState(5);
   const [formTitle, setFormTitle] = useState('');
   const [formContent, setFormContent] = useState('');
+  const [formSelectedTourId, setFormSelectedTourId] = useState(allTours[0]?.id || 'tour-ceylon-odyssey');
   const [formTripType, setFormTripType] = useState<'Couple / Honeymoon' | 'Family Vacation' | 'Solo Explorer' | 'Friends Group'>('Couple / Honeymoon');
   const [formAuthorName, setFormAuthorName] = useState(user?.name || '');
   const [formAuthorCountry, setFormAuthorCountry] = useState(user?.country || 'United Kingdom');
@@ -100,8 +107,8 @@ export const ReviewsPage: React.FC = () => {
       id: 'gal-elephants-1',
       title: 'Minneriya Wild Elephant Gathering',
       category: 'Wildlife',
-      image: 'https://images.unsplash.com/photo-1566296314736-6eaac1ca0cb9?auto=format&fit=crop&w=1200&q=85',
-      caption: 'Over 200 wild Asian elephants congregating by the ancient reservoir.'
+      image: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=85',
+      caption: 'Hundreds of Asian elephants gathered across the ancient reservoir banks.'
     }
   ];
 
@@ -112,13 +119,15 @@ export const ReviewsPage: React.FC = () => {
     return galleryItems.filter(item => item.category === galleryCategory);
   }, [galleryCategory]);
 
-  // Score statistics
+  // Overall Statistics
   const stats = useMemo(() => {
     const total = reviewsList.length;
-    const avg = total > 0 ? reviewsList.reduce((acc, r) => acc + r.rating, 0) / total : 5;
+    const avg = total > 0 
+      ? (reviewsList.reduce((acc, r) => acc + r.rating, 0) / total).toFixed(1)
+      : '5.0';
     const fiveStars = reviewsList.filter(r => r.rating === 5).length;
     const fourStars = reviewsList.filter(r => r.rating === 4).length;
-    return { total, avg: avg.toFixed(2), fiveStars, fourStars };
+    return { total, avg, fiveStars, fourStars };
   }, [reviewsList]);
 
   // Filtered reviews
@@ -126,23 +135,27 @@ export const ReviewsPage: React.FC = () => {
     return reviewsList.filter(r => {
       const matchRating = selectedRating === 'All' || r.rating === selectedRating;
       const matchTrip = selectedTripType === 'All' || r.tripType === selectedTripType;
+      const matchTour = selectedTourFilter === 'All' || r.targetId === selectedTourFilter;
       const matchSearch = !searchQuery || 
         r.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         r.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
         r.authorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        r.authorCountry.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchRating && matchTrip && matchSearch;
+        r.authorCountry.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (r.targetTitle && r.targetTitle.toLowerCase().includes(searchQuery.toLowerCase()));
+      return matchRating && matchTrip && matchTour && matchSearch;
     });
-  }, [reviewsList, selectedRating, selectedTripType, searchQuery]);
+  }, [reviewsList, selectedRating, selectedTripType, selectedTourFilter, searchQuery]);
 
   const handleSubmitReview = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formTitle.trim() || !formContent.trim()) return;
 
+    const chosenTour = allTours.find(t => t.id === formSelectedTourId);
+
     const newRev = reviewService.submitReview({
       targetType: 'tour',
-      targetId: 'tour-ceylon-odyssey',
-      targetTitle: 'LankaVoyage Bespoke Experience',
+      targetId: formSelectedTourId,
+      targetTitle: chosenTour ? chosenTour.title : 'LankaVoyage Guided Tour',
       authorName: formAuthorName.trim() || 'Anonymous Guest',
       authorCountry: formAuthorCountry.trim() || 'International Traveler',
       authorAvatar: user?.avatar || `https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80`,
@@ -159,17 +172,22 @@ export const ReviewsPage: React.FC = () => {
       setModalOpen(false);
       setFormTitle('');
       setFormContent('');
-    }, 2000);
+    }, 1800);
   };
 
   return (
-    <div className="bg-[#F8F7F2] min-h-screen py-10 sm:py-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+    <div className="bg-[#F8F7F2] min-h-screen py-10 sm:py-16 relative overflow-hidden">
+      
+      {/* Ambient background glows */}
+      <div className="ambient-glow-orb w-96 h-96 bg-[#39A982] top-20 -left-20 opacity-15" />
+      <div className="ambient-glow-orb w-96 h-96 bg-[#C5A059] top-[800px] -right-20 opacity-10" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16 relative z-10">
         
         {/* Page Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-3 max-w-2xl">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-[#176B52] border border-stone-200 text-xs font-semibold uppercase tracking-wider shadow-2xs">
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full liquid-glass-white text-[#176B52] border border-[#39A982]/20 text-xs font-semibold uppercase tracking-wider shadow-2xs">
               <Sparkles className="w-3.5 h-3.5 text-[#39A982]" />
               <span>TRAVELER VOICES & MOMENTS</span>
             </div>
@@ -183,7 +201,7 @@ export const ReviewsPage: React.FC = () => {
 
           <button
             onClick={() => setModalOpen(true)}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#0B3D2E] hover:bg-[#176B52] text-white font-semibold text-xs sm:text-sm shadow-sm hover:shadow-md transition-all shrink-0 border border-white/20"
+            className="glass-btn-primary inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl text-white font-semibold text-xs sm:text-sm shadow-md shrink-0"
           >
             <MessageSquarePlus className="w-4 h-4 text-[#DDEFE8]" />
             <span>Write a Review</span>
@@ -194,9 +212,9 @@ export const ReviewsPage: React.FC = () => {
         <div className="space-y-8">
           
           {/* Scorecard Banner */}
-          <div className="bg-white/85 backdrop-blur-xl rounded-3xl p-6 sm:p-8 border border-white/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.06)] grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+          <div className="liquid-glass-white rounded-3xl p-6 sm:p-8 border border-white/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.06)] grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-[#DDEFE8] flex flex-col items-center justify-center text-[#0B3D2E] shrink-0 border border-[#176B52]/20">
+              <div className="w-16 h-16 rounded-2xl bg-[#DDEFE8] flex flex-col items-center justify-center text-[#0B3D2E] shrink-0 border border-[#176B52]/20 shadow-xs">
                 <span className="font-serif text-2xl font-bold leading-none">{stats.avg}</span>
                 <span className="text-[10px] text-[#176B52] font-semibold mt-1">/ 5.0</span>
               </div>
@@ -233,7 +251,7 @@ export const ReviewsPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="bg-[#F8F7F2] p-4 rounded-2xl border border-stone-200 text-xs space-y-1 text-stone-700">
+            <div className="bg-white/70 backdrop-blur-md p-4 rounded-2xl border border-stone-200 text-xs space-y-1 text-stone-700">
               <div className="flex items-center gap-1.5 font-bold text-[#176B52]">
                 <ShieldCheck className="w-4 h-4 text-[#39A982]" />
                 <span>100% Genuine Guest Feedback</span>
@@ -243,19 +261,39 @@ export const ReviewsPage: React.FC = () => {
           </div>
 
           {/* Filter Bar */}
-          <div className="bg-white/85 backdrop-blur-xl p-4 sm:p-5 rounded-3xl border border-white/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.06)] flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="relative w-full md:w-80">
-              <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search reviews (e.g. Chauffeur, Yala, Sigiriya)..."
-                className="w-full pl-9 pr-3.5 py-2.5 bg-[#F8F7F2] border border-stone-300 rounded-xl text-xs sm:text-sm font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
-              />
+          <div className="liquid-glass-white p-4 sm:p-5 rounded-3xl border border-white/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.06)] flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+            
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+              <div className="relative w-full sm:w-72">
+                <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search reviews (e.g. Chauffeur, Yala, Sigiriya)..."
+                  className="w-full pl-9 pr-3.5 py-2.5 bg-white/80 border border-stone-300 rounded-xl text-xs sm:text-sm font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
+                />
+              </div>
+
+              {/* Tour Selector Filter */}
+              <div className="w-full sm:w-64">
+                <select
+                  value={selectedTourFilter}
+                  onChange={(e) => setSelectedTourFilter(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-white/80 border border-stone-300 rounded-xl text-xs font-semibold text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
+                  aria-label="Filter reviews by tour"
+                >
+                  <option value="All">All Tours & Experiences</option>
+                  {allTours.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.title} ({t.durationDays} Days)
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0">
               {tripTypes.map((t) => (
                 <button
                   key={t}
@@ -263,7 +301,7 @@ export const ReviewsPage: React.FC = () => {
                   className={`px-3.5 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-colors ${
                     selectedTripType === t
                       ? 'bg-[#0B3D2E] text-white shadow-xs font-semibold'
-                      : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                      : 'bg-white/80 text-stone-600 hover:bg-white border border-stone-200'
                   }`}
                 >
                   {t}
@@ -280,16 +318,17 @@ export const ReviewsPage: React.FC = () => {
               actionText="View All Reviews"
               onAction={() => {
                 setSearchQuery('');
-                setSelectedTripType('All');
                 setSelectedRating('All');
+                setSelectedTripType('All');
+                setSelectedTourFilter('All');
               }}
             />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredReviews.map((r) => (
                 <div
                   key={r.id}
-                  className="relative bg-white rounded-3xl p-7 border border-stone-200 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.05)] hover:shadow-[0_20px_40px_-10px_rgba(6,44,34,0.12)] transition-all duration-300 flex flex-col justify-between"
+                  className="glass-card-interactive liquid-glass-white rounded-3xl p-7 border border-white/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.05)] flex flex-col justify-between"
                 >
                   <Quote className="absolute top-6 right-6 w-8 h-8 text-[#DDEFE8]" />
 
@@ -317,8 +356,9 @@ export const ReviewsPage: React.FC = () => {
                     </p>
 
                     {r.targetTitle && (
-                      <div className="text-[11px] font-medium text-[#176B52] bg-[#DDEFE8]/60 px-3 py-1 rounded-full border border-[#176B52]/20 inline-block">
-                        {r.targetTitle}
+                      <div className="text-[11px] font-medium text-[#176B52] bg-[#DDEFE8]/60 px-3 py-1 rounded-full border border-[#176B52]/20 inline-flex items-center gap-1.5">
+                        <Compass className="w-3 h-3 text-[#39A982]" />
+                        <span>{r.targetTitle}</span>
                       </div>
                     )}
                   </div>
@@ -376,7 +416,6 @@ export const ReviewsPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Photo Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredGallery.map((photo) => (
               <div
@@ -435,10 +474,10 @@ export const ReviewsPage: React.FC = () => {
       {/* Review Submit Modal */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative space-y-5 border border-stone-200">
+          <div className="liquid-glass-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative space-y-5 border border-white/80">
             <button
               onClick={() => setModalOpen(false)}
-              className="absolute top-5 right-5 text-stone-400 hover:text-stone-700"
+              className="absolute top-5 right-5 text-stone-400 hover:text-stone-700 p-1"
             >
               <X className="w-5 h-5" />
             </button>
@@ -449,7 +488,7 @@ export const ReviewsPage: React.FC = () => {
             </div>
 
             {submittedSuccess ? (
-              <div className="p-6 text-center bg-[#DDEFE8]/60 rounded-2xl border border-[#176B52]/30 space-y-2">
+              <div className="p-6 text-center bg-[#DDEFE8]/80 backdrop-blur-md rounded-2xl border border-[#176B52]/30 space-y-2">
                 <CheckCircle2 className="w-8 h-8 text-[#176B52] mx-auto" />
                 <h3 className="font-serif text-lg font-bold text-[#17231F]">Thank You!</h3>
                 <p className="text-xs text-[#68736E]">Your review has been published to the LankaVoyage community.</p>
@@ -457,9 +496,29 @@ export const ReviewsPage: React.FC = () => {
             ) : (
               <form onSubmit={handleSubmitReview} className="space-y-4 text-xs sm:text-sm">
                 
+                {/* 1. Tour Selection Dropdown */}
+                <div className="space-y-1">
+                  <label className="font-bold text-[#17231F] flex items-center gap-1.5">
+                    <Compass className="w-3.5 h-3.5 text-[#176B52]" />
+                    Select Tour Experienced *
+                  </label>
+                  <select
+                    required
+                    value={formSelectedTourId}
+                    onChange={(e) => setFormSelectedTourId(e.target.value)}
+                    className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-2.5 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
+                  >
+                    {allTours.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.title} ({t.durationDays} Days &bull; {t.category})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 {/* Rating picker */}
                 <div className="space-y-1">
-                  <label className="font-semibold text-[#17231F] block">Overall Rating</label>
+                  <label className="font-bold text-[#17231F] block">Overall Rating</label>
                   <div className="flex items-center gap-2">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
@@ -478,7 +537,7 @@ export const ReviewsPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-semibold text-[#17231F]">Review Title *</label>
+                  <label className="font-bold text-[#17231F]">Review Title *</label>
                   <input
                     type="text"
                     required
@@ -490,7 +549,7 @@ export const ReviewsPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-semibold text-[#17231F]">Trip Style</label>
+                  <label className="font-bold text-[#17231F]">Trip Style</label>
                   <select
                     value={formTripType}
                     onChange={(e) => setFormTripType(e.target.value as any)}
@@ -504,7 +563,7 @@ export const ReviewsPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-semibold text-[#17231F]">Review Feedback *</label>
+                  <label className="font-bold text-[#17231F]">Review Feedback *</label>
                   <textarea
                     required
                     rows={4}
@@ -517,7 +576,7 @@ export const ReviewsPage: React.FC = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="font-semibold text-[#17231F]">Your Name *</label>
+                    <label className="font-bold text-[#17231F]">Your Name *</label>
                     <input
                       type="text"
                       required
@@ -528,7 +587,7 @@ export const ReviewsPage: React.FC = () => {
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="font-semibold text-[#17231F]">Home Country *</label>
+                    <label className="font-bold text-[#17231F]">Home Country *</label>
                     <input
                       type="text"
                       required
@@ -542,7 +601,7 @@ export const ReviewsPage: React.FC = () => {
 
                 <button
                   type="submit"
-                  className="w-full py-3 bg-[#0B3D2E] hover:bg-[#176B52] text-white font-semibold text-xs sm:text-sm rounded-xl transition-all shadow-sm border border-white/20"
+                  className="glass-btn-primary w-full py-3.5 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md"
                 >
                   Submit Verified Review
                 </button>

@@ -20,6 +20,9 @@ export interface User {
     relationship: string;
     phone: string;
   };
+  emailVerified?: boolean;
+  emailVerificationTokenHash?: string;
+  emailVerificationExpiresAt?: string;
   createdAt: string;
 }
 
@@ -171,8 +174,8 @@ export interface Vehicle {
 }
 
 export type BookingStatus = 'Pending' | 'Confirmed' | 'Completed' | 'Cancelled' | 'Rejected';
-export type PaymentStatus = 'Unpaid' | 'Deposit Paid' | 'Fully Paid' | 'Refunded';
-export type PaymentMethod = 'Credit / Debit Card' | 'PayPal' | 'Bank Wire Transfer' | 'Pay on Arrival / Deposit';
+export type PaymentStatus = 'PAID' | 'NOT PAID' | 'FAILED' | 'CANCELLED' | 'Unpaid' | 'Deposit Paid' | 'Fully Paid' | 'Refunded';
+export type PaymentMethod = 'Credit / Debit Card' | 'Cash Payment' | 'PayPal' | 'Bank Wire Transfer' | 'Pay on Arrival / Deposit';
 
 export interface TravelerDetail {
   title: 'Mr' | 'Mrs' | 'Ms' | 'Dr';

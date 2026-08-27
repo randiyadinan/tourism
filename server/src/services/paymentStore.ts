@@ -6,6 +6,7 @@ export interface ServerPaymentRecord {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
+  flightNumber?: string;
   amount: number;
   currency: string;
   itemTitle: string;
@@ -34,6 +35,7 @@ class PaymentStore {
     customerName: string;
     customerEmail: string;
     customerPhone: string;
+    flightNumber?: string;
     amount: number;
     currency: string;
     itemTitle: string;

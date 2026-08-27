@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import {  Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { INITIAL_DISCOUNTS } from '../../data/initialBookings';
 import type { DiscountCoupon } from '../../types';
 import { Modal } from '../../components/common/Modal';
+import { formatPrice } from '../../utils/formatters';
 
 export const ManageDiscountsPage: React.FC = () => {
   const [coupons, setCoupons] = useState<DiscountCoupon[]>(INITIAL_DISCOUNTS);
@@ -12,7 +13,7 @@ export const ManageDiscountsPage: React.FC = () => {
   const [description, setDescription] = useState('');
   const [discountType, setDiscountType] = useState<'percentage' | 'fixed_usd'>('percentage');
   const [discountValue, setDiscountValue] = useState(10);
-  const [minSpendUSD, setMinSpendUSD] = useState(500);
+  const [minSpendUSD, setMinSpendUSD] = useState(150000);
   const [validUntil, setValidUntil] = useState('2026-12-31');
 
   const handleToggleActive = (cCode: string) => {
@@ -50,7 +51,7 @@ export const ManageDiscountsPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#062C22]">Promotions & Discount Codes</h1>
-          <p className="text-xs text-stone-500">Configure seasonal promo campaigns and early bird percentage savings.</p>
+          <p className="text-xs text-stone-500">Configure seasonal promo campaigns and early bird percentage savings in <strong>Sri Lankan Rupees (LKR)</strong>.</p>
         </div>
 
         <button
@@ -85,7 +86,7 @@ export const ManageDiscountsPage: React.FC = () => {
               </div>
 
               <h4 className="font-serif font-bold text-lg text-[#062C22]">
-                {c.discountType === 'percentage' ? `${c.discountValue}% OFF` : `$${c.discountValue} USD OFF`}
+                {c.discountType === 'percentage' ? `${c.discountValue}% OFF` : `${formatPrice(c.discountValue)} OFF`}
               </h4>
 
               <p className="text-xs text-stone-600">{c.description}</p>
@@ -94,7 +95,7 @@ export const ManageDiscountsPage: React.FC = () => {
             <div className="space-y-1.5 text-xs text-stone-400 pt-3 border-t border-stone-100">
               <div className="flex justify-between">
                 <span>Min Spend:</span>
-                <strong className="text-stone-600">${c.minSpendUSD || 0} USD</strong>
+                <strong className="text-stone-600">{formatPrice(c.minSpendUSD || 0)}</strong>
               </div>
               <div className="flex justify-between">
                 <span>Valid Until:</span>
@@ -147,11 +148,11 @@ export const ManageDiscountsPage: React.FC = () => {
                 className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
               >
                 <option value="percentage">Percentage (%)</option>
-                <option value="fixed_usd">Fixed Amount ($ USD)</option>
+                <option value="fixed_usd">Fixed Amount (LKR)</option>
               </select>
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-bold text-stone-700">Discount Value</label>
+              <label className="text-xs font-bold text-stone-700">Discount Value ({discountType === 'percentage' ? '%' : 'LKR'})</label>
               <input
                 type="number"
                 required
@@ -164,9 +165,10 @@ export const ManageDiscountsPage: React.FC = () => {
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <label className="text-xs font-bold text-stone-700">Min Spend ($)</label>
+              <label className="text-xs font-bold text-stone-700">Min Spend (LKR)</label>
               <input
                 type="number"
+                step="5000"
                 value={minSpendUSD}
                 onChange={(e) => setMinSpendUSD(Number(e.target.value))}
                 className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"

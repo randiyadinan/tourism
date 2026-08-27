@@ -1,15 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Mail, Phone, Users, ShieldCheck, Eye, X, Calendar, DollarSign } from 'lucide-react';
+import { Search, Mail, Phone, Users, ShieldCheck, Eye, X, Calendar } from 'lucide-react';
 import { authService } from '../../services/authService';
 import { bookingService } from '../../services/bookingService';
+import { formatPrice } from '../../utils/formatters';
 import type { User, Booking } from '../../types';
 
 export const ManageCustomersPage: React.FC = () => {
   const [users] = useState<User[]>(() => authService.getUsers().filter(u => u.role === 'customer'));
-  const [allBookings] = useState<Booking[]>(() => bookingService.getAllBookings());
+  const [allBookings, setAllBookings] = useState<Booking[]>(() => bookingService.getAllBookings());
   const [search, setSearch] = useState('');
   const [inspectingCustomer, setInspectingCustomer] = useState<User | null>(null);
+
+  useEffect(() => {
+    bookingService.fetchBookingsFromServer().then((latest) => {
+      setAllBookings(latest);
+    });
+  }, []);
 
   const filtered = users.filter(u =>
     u.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -37,7 +44,7 @@ export const ManageCustomersPage: React.FC = () => {
 
       {/* Summary Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm space-y-1">
+        <div className="liquid-glass-white p-5 rounded-2xl border border-white/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.06)] space-y-1">
           <span className="text-[10px] text-stone-400 font-bold uppercase block">Registered Customers</span>
           <span className="font-serif text-2xl font-bold text-[#062C22] flex items-center gap-2">
             <Users className="w-5 h-5 text-[#176B52]" />
@@ -46,7 +53,7 @@ export const ManageCustomersPage: React.FC = () => {
           <p className="text-[11px] text-stone-500">Active traveler accounts</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm space-y-1">
+        <div className="liquid-glass-white p-5 rounded-2xl border border-white/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.06)] space-y-1">
           <span className="text-[10px] text-stone-400 font-bold uppercase block">Total Bookings Recorded</span>
           <span className="font-serif text-2xl font-bold text-[#0B3D2E] flex items-center gap-2">
             <Calendar className="w-5 h-5 text-[#0B3D2E]" />
@@ -55,18 +62,17 @@ export const ManageCustomersPage: React.FC = () => {
           <p className="text-[11px] text-stone-500">Bespoke itineraries & transfers</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm space-y-1">
+        <div className="liquid-glass-white p-5 rounded-2xl border border-white/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.06)] space-y-1">
           <span className="text-[10px] text-stone-400 font-bold uppercase block">Gross Platform Revenue</span>
           <span className="font-serif text-2xl font-bold text-emerald-700 flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-emerald-600" />
-            ${totalRevenue.toLocaleString()} USD
+            {formatPrice(totalRevenue)}
           </span>
           <p className="text-[11px] text-stone-500">Customer transactions</p>
         </div>
       </div>
 
       {/* Search */}
-      <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm flex items-center gap-3">
+      <div className="liquid-glass-white p-4 rounded-2xl border border-white/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.06)] flex items-center gap-3">
         <Search className="w-4 h-4 text-stone-400" />
         <input
           type="text"
@@ -78,7 +84,7 @@ export const ManageCustomersPage: React.FC = () => {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden">
+      <div className="liquid-glass-white rounded-3xl border border-white/80 shadow-[0_10px_30px_-10px_rgba(6,44,34,0.08)] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="bg-[#F8F7F2] text-stone-700 font-bold border-b border-stone-200">
@@ -131,7 +137,7 @@ export const ManageCustomersPage: React.FC = () => {
                       </span>
                     </td>
                     <td className="py-4 px-4 font-bold text-[#062C22]">
-                      ${totalSpend.toLocaleString()} USD
+                      {formatPrice(totalSpend)}
                     </td>
                     <td className="py-4 px-6 text-right">
                       <button
@@ -150,7 +156,7 @@ export const ManageCustomersPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Customer Inspector Modal */}
+      {/* Customer Profile & Bookings Modal */}
       {inspectingCustomer && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 backdrop-blur-xs">
           <div className="bg-white w-full max-w-2xl rounded-3xl p-6 sm:p-8 shadow-2xl border border-stone-200 max-h-[90vh] overflow-y-auto space-y-6">
@@ -160,18 +166,11 @@ export const ManageCustomersPage: React.FC = () => {
                 <img
                   src={inspectingCustomer.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'}
                   alt={inspectingCustomer.name}
-                  className="w-12 h-12 rounded-full object-cover border-2 border-[#176B52]"
+                  className="w-12 h-12 rounded-full object-cover border border-[#176B52]"
                 />
                 <div>
-                  <span className="text-[10px] font-bold text-[#176B52] uppercase tracking-wider">
-                    Customer CRM File
-                  </span>
-                  <h3 className="font-serif text-xl font-bold text-[#062C22] flex items-center gap-1.5">
-                    {inspectingCustomer.name}
-                    <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-100 text-emerald-800 font-bold">
-                      Verified
-                    </span>
-                  </h3>
+                  <h3 className="font-serif text-lg font-bold text-[#062C22]">{inspectingCustomer.name}</h3>
+                  <p className="text-xs text-stone-400 font-mono">{inspectingCustomer.id} &bull; {inspectingCustomer.role}</p>
                 </div>
               </div>
               <button
@@ -182,10 +181,9 @@ export const ManageCustomersPage: React.FC = () => {
               </button>
             </div>
 
-            {/* Profile Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               <div className="bg-[#F8F7F2] p-4 rounded-2xl border border-stone-200/80 space-y-1.5">
-                <span className="font-bold text-[#062C22] block">Contact Details</span>
+                <span className="font-bold text-[#062C22] block">Contact Information</span>
                 <p><strong>Email:</strong> {inspectingCustomer.email}</p>
                 <p><strong>Phone:</strong> {inspectingCustomer.phone || 'Not provided'}</p>
                 <p><strong>Country:</strong> {inspectingCustomer.country || 'International'}</p>
@@ -222,7 +220,7 @@ export const ManageCustomersPage: React.FC = () => {
                           </span>
                         </div>
                         <p className="font-bold text-[#062C22] mt-0.5">{b.tourTitle}</p>
-                        <p className="text-[11px] text-stone-500">{b.startDate} to {b.endDate} • ${b.totalAmount.toLocaleString()} USD</p>
+                        <p className="text-[11px] text-stone-500">{b.startDate} to {b.endDate} • {formatPrice(b.totalAmount)}</p>
                       </div>
 
                       <Link

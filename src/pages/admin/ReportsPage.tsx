@@ -3,6 +3,7 @@ import {
   Download, 
   Printer
 } from 'lucide-react';
+import { formatPrice } from '../../utils/formatters';
 
 export const ReportsPage: React.FC = () => {
 
@@ -21,7 +22,7 @@ export const ReportsPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#062C22]">Executive Commercial Reports</h1>
-          <p className="text-xs text-stone-500">Financial summaries, conversion analytics, and traveler demographic reports.</p>
+          <p className="text-xs text-stone-500">Financial summaries, conversion analytics, and traveler demographic reports in <strong>Sri Lankan Rupees (LKR)</strong>.</p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -46,7 +47,7 @@ export const ReportsPage: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <div className="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm space-y-2">
           <span className="text-xs text-stone-400 font-bold uppercase">Average Booking Value</span>
-          <span className="font-serif text-3xl font-bold text-[#062C22]">$2,450 USD</span>
+          <span className="font-serif text-3xl font-bold text-[#062C22]">{formatPrice(745000)}</span>
           <p className="text-[11px] text-emerald-700 font-semibold">+12.3% YoY Growth</p>
         </div>
 
@@ -69,11 +70,11 @@ export const ReportsPage: React.FC = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {[
-            { country: 'United Kingdom & Ireland', pct: 38, bookings: 470, rev: '$1,151,500' },
-            { country: 'Germany & DACH Region', pct: 24, bookings: 298, rev: '$730,100' },
-            { country: 'Australia & New Zealand', pct: 18, bookings: 223, rev: '$546,350' },
-            { country: 'United States & Canada', pct: 12, bookings: 148, rev: '$362,600' },
-            { country: 'France & Benelux', pct: 8, bookings: 101, rev: '$247,450' }
+            { country: 'United Kingdom & Ireland', pct: 38, bookings: 470, rev: formatPrice(350150000) },
+            { country: 'Germany & DACH Region', pct: 24, bookings: 298, rev: formatPrice(222100000) },
+            { country: 'Australia & New Zealand', pct: 18, bookings: 223, rev: formatPrice(166350000) },
+            { country: 'United States & Canada', pct: 12, bookings: 148, rev: formatPrice(110600000) },
+            { country: 'France & Benelux', pct: 8, bookings: 101, rev: formatPrice(75450000) }
           ].map((m, i) => (
             <div key={i} className="space-y-1.5 text-xs bg-[#F8F7F2] p-4 rounded-2xl border border-stone-200/80">
               <div className="flex justify-between font-bold text-[#062C22]">

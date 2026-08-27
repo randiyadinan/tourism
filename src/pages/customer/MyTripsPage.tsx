@@ -1,22 +1,31 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Plane, 
   MapPin, 
   Hotel, 
   Car, 
-   
-   
-   
   Sparkles,
-  
-  Phone } from 'lucide-react';
-
+  Phone 
+} from 'lucide-react';
 import { bookingService } from '../../services/bookingService';
 import { useAuth } from '../../context/AuthContext';
+import type { Booking } from '../../types';
 
 export const MyTripsPage: React.FC = () => {
   const { user } = useAuth();
-  const bookings = bookingService.getUserBookings(user?.id || 'user-customer-1');
+  const [bookings, setBookings] = useState<Booking[]>(() => (user?.id ? bookingService.getUserBookings(user.id) : []));
+
+  useEffect(() => {
+    if (user?.id) {
+      setBookings(bookingService.getUserBookings(user.id));
+      bookingService.fetchBookingsFromServer().then(() => {
+        setBookings(bookingService.getUserBookings(user.id));
+      });
+    } else {
+      setBookings([]);
+    }
+  }, [user]);
+
   const currentTrip = bookings[0];
 
   // Visual Interactive Step Timeline of the Sri Lankan Route

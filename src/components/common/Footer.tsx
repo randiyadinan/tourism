@@ -1,21 +1,25 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
+  Compass, 
   MapPin, 
   Phone, 
   Mail, 
-  Clock, 
   ShieldCheck, 
-  Globe2, 
+  Clock, 
+  Heart,
+  Globe2,
   Camera
 } from 'lucide-react';
 
 export const Footer: React.FC = () => {
-  const currentYear = new Date().getFullYear();
-
   return (
-    <footer className="bg-[#062C22] text-white border-t border-white/10 pt-16 pb-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <footer className="bg-[#062C22] text-white border-t border-white/10 relative overflow-hidden">
+      
+      {/* Decorative top accent line */}
+      <div className="h-1 w-full bg-gradient-to-r from-[#0B3D2E] via-[#39A982] to-[#0B3D2E]" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12">
         
         {/* Main 4-Column Footer Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-white/10">
@@ -66,18 +70,23 @@ export const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* Quick Travel Links */}
+          {/* Quick Travel Links (Only 3 Main Customer Pages + Contact) */}
           <div className="space-y-3">
-            <h4 className="font-serif text-base font-semibold text-white">Experience</h4>
+            <h4 className="font-serif text-base font-semibold text-white">Explore Ceylon</h4>
             <ul className="space-y-2 text-xs sm:text-sm text-stone-300">
               <li>
+                <Link to="/" className="hover:text-[#39A982] transition-colors">
+                  Home
+                </Link>
+              </li>
+              <li>
                 <Link to="/transfers" className="hover:text-[#39A982] transition-colors">
-                  Airport Transfers & Tours
+                  Airport Transfer & Tours
                 </Link>
               </li>
               <li>
                 <Link to="/reviews" className="hover:text-[#39A982] transition-colors">
-                  Guest Reviews & Gallery
+                  Guest Reviews & Stories
                 </Link>
               </li>
               <li>
@@ -111,28 +120,32 @@ export const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* Trust Badges */}
+          {/* Accreditations & Guarantee */}
           <div className="space-y-3">
-            <h4 className="font-serif text-base font-semibold text-white">Official Certification</h4>
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2.5">
-              <div className="flex items-center gap-2 text-xs font-semibold text-[#39A982]">
-                <ShieldCheck className="w-4 h-4 text-[#39A982]" />
-                <span>SLTDA Registered Agency</span>
+            <h4 className="font-serif text-base font-semibold text-white">Accreditations</h4>
+            <div className="space-y-2.5 text-xs text-stone-300">
+              <div className="flex items-center gap-2 bg-white/5 p-2.5 rounded-xl border border-white/10">
+                <ShieldCheck className="w-4 h-4 text-[#39A982] shrink-0" />
+                <span>SLTDA Registered Agency (#TS/1142)</span>
               </div>
-              <p className="text-[11px] text-stone-400 leading-relaxed">
-                Licensed by Sri Lanka Tourism Development Authority. Fully insured passenger vehicles and authorized English-speaking national tourist chauffeurs.
-              </p>
+              <div className="flex items-center gap-2 bg-white/5 p-2.5 rounded-xl border border-white/10">
+                <Compass className="w-4 h-4 text-[#39A982] shrink-0" />
+                <span>Certified National Chauffeur Fleet</span>
+              </div>
             </div>
           </div>
 
         </div>
 
-        {/* Footer Bottom Bar */}
-        <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-stone-400">
-          <p>&copy; {currentYear} LankaVoyage (Pvt) Ltd. All rights reserved.</p>
+        {/* Bottom copyright & legal terms */}
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-400">
+          <p className="flex items-center gap-1">
+            &copy; {new Date().getFullYear()} LankaVoyage Ltd. Handcrafted with <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" /> in Sri Lanka.
+          </p>
+
           <div className="flex items-center gap-6">
+            <Link to="/terms-and-conditions" className="hover:text-white transition-colors">Terms & Conditions</Link>
             <Link to="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
-            <Link to="/terms-and-conditions" className="hover:text-white transition-colors">Terms of Service</Link>
             <Link to="/cancellation-refund-policy" className="hover:text-white transition-colors">Cancellation Policy</Link>
           </div>
         </div>

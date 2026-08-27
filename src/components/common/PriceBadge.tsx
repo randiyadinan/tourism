@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatPrice } from '../../utils/formatters';
 
 interface PriceBadgeProps {
   price: number;
@@ -25,11 +26,11 @@ export const PriceBadge: React.FC<PriceBadgeProps> = ({
         <span className={`font-serif font-bold text-[#062C22] ${
           isLarge ? 'text-3xl' : isSmall ? 'text-base' : 'text-xl'
         }`}>
-          ${price.toLocaleString()}
+          {formatPrice(price)}
         </span>
         {originalPrice && originalPrice > price && (
           <span className="text-xs text-stone-400 line-through">
-            ${originalPrice.toLocaleString()}
+            {formatPrice(originalPrice)}
           </span>
         )}
       </div>

@@ -61,13 +61,13 @@ export const analytics = {
   init: initGA,
   pageView: trackPageView,
   
-  viewTour: (tourId: string, tourTitle: string, priceUSD: number) => {
+  viewTour: (tourId: string, tourTitle: string, priceLKR: number) => {
     trackEvent('view_item', {
       item_id: tourId,
       item_name: tourTitle,
       item_category: 'Tour',
-      price: priceUSD,
-      currency: 'USD'
+      price: priceLKR,
+      currency: 'LKR'
     });
   },
 
@@ -79,30 +79,31 @@ export const analytics = {
     });
   },
 
-  beginCheckout: (bookingCode: string, title: string, amountUSD: number, currency: string = 'USD') => {
+  beginCheckout: (bookingCode: string, title: string, amountLKR: number, currency: string = 'LKR') => {
     trackEvent('begin_checkout', {
       transaction_id: bookingCode,
       item_name: title,
-      value: amountUSD,
+      value: amountLKR,
       currency
     });
   },
 
-  initiatePayment: (orderId: string, amountUSD: number, currency: string = 'USD') => {
+  initiatePayment: (orderId: string, amountLKR: number, currency: string = 'LKR') => {
     trackEvent('add_payment_info', {
       order_id: orderId,
-      value: amountUSD,
+      value: amountLKR,
       currency,
       payment_type: 'PayHere'
     });
   },
 
-  purchase: (orderId: string, bookingCode: string, amountUSD: number, currency: string = 'USD') => {
+  purchase: (orderId: string, bookingCode: string, amountLKR: number, currency: string = 'LKR') => {
     trackEvent('purchase', {
       transaction_id: orderId,
-      booking_code: bookingCode,
-      value: amountUSD,
-      currency
+      affiliation: 'LankaVoyage',
+      value: amountLKR,
+      currency,
+      coupon: bookingCode
     });
   }
 };

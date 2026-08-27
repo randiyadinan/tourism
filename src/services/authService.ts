@@ -3,6 +3,7 @@ import { INITIAL_USERS } from '../data/initialBookings';
 
 const USERS_KEY = 'lv_users_v2';
 const SESSION_KEY = 'lv_auth_session';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
 
 export interface AuthSession {
   userId: string;
@@ -59,14 +60,65 @@ export const authService = {
   },
 
   /**
-   * Secure login verifying email and password against stored credentials.
+   * Secure login verifying email and password.
+   * STRICT SECURITY RULE: Unverified customers are rejected.
    */
-  login(email: string, password?: string): { success: boolean; user?: User; error?: string } {
+  async login(email: string, password?: string): Promise<{ success: boolean; user?: User; error?: string; requiresVerification?: boolean }> {
     if (!email || !password) {
       return { success: false, error: 'Please provide both email and password.' };
     }
 
     const cleanEmail = email.trim().toLowerCase();
+
+    // 1. Try server login first
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: cleanEmail, password })
+      });
+
+      const data = await response.json();
+      if (response.ok && data.success && data.user) {
+        const user = data.user as User;
+        
+        // Cache user in local registry
+        const users = this.getUsers();
+        const existingIdx = users.findIndex(u => u.email.toLowerCase() === cleanEmail);
+        if (existingIdx >= 0) {
+          users[existingIdx] = { ...users[existingIdx], ...user };
+        } else {
+          users.push(user);
+        }
+        localStorage.setItem(USERS_KEY, JSON.stringify(users));
+
+        // Create authentic session
+        const session: AuthSession = {
+          userId: user.id,
+          token: `lv-token-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+          loginTime: new Date().toISOString()
+        };
+        localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+
+        return { success: true, user };
+      }
+
+      if (data.requiresVerification) {
+        return {
+          success: false,
+          requiresVerification: true,
+          error: data.error || 'Please verify your email before signing in.'
+        };
+      }
+
+      if (response.status === 401 || response.status === 403) {
+        return { success: false, error: data.error || 'Invalid email or password.' };
+      }
+    } catch (err) {
+      console.warn('⚠️ [authService] Backend login unreachable, falling back to local store check:', err);
+    }
+
+    // 2. Fallback check on local store
     const users = this.getUsers();
     const foundUser = users.find(u => u.email.toLowerCase() === cleanEmail);
 
@@ -78,6 +130,15 @@ export const authService = {
     const expectedPassword = (foundUser as any).passwordHash || 'password123';
     if (password !== expectedPassword) {
       return { success: false, error: 'Invalid email or password.' };
+    }
+
+    // Block unverified customers
+    if (foundUser.role === 'customer' && foundUser.emailVerified === false) {
+      return {
+        success: false,
+        requiresVerification: true,
+        error: 'Please verify your email before signing in.'
+      };
     }
 
     // Create authentic session
@@ -94,16 +155,16 @@ export const authService = {
 
   /**
    * Customer Registration.
-   * STRICT SECURITY RULE: Public registration ALWAYS creates a 'customer' role.
-   * System never allows client to register an 'admin' account.
+   * STRICT SECURITY RULE: Public registration ALWAYS creates a 'customer' role with emailVerified = false.
+   * Sends a real verification email via backend /api/auth/register (Resend).
    */
-  register(
+  async register(
     name: string,
     email: string,
     password?: string,
     phone?: string,
     country?: string
-  ): { success: boolean; user?: User; error?: string } {
+  ): Promise<{ success: boolean; user?: User; error?: string; message?: string; requiresVerification?: boolean }> {
     if (!name || !email || !password) {
       return { success: false, error: 'Name, email, and password are required.' };
     }
@@ -113,38 +174,159 @@ export const authService = {
     }
 
     const cleanEmail = email.trim().toLowerCase();
-    const users = this.getUsers();
 
-    if (users.some(u => u.email.toLowerCase() === cleanEmail)) {
-      return { success: false, error: 'An account with this email already exists.' };
+    // 1. Send registration to backend server which sends the real Resend email
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: cleanEmail,
+          password,
+          phone,
+          country
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        return { success: false, error: data.error || 'Failed to create account.' };
+      }
+
+      // Save unverified user locally for quick offline access
+      const users = this.getUsers();
+      const existingIdx = users.findIndex(u => u.email.toLowerCase() === cleanEmail);
+      const newUserRecord: User = {
+        id: data.user?.id || `user-cust-${Date.now()}`,
+        name: name.trim(),
+        email: cleanEmail,
+        role: 'customer',
+        passwordHash: password,
+        phone: phone || '',
+        country: country || 'International',
+        emailVerified: false,
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+        createdAt: new Date().toISOString().split('T')[0]
+      } as any;
+
+      if (existingIdx >= 0) {
+        users[existingIdx] = newUserRecord;
+      } else {
+        users.push(newUserRecord);
+      }
+      localStorage.setItem(USERS_KEY, JSON.stringify(users));
+
+      return {
+        success: true,
+        requiresVerification: true,
+        message: data.message || 'Please check your email to verify your account.',
+        user: newUserRecord
+      };
+    } catch (err: any) {
+      console.warn('⚠️ [authService] Backend registration unreachable, fallback local register:', err);
+      
+      const users = this.getUsers();
+      if (users.some(u => u.email.toLowerCase() === cleanEmail)) {
+        return { success: false, error: 'An account with this email already exists.' };
+      }
+
+      const newUser: User = {
+        id: `user-cust-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`,
+        name: name.trim(),
+        email: cleanEmail,
+        role: 'customer',
+        passwordHash: password,
+        phone: phone || '',
+        country: country || 'International',
+        emailVerified: false,
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+        createdAt: new Date().toISOString().split('T')[0]
+      } as any;
+
+      users.push(newUser);
+      localStorage.setItem(USERS_KEY, JSON.stringify(users));
+
+      return {
+        success: true,
+        requiresVerification: true,
+        message: 'Account created. Please check your email to verify.',
+        user: newUser
+      };
     }
+  },
 
-    // System-enforced customer role
-    const newUser: User = {
-      id: `user-cust-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`,
-      name: name.trim(),
-      email: cleanEmail,
-      role: 'customer', // Strictly customer
-      passwordHash: password,
-      phone: phone || '',
-      country: country || 'International',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-      createdAt: new Date().toISOString().split('T')[0]
-    } as any;
+  /**
+   * Verify email with token against backend API
+   */
+  async verifyEmail(token: string, email?: string): Promise<{ success: boolean; message: string; error?: string; user?: any }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/verify-email?token=${encodeURIComponent(token)}${email ? `&email=${encodeURIComponent(email)}` : ''}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
 
-    users.push(newUser);
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+      const data = await response.json();
+      if (response.ok && data.success) {
+        // Update local user record to verified
+        if (data.user?.email || email) {
+          const targetEmail = (data.user?.email || email).toLowerCase();
+          const users = this.getUsers();
+          const userIdx = users.findIndex(u => u.email.toLowerCase() === targetEmail);
+          if (userIdx >= 0) {
+            users[userIdx].emailVerified = true;
+            localStorage.setItem(USERS_KEY, JSON.stringify(users));
+          }
+        }
+        return {
+          success: true,
+          message: data.message || 'Your email address has been verified successfully!'
+        };
+      }
 
-    // Automatically establish session for newly registered customer
-    const session: AuthSession = {
-      userId: newUser.id,
-      token: `lv-token-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-      loginTime: new Date().toISOString()
-    };
-    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+      return {
+        success: false,
+        error: data.error || 'Verification token is invalid or expired.',
+        message: data.message || 'Verification failed.'
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        error: err.message || 'Failed to connect to verification server.',
+        message: 'Could not connect to verification server.'
+      };
+    }
+  },
 
-    const { passwordHash: _hash, ...safeUser } = newUser as any;
-    return { success: true, user: safeUser as User };
+  /**
+   * Resend verification email
+   */
+  async resendVerification(email: string): Promise<{ success: boolean; message?: string; error?: string }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/resend-verification`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim().toLowerCase() })
+      });
+
+      const data = await response.json();
+      if (response.ok && data.success) {
+        return {
+          success: true,
+          message: data.message || 'A fresh verification link has been sent to your email.'
+        };
+      }
+
+      return {
+        success: false,
+        error: data.error || 'Failed to resend verification email.'
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        error: err.message || 'Could not connect to email service.'
+      };
+    }
   },
 
   /**

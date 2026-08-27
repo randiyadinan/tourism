@@ -38,6 +38,7 @@ import { GoogleMapDestinationSelector } from '../../components/transfers/GoogleM
 import { tourService } from '../../services/tourService';
 import { destinationService } from '../../services/destinationService';
 import { TOUR_VEHICLE_OPTIONS, type TourVehicleOption } from '../../data/tourVehiclePricing';
+import { formatPrice } from '../../utils/formatters';
 import type { Tour, ItineraryDay } from '../../types';
 
 export const AirportTransferPage: React.FC = () => {
@@ -47,8 +48,9 @@ export const AirportTransferPage: React.FC = () => {
   // 1. AIRPORT (Bandaranaike International CMB default)
   const [selectedAirportId, setSelectedAirportId] = useState<string>('airport-cmb');
 
-  // 2. FLIGHT DETAILS
-  const [flightNumber, setFlightNumber] = useState<string>('UL 225');
+  // 2. FLIGHT DETAILS (Flight Number is empty by default)
+  const [flightNumber, setFlightNumber] = useState<string>('');
+  const [flightNumberError, setFlightNumberError] = useState<string>('');
   const [arrivalDate, setArrivalDate] = useState<string>('2026-10-15');
   const [arrivalTime, setArrivalTime] = useState<string>('14:30');
 
@@ -66,8 +68,7 @@ export const AirportTransferPage: React.FC = () => {
   const [routeError, setRouteError] = useState<string | null>(null);
 
   // 5. VEHICLE SELECTION (Airport Transfer)
-  const [selectedVehicleId, setSelectedVehicleId] = useState<string>('veh-sedan-luxury');
-  const [tripType, setTripType] = useState<'One Way: Airport to Hotel' | 'Round Trip'>('One Way: Airport to Hotel');
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string>('veh-car');
 
   // 6. TOURS EXPLORATION SEARCH/FILTER
   const [tourSearchQuery, setTourSearchQuery] = useState<string>('');
@@ -141,7 +142,7 @@ export const AirportTransferPage: React.FC = () => {
 
   // Check vehicle capacity compatibility
   const isVehicleCapacityValid = totalPassengers <= selectedVehicle.capacityPassengers;
-  const isRoundTrip = tripType === 'Round Trip';
+  const isRoundTrip = false;
 
   // Calculate real driving road distance route via Google Service ONLY when destination is selected
   useEffect(() => {
@@ -221,11 +222,6 @@ export const AirportTransferPage: React.FC = () => {
     return selectedTourVehicle.dailyPriceLKR * selectedTour.durationDays;
   }, [selectedTour, selectedTourVehicle]);
 
-  const totalTourPriceUSD = useMemo(() => {
-    if (!selectedTour || !selectedTourVehicle) return 0;
-    return selectedTourVehicle.dailyPriceUSD * selectedTour.durationDays;
-  }, [selectedTour, selectedTourVehicle]);
-
   // Fixed Itinerary Days from selectedTour
   const fixedItineraryDays: ItineraryDay[] = useMemo(() => {
     if (!selectedTour || !selectedTour.itinerary) return [];
@@ -256,8 +252,8 @@ export const AirportTransferPage: React.FC = () => {
     setInfants(newInfants);
 
     const newTotal = newAdults + newChildren + newInfants;
-    if (newTotal > 3 && (selectedVehicle.vehicleCode === 'standard-car' || selectedVehicle.vehicleCode === 'luxury-car')) {
-      setSelectedVehicleId('veh-van-kdh');
+    if (newTotal > 3 && selectedVehicle.vehicleCode === 'standard-car') {
+      setSelectedVehicleId('veh-van');
     }
   };
 
@@ -265,6 +261,16 @@ export const AirportTransferPage: React.FC = () => {
   const handleBookTransfer = () => {
     if (!selectedDestination) {
       alert('Please search and select your destination location on the map.');
+      return;
+    }
+
+    if (!flightNumber || !flightNumber.trim()) {
+      setFlightNumberError('Flight number is required.');
+      const flightInput = document.getElementById('flight-number-input');
+      if (flightInput) {
+        flightInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        flightInput.focus();
+      }
       return;
     }
 
@@ -320,9 +326,9 @@ export const AirportTransferPage: React.FC = () => {
         adults: tourAdults,
         children: tourChildren,
         airportPickup: true,
-        totalAmount: totalTourPriceUSD,
+        totalAmount: totalTourPriceLKR,
         destinations: selectedTour.destinations,
-        vehicleType: `${selectedTourVehicle.categoryTitle} (Rs. ${selectedTourVehicle.dailyPriceLKR.toLocaleString()}/day)`
+        vehicleType: `${selectedTourVehicle.categoryTitle} (${formatPrice(selectedTourVehicle.dailyPriceLKR)}/day)`
       }
     });
   };
@@ -409,19 +415,40 @@ export const AirportTransferPage: React.FC = () => {
               <div className="space-y-3.5 text-xs sm:text-sm">
                 
                 <div className="space-y-1">
-                  <label htmlFor="flight-number-input" className="font-semibold text-[#17231F] flex items-center gap-1.5">
-                    <Plane className="w-3.5 h-3.5 text-[#176B52]" aria-hidden="true" />
-                    Flight Number
+                  <label htmlFor="flight-number-input" className="font-semibold text-[#17231F] flex items-center justify-between gap-1.5">
+                    <span className="flex items-center gap-1.5">
+                      <Plane className="w-3.5 h-3.5 text-[#176B52]" aria-hidden="true" />
+                      Flight Number <span className="text-rose-500">*</span>
+                    </span>
+                    {flightNumberError && (
+                      <span className="text-xs text-rose-600 font-medium">{flightNumberError}</span>
+                    )}
                   </label>
                   <input
                     id="flight-number-input"
                     type="text"
+                    required
                     value={flightNumber}
-                    onChange={(e) => setFlightNumber(e.target.value)}
-                    placeholder="e.g. UL 225"
-                    className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-3 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52] uppercase"
+                    onChange={(e) => {
+                      setFlightNumber(e.target.value);
+                      if (e.target.value.trim()) {
+                        setFlightNumberError('');
+                      }
+                    }}
+                    placeholder="Enter Flight Number (e.g. UL 225)"
+                    className={`w-full bg-[#F8F7F2] border rounded-xl p-3 font-medium text-[#17231F] focus:outline-none focus:ring-2 uppercase ${
+                      flightNumberError 
+                        ? 'border-rose-400 focus:ring-rose-400 bg-rose-50/20' 
+                        : 'border-stone-300 focus:ring-[#176B52]'
+                    }`}
                     aria-label="Flight number input"
                   />
+                  {flightNumberError && (
+                    <p className="text-xs text-rose-600 font-medium flex items-center gap-1 mt-1">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>{flightNumberError}</span>
+                    </p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -455,30 +482,6 @@ export const AirportTransferPage: React.FC = () => {
                       className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-2.5 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
                       aria-label="Arrival time picker"
                     />
-                  </div>
-                </div>
-
-                <div className="pt-2">
-                  <span className="text-xs font-semibold text-[#17231F] block mb-1.5">Trip Direction:</span>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setTripType('One Way: Airport to Hotel')}
-                      className={`p-2.5 text-xs rounded-xl font-medium transition-colors text-center ${
-                        tripType === 'One Way: Airport to Hotel' ? 'bg-[#0B3D2E] text-white font-semibold' : 'bg-[#F8F7F2] text-stone-600 border border-stone-200'
-                      }`}
-                    >
-                      One Way (Airport &rarr; Hotel)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setTripType('Round Trip')}
-                      className={`p-2.5 text-xs rounded-xl font-medium transition-colors text-center ${
-                        tripType === 'Round Trip' ? 'bg-[#0B3D2E] text-white font-semibold' : 'bg-[#F8F7F2] text-stone-600 border border-stone-200'
-                      }`}
-                    >
-                      Round Trip (15% Off)
-                    </button>
                   </div>
                 </div>
 
@@ -669,16 +672,15 @@ export const AirportTransferPage: React.FC = () => {
                           {selectedDestination && routeData ? (
                             <>
                               <div className="flex items-baseline justify-end gap-1">
-                                <span className="font-serif text-xl font-bold text-[#0B3D2E]">${itemPrice}</span>
-                                <span className="text-xs text-[#68736E]">USD</span>
+                                <span className="font-serif text-xl font-bold text-[#0B3D2E]">{formatPrice(itemPrice)}</span>
                               </div>
                               <span className="text-[10px] text-[#68736E] block">
-                                (${veh.ratePerKmUSD}/km &bull; {currentDistanceKm} km Google Route)
+                                (LKR {veh.ratePerKmLKR}/km &bull; {currentDistanceKm} km Google Route)
                               </span>
                             </>
                           ) : (
                             <span className="text-[11px] text-[#176B52] font-semibold block">
-                              From ${veh.baseBookingFeeUSD} + ${veh.ratePerKmUSD}/km
+                              From {formatPrice(veh.baseBookingFeeLKR)} + LKR {veh.ratePerKmLKR}/km
                             </span>
                           )}
 
@@ -726,13 +728,13 @@ export const AirportTransferPage: React.FC = () => {
                       <span className="text-xs text-stone-300">Calculating transfer price...</span>
                     </div>
                   ) : selectedDestination && routeData ? (
-                    <span className="font-serif text-3xl font-bold">${calculatedPrice} <span className="text-xs font-sans font-normal text-stone-300">USD</span></span>
+                    <span className="font-serif text-3xl font-bold">{formatPrice(calculatedPrice)}</span>
                   ) : (
                     <span className="text-sm font-semibold text-stone-200 mt-1 block">Select a destination above</span>
                   )}
                 </div>
                 <span className="px-3 py-1 rounded-full text-xs font-semibold bg-white/15 text-[#DDEFE8] border border-white/20">
-                  {tripType === 'Round Trip' ? 'Round Trip' : 'One Way'}
+                  Direct Transfer
                 </span>
               </div>
 
@@ -803,7 +805,7 @@ export const AirportTransferPage: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    <span>Book Transfer &bull; ${calculatedPrice} USD</span>
+                    <span>Book Transfer &bull; {formatPrice(calculatedPrice)}</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
@@ -1047,7 +1049,6 @@ export const AirportTransferPage: React.FC = () => {
                   {TOUR_VEHICLE_OPTIONS.map((veh) => {
                     const isSelected = selectedTourVehicleId === veh.id;
                     const calculatedDailyTotalLKR = veh.dailyPriceLKR * fixedTourDays;
-                    const calculatedDailyTotalUSD = veh.dailyPriceUSD * fixedTourDays;
 
                     return (
                       <div
@@ -1095,10 +1096,7 @@ export const AirportTransferPage: React.FC = () => {
                             <div>
                               <span className="text-[10px] uppercase font-bold text-[#68736E] block">Daily Rate</span>
                               <span className="text-base font-bold text-[#0B3D2E]">
-                                Rs. {veh.dailyPriceLKR.toLocaleString()} / day
-                              </span>
-                              <span className="text-[11px] text-[#68736E] block">
-                                (${veh.dailyPriceUSD} USD / day)
+                                {formatPrice(veh.dailyPriceLKR)} / day
                               </span>
                             </div>
 
@@ -1107,10 +1105,7 @@ export const AirportTransferPage: React.FC = () => {
                                 Total ({fixedTourDays} Days)
                               </span>
                               <span className="font-serif text-xl font-bold text-[#0B3D2E]">
-                                Rs. {calculatedDailyTotalLKR.toLocaleString()}
-                              </span>
-                              <span className="text-xs font-semibold text-[#68736E] block">
-                                (${calculatedDailyTotalUSD} USD)
+                                {formatPrice(calculatedDailyTotalLKR)}
                               </span>
                             </div>
                           </div>
@@ -1193,10 +1188,7 @@ export const AirportTransferPage: React.FC = () => {
                         </span>
                         <div className="flex items-baseline justify-end gap-2">
                           <span className="font-serif text-3xl sm:text-4xl font-bold">
-                            Rs. {totalTourPriceLKR.toLocaleString()}
-                          </span>
-                          <span className="text-xs text-[#DDEFE8]">
-                            (${totalTourPriceUSD} USD)
+                            {formatPrice(totalTourPriceLKR)}
                           </span>
                         </div>
                       </>
@@ -1226,7 +1218,7 @@ export const AirportTransferPage: React.FC = () => {
                   <div>
                     <span className="text-stone-400 block text-[10px] uppercase font-semibold">Vehicle Price / Day</span>
                     <span className="font-bold text-[#39A982]">
-                      {selectedTourVehicle ? `Rs. ${selectedTourVehicle.dailyPriceLKR.toLocaleString()} / day` : '—'}
+                      {selectedTourVehicle ? `${formatPrice(selectedTourVehicle.dailyPriceLKR)} / day` : '—'}
                     </span>
                   </div>
                 </div>
@@ -1245,7 +1237,7 @@ export const AirportTransferPage: React.FC = () => {
                     <span>Please Select a Vehicle (Car or Van) to Continue</span>
                   ) : (
                     <>
-                      <span>Book {selectedTour.title} &bull; Rs. {totalTourPriceLKR.toLocaleString()} ({fixedTourDays} Days with {selectedTourVehicle.categoryTitle})</span>
+                      <span>Book {selectedTour.title} &bull; {formatPrice(totalTourPriceLKR)} ({fixedTourDays} Days with {selectedTourVehicle.categoryTitle})</span>
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}

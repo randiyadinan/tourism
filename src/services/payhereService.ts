@@ -9,6 +9,7 @@ export interface PayHereInitiateInput {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
+  flightNumber: string;
   address?: string;
   city?: string;
   country?: string;

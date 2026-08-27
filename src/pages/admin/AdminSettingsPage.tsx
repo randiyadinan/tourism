@@ -130,7 +130,7 @@ export const AdminSettingsPage: React.FC = () => {
             </div>
             <div className="flex justify-between py-1">
               <span className="text-stone-500">Default Currency:</span>
-              <strong className="text-[#062C22]">USD ($)</strong>
+              <strong className="text-[#062C22]">LKR (Sri Lankan Rupee)</strong>
             </div>
           </div>
         </div>

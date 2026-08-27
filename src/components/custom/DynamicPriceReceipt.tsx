@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import type { CustomTripState } from '../../types';
 import { INITIAL_ACTIVITIES } from '../../data/activities';
+import { formatPrice } from '../../utils/formatters';
 
 interface DynamicPriceReceiptProps {
   customTrip: CustomTripState;
@@ -39,22 +40,22 @@ export function calculateCustomTripCost(trip: CustomTripState): CalculatedCost {
   const totalChildren = trip.children || 0;
   const totalTravelers = totalAdults + totalChildren + (trip.infants || 0);
 
-  // Base day charge for route planning, private guiding, highway fees
-  const baseTourPerDay = 55;
+  // Base day charge in LKR for route planning, private guiding, highway fees
+  const baseTourPerDay = 15000;
   const baseTourTotal = baseTourPerDay * daysCount * totalAdults + (baseTourPerDay * 0.6 * daysCount * totalChildren);
 
-  // Airport transfer
+  // Airport transfer in LKR
   let airportPickupCost = 0;
   if (trip.airportTransferOption === 'pickup') {
-    airportPickupCost = 40;
+    airportPickupCost = 12000;
   } else if (trip.airportTransferOption === 'dropoff') {
-    airportPickupCost = 40;
+    airportPickupCost = 12000;
   } else if (trip.airportTransferOption === 'both') {
-    airportPickupCost = 75;
+    airportPickupCost = 22000;
   } else if (trip.airportTransferOption === 'none') {
     airportPickupCost = 0;
   } else if (trip.airportPickup) {
-    airportPickupCost = 40;
+    airportPickupCost = 12000;
   }
 
   // Selected activities (selection-only: no cost added to total)
@@ -65,14 +66,14 @@ export function calculateCustomTripCost(trip: CustomTripState): CalculatedCost {
     };
   });
 
-  // Vehicle
-  const vehicleDailyRates = {
-    'Private Car': 65,
-    'Private Van': 95,
-    'Luxury SUV': 140,
-    'Shared Transport': 35
+  // Vehicle in LKR
+  const vehicleDailyRates: Record<string, number> = {
+    'Private Car': 15000,
+    'Private Van': 20000,
+    'Luxury SUV': 35000,
+    'Shared Transport': 10000
   };
-  const vehicleRate = vehicleDailyRates[trip.transportType] || 95;
+  const vehicleRate = vehicleDailyRates[trip.transportType] || 20000;
   const vehicleCost = vehicleRate * daysCount;
 
   // Subtotal strictly consists of Base Tour + Airport Transfer + Transportation
@@ -129,7 +130,7 @@ export const DynamicPriceReceipt: React.FC<DynamicPriceReceiptProps> = ({
               <Calendar className="w-3.5 h-3.5 text-[#176B52]" />
               Base Chauffeur-Guide & Route ({cost.daysCount} Days)
             </span>
-            <span className="font-bold text-[#062C22]">${cost.baseTourTotal.toLocaleString()}</span>
+            <span className="font-bold text-[#062C22]">{formatPrice(cost.baseTourTotal)}</span>
           </div>
 
           {cost.airportPickupCost > 0 && (
@@ -142,7 +143,7 @@ export const DynamicPriceReceipt: React.FC<DynamicPriceReceiptProps> = ({
                   ? 'Hotel to Airport Chauffeur Dropoff'
                   : 'VIP Airport Meet & Pickup'}
               </span>
-              <span className="font-bold text-[#062C22]">${cost.airportPickupCost}</span>
+              <span className="font-bold text-[#062C22]">{formatPrice(cost.airportPickupCost)}</span>
             </div>
           )}
 
@@ -151,7 +152,7 @@ export const DynamicPriceReceipt: React.FC<DynamicPriceReceiptProps> = ({
               <Car className="w-3.5 h-3.5 text-[#176B52]" />
               Transportation ({customTrip.transportType})
             </span>
-            <span className="font-bold text-[#062C22]">${cost.vehicleCost.toLocaleString()}</span>
+            <span className="font-bold text-[#062C22]">{formatPrice(cost.vehicleCost)}</span>
           </div>
 
           {cost.activitiesList.length > 0 && (
@@ -176,7 +177,7 @@ export const DynamicPriceReceipt: React.FC<DynamicPriceReceiptProps> = ({
           {/* Package Savings */}
           <div className="flex items-center justify-between text-emerald-700 font-semibold pt-1">
             <span>Package Discount (5%)</span>
-            <span>-${cost.discount.toLocaleString()}</span>
+            <span>-{formatPrice(cost.discount)}</span>
           </div>
 
         </div>
@@ -192,8 +193,8 @@ export const DynamicPriceReceipt: React.FC<DynamicPriceReceiptProps> = ({
             For {cost.totalTravelers} Traveler{cost.totalTravelers > 1 ? 's' : ''} ({cost.daysCount} Days)
           </span>
         </div>
-        <span className="font-serif text-3xl font-bold text-[#0B3D2E]">
-          ${cost.estimatedTotal.toLocaleString()}
+        <span className="font-serif text-2xl sm:text-3xl font-bold text-[#0B3D2E]">
+          {formatPrice(cost.estimatedTotal)}
         </span>
       </div>
 

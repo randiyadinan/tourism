@@ -16,7 +16,8 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "hono": "^4.13.4",
-    "prisma": "^6.19.0"
+    "prisma": "^6.19.0",
+    "resend": "^6.24.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260825.1",

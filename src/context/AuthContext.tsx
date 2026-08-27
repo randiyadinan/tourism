@@ -7,8 +7,8 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string; user?: User }>;
-  register: (name: string, email: string, password: string, phone?: string, country?: string) => Promise<{ success: boolean; error?: string; user?: User }>;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string; user?: User; requiresVerification?: boolean }>;
+  register: (name: string, email: string, password: string, phone?: string, country?: string) => Promise<{ success: boolean; error?: string; user?: User; requiresVerification?: boolean; message?: string }>;
   logout: () => void;
   refreshSession: () => void;
   updateProfile: (updates: Partial<Omit<User, 'role' | 'id' | 'createdAt'>>) => Promise<{ success: boolean; error?: string; user?: User }>;
@@ -32,22 +32,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
-    const res = authService.login(email, password);
+    const res = await authService.login(email, password);
     setIsLoading(false);
     if (res.success && res.user) {
       setUser(res.user);
       return { success: true, user: res.user };
     }
-    return { success: false, error: res.error || 'Invalid credentials' };
+    return {
+      success: false,
+      error: res.error || 'Invalid credentials',
+      requiresVerification: res.requiresVerification
+    };
   };
 
   const register = async (name: string, email: string, password: string, phone?: string, country?: string) => {
     setIsLoading(true);
-    const res = authService.register(name, email, password, phone, country);
+    const res = await authService.register(name, email, password, phone, country);
     setIsLoading(false);
-    if (res.success && res.user) {
-      setUser(res.user);
-      return { success: true, user: res.user };
+    if (res.success) {
+      return {
+        success: true,
+        user: res.user,
+        requiresVerification: res.requiresVerification,
+        message: res.message
+      };
     }
     return { success: false, error: res.error || 'Failed to create account' };
   };

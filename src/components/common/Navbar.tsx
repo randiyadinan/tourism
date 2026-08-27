@@ -6,13 +6,10 @@ import {
   LogOut, 
   ChevronDown, 
   LayoutDashboard, 
-  Calendar, 
   Compass, 
   MapPin, 
-  Sparkles, 
   Car, 
-  Users, 
-  Star
+  BookOpen
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -45,135 +42,118 @@ export const Navbar: React.FC = () => {
     navigate('/');
   };
 
-  // Main Public Navigation Links: Home, Airport Transfer & Tours, Reviews & Gallery
+  // ONLY 3 MAIN PUBLIC NAVIGATION LINKS: Home, Airport Transfer & Tours, Reviews
   const navLinks = [
     { name: 'Home', href: '/' },
     { name: 'Airport Transfer & Tours', href: '/transfers' },
-    { name: 'Reviews & Gallery', href: '/reviews' },
+    { name: 'Reviews', href: '/reviews' },
   ];
 
   const adminMgmtLinks = [
-    { name: 'Tours Management', href: '/admin/tours', icon: Compass },
-    { name: 'Destinations', href: '/admin/destinations', icon: MapPin },
-    { name: 'Experiences', href: '/admin/activities', icon: Sparkles },
-    { name: 'Airport Transfers', href: '/transfers', icon: Car },
-    { name: 'Customer Accounts', href: '/admin/customers', icon: Users },
-    { name: 'Reviews & Feedback', href: '/admin/reviews', icon: Star },
+    { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+    { name: 'Tours & Itineraries', href: '/admin/tours', icon: BookOpen },
+    { name: 'Vehicle Daily Rates', href: '/admin/vehicles', icon: Car },
+    { name: 'Destinations & Tickets', href: '/admin/destinations', icon: MapPin },
+    { name: 'Airport Transfer Rates', href: '/admin/airport-transfers', icon: Car },
   ];
 
-  const isHome = location.pathname === '/';
-
   return (
-    <header 
-      className={`sticky top-0 z-50 transition-all duration-300 ${
-        isScrolled 
-          ? 'bg-white/85 backdrop-blur-xl border-b border-white/70 shadow-[0_8px_24px_-8px_rgba(6,44,34,0.08)] py-3 text-[#17231F]' 
-          : isHome
-            ? 'bg-[#062C22]/35 backdrop-blur-md border-b border-white/10 py-4 text-white'
-            : 'bg-[#0B3D2E]/95 backdrop-blur-xl border-b border-white/10 py-4 text-white'
+    <header
+      className={`sticky top-0 z-50 transition-all duration-400 ${
+        isScrolled
+          ? 'bg-[#062C22]/85 backdrop-blur-xl shadow-[0_12px_32px_-8px_rgba(0,0,0,0.35)] py-3 border-b border-white/12'
+          : 'bg-[#062C22]/90 backdrop-blur-md py-4 border-b border-white/5'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-11">
+        <div className="flex items-center justify-between">
           
-          {/* Clean Luxury Typography Logo */}
-          <Link to="/" className="flex items-center gap-2 shrink-0 group">
+          {/* Brand Logo */}
+          <Link to="/" className="flex items-center gap-2 group">
+            <div className="w-10 h-10 rounded-2xl bg-[#39A982] flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform duration-300">
+              <Compass className="w-6 h-6" />
+            </div>
             <div className="flex flex-col">
-              <span className={`font-serif text-2xl font-bold tracking-tight leading-none ${isScrolled ? 'text-[#0B3D2E]' : 'text-white'}`}>
+              <span className="font-serif text-2xl font-bold tracking-tight text-white leading-none">
                 Lanka<span className="text-[#39A982]">Voyage</span>
               </span>
-              <span className={`text-[8.5px] uppercase tracking-[0.24em] mt-0.5 font-medium ${isScrolled ? 'text-[#68736E]' : 'text-[#DDEFE8]'}`}>
+              <span className="text-[9px] uppercase tracking-[0.24em] text-[#DDEFE8] font-medium mt-0.5">
                 Bespoke Sri Lanka
               </span>
             </div>
           </Link>
 
-          {/* Desktop Nav Links */}
-          <nav className="hidden lg:flex items-center gap-8">
+          {/* Desktop Navigation Links (Only 3 Links) */}
+          <nav className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <NavLink
                 key={link.name}
                 to={link.href}
-                className={({ isActive }) => `
-                  text-sm font-medium tracking-normal transition-colors duration-200
-                  ${isActive 
-                    ? 'text-[#39A982] font-semibold' 
-                    : isScrolled
-                      ? 'text-[#17231F] hover:text-[#176B52]'
-                      : 'text-white hover:text-[#39A982]'
-                  }
-                `}
+                className={({ isActive }) =>
+                  `text-xs uppercase font-semibold tracking-wider transition-colors duration-200 ${
+                    isActive
+                      ? 'text-[#39A982]'
+                      : 'text-stone-200 hover:text-white'
+                  }`
+                }
               >
                 {link.name}
               </NavLink>
             ))}
           </nav>
 
-          {/* Right Action Icons & User Account */}
-          <div className="hidden lg:flex items-center gap-4">
+          {/* Right Action Icons & Auth */}
+          <div className="hidden md:flex items-center gap-4">
             
-            {isAuthenticated ? (
-              <div className="flex items-center gap-3">
-                {/* Admin Management Dropdown Button */}
-                {isAdmin && (
-                  <div className="relative">
-                    <button
-                      onClick={() => setAdminMenuOpen(!adminMenuOpen)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
-                        isScrolled 
-                          ? 'bg-[#0B3D2E] text-white border-[#0B3D2E]' 
-                          : 'bg-white/15 text-white border-white/20 hover:bg-white/25'
-                      }`}
-                    >
-                      <LayoutDashboard className="w-3.5 h-3.5" />
-                      <span>Admin Suite</span>
-                      <ChevronDown className={`w-3 h-3 transition-transform ${adminMenuOpen ? 'rotate-180' : ''}`} />
-                    </button>
+            {/* If Admin, show Admin Dropdown Menu */}
+            {isAdmin && (
+              <div className="relative">
+                <button
+                  onClick={() => setAdminMenuOpen(!adminMenuOpen)}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-bold text-white border border-white/20 transition-all"
+                >
+                  <LayoutDashboard className="w-3.5 h-3.5 text-[#39A982]" />
+                  <span>Admin Console</span>
+                  <ChevronDown className={`w-3 h-3 transition-transform ${adminMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
 
-                    {adminMenuOpen && (
-                      <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-stone-200 py-2 z-50 text-[#17231F] animate-fadeIn">
-                        <div className="px-3 py-1.5 text-[10px] font-bold text-[#68736E] uppercase tracking-wider border-b border-stone-100">
-                          Operations Management
-                        </div>
-                        {adminMgmtLinks.map((adminLink) => (
-                          <Link
-                            key={adminLink.name}
-                            to={adminLink.href}
-                            onClick={() => setAdminMenuOpen(false)}
-                            className="flex items-center gap-2.5 px-3.5 py-2 text-xs hover:bg-[#DDEFE8] hover:text-[#176B52] transition-colors"
-                          >
-                            <adminLink.icon className="w-3.5 h-3.5 text-[#176B52]" />
-                            <span>{adminLink.name}</span>
-                          </Link>
-                        ))}
-                      </div>
-                    )}
+                {adminMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-stone-200 py-2 z-50 text-xs animate-fadeIn">
+                    <div className="px-4 py-2 border-b border-stone-100 font-bold text-[#062C22]">
+                      Admin Controls
+                    </div>
+                    {adminMgmtLinks.map((link) => {
+                      const Icon = link.icon;
+                      return (
+                        <Link
+                          key={link.name}
+                          to={link.href}
+                          onClick={() => setAdminMenuOpen(false)}
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-stone-700 hover:bg-[#F8F7F2] hover:text-[#0B3D2E] font-medium"
+                        >
+                          <Icon className="w-4 h-4 text-[#176B52]" />
+                          <span>{link.name}</span>
+                        </Link>
+                      );
+                    })}
                   </div>
                 )}
+              </div>
+            )}
 
-                {/* Customer Dashboard Link */}
+            {/* Auth Buttons */}
+            {isAuthenticated ? (
+              <div className="flex items-center gap-3">
                 <Link
                   to="/customer"
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
-                    isScrolled
-                      ? 'bg-[#F8F7F2] text-[#0B3D2E] border-stone-300 hover:bg-[#DDEFE8]'
-                      : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
-                  }`}
+                  className="text-xs font-bold text-white hover:text-[#39A982] transition-colors"
                 >
-                  <Calendar className="w-3.5 h-3.5 text-[#39A982]" />
-                  <span>My Bookings</span>
+                  Hi, {user?.name.split(' ')[0]}
                 </Link>
-
-                {/* Logout Button */}
                 <button
                   onClick={handleLogout}
-                  className={`p-2 rounded-xl border transition-colors ${
-                    isScrolled
-                      ? 'border-stone-200 text-[#68736E] hover:text-rose-600 hover:bg-rose-50'
-                      : 'border-white/20 text-white/80 hover:text-white hover:bg-white/10'
-                  }`}
-                  title="Log out"
-                  aria-label="Log out"
+                  className="p-2 text-stone-300 hover:text-rose-400 transition-colors"
+                  title="Logout"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
@@ -182,36 +162,28 @@ export const Navbar: React.FC = () => {
               <div className="flex items-center gap-3">
                 <Link
                   to="/login"
-                  className={`text-xs font-semibold transition-colors ${
-                    isScrolled ? 'text-[#17231F] hover:text-[#176B52]' : 'text-white hover:text-[#39A982]'
-                  }`}
+                  className="text-xs font-bold text-stone-200 hover:text-white transition-colors"
                 >
-                  Sign In
+                  Log In
                 </Link>
-
                 <Link
-                  to="/transfers"
-                  className="px-4 py-2 rounded-full text-xs font-semibold bg-[#39A982] hover:bg-[#176B52] text-white shadow-xs hover:shadow-md transition-all"
+                  to="/register"
+                  className="px-4 py-2 text-xs font-bold rounded-xl bg-[#39A982] hover:bg-[#176B52] text-white shadow-sm transition-all"
                 >
-                  Book Transfer & Tours
+                  Sign Up
                 </Link>
               </div>
             )}
-
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="flex items-center gap-2 lg:hidden">
+          <div className="md:hidden flex items-center gap-2">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className={`p-2 rounded-xl border transition-colors ${
-                isScrolled
-                  ? 'border-stone-200 text-[#17231F]'
-                  : 'border-white/20 text-white'
-              }`}
+              className="p-2 text-stone-200 hover:text-white"
               aria-label="Toggle mobile menu"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5 text-white" />}
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
 
@@ -220,64 +192,78 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-white/95 backdrop-blur-2xl border-b border-stone-200 px-6 py-6 space-y-5 text-[#17231F] animate-fadeIn shadow-2xl">
-          <div className="flex flex-col space-y-3">
+        <div className="md:hidden bg-[#062C22] border-t border-white/10 px-4 pt-4 pb-6 space-y-3">
+          <nav className="space-y-1">
             {navLinks.map((link) => (
               <NavLink
                 key={link.name}
                 to={link.href}
-                className={({ isActive }) => `
-                  text-sm font-semibold py-2 transition-colors
-                  ${isActive ? 'text-[#39A982]' : 'text-[#17231F] hover:text-[#176B52]'}
-                `}
+                className={({ isActive }) =>
+                  `block px-3 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider ${
+                    isActive ? 'bg-[#39A982] text-white' : 'text-stone-200 hover:bg-white/10'
+                  }`
+                }
               >
                 {link.name}
               </NavLink>
             ))}
-          </div>
+          </nav>
 
-          <div className="pt-4 border-t border-stone-200 space-y-3">
+          {isAdmin && (
+            <div className="pt-2 border-t border-white/10 space-y-1">
+              <span className="text-[10px] uppercase font-bold text-[#39A982] px-3">Admin Suite</span>
+              <Link
+                to="/admin"
+                className="block px-3 py-2 text-xs font-bold text-stone-200 hover:bg-white/10 rounded-xl"
+              >
+                Dashboard
+              </Link>
+              <Link
+                to="/admin/tours"
+                className="block px-3 py-2 text-xs font-bold text-stone-200 hover:bg-white/10 rounded-xl"
+              >
+                Tours & Itineraries
+              </Link>
+              <Link
+                to="/admin/vehicles"
+                className="block px-3 py-2 text-xs font-bold text-stone-200 hover:bg-white/10 rounded-xl"
+              >
+                Vehicle Daily Rates
+              </Link>
+              <Link
+                to="/admin/destinations"
+                className="block px-3 py-2 text-xs font-bold text-stone-200 hover:bg-white/10 rounded-xl"
+              >
+                Destinations & Tickets
+              </Link>
+              <Link
+                to="/admin/airport-transfers"
+                className="block px-3 py-2 text-xs font-bold text-stone-200 hover:bg-white/10 rounded-xl"
+              >
+                Airport Transfer Rates
+              </Link>
+            </div>
+          )}
+
+          <div className="pt-3 border-t border-white/10 flex items-center justify-between text-xs">
             {isAuthenticated ? (
-              <div className="space-y-2">
-                <div className="text-xs text-[#68736E]">
-                  Signed in as <span className="font-semibold text-[#17231F]">{user?.name || user?.email}</span>
-                </div>
-                {isAdmin && (
-                  <Link
-                    to="/admin/tours"
-                    className="block w-full py-2.5 text-center text-xs font-semibold bg-[#0B3D2E] text-white rounded-xl"
-                  >
-                    Admin Suite
-                  </Link>
-                )}
-                <Link
-                  to="/customer"
-                  className="block w-full py-2.5 text-center text-xs font-semibold bg-[#DDEFE8] text-[#0B3D2E] rounded-xl"
-                >
-                  My Trips & Bookings
+              <>
+                <Link to="/customer" className="font-bold text-white">
+                  My Account ({user?.name.split(' ')[0]})
                 </Link>
-                <button
-                  onClick={handleLogout}
-                  className="w-full py-2 text-center text-xs font-semibold text-rose-600 hover:underline"
-                >
-                  Sign Out
+                <button onClick={handleLogout} className="text-rose-400 font-bold">
+                  Log Out
                 </button>
-              </div>
+              </>
             ) : (
-              <div className="grid grid-cols-2 gap-3">
-                <Link
-                  to="/login"
-                  className="py-2.5 text-center text-xs font-semibold bg-[#F8F7F2] text-[#17231F] rounded-xl border border-stone-200"
-                >
-                  Sign In
+              <>
+                <Link to="/login" className="font-bold text-white">
+                  Log In
                 </Link>
-                <Link
-                  to="/transfers"
-                  className="py-2.5 text-center text-xs font-semibold bg-[#39A982] text-white rounded-xl"
-                >
-                  Book Transfer
+                <Link to="/register" className="font-bold text-[#39A982]">
+                  Create Account
                 </Link>
-              </div>
+              </>
             )}
           </div>
         </div>

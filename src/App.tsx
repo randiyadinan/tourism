@@ -10,35 +10,27 @@ import { AdminLayout } from './components/admin/AdminLayout';
 import { SEOTracker } from './components/common/SEOTracker';
 import { analytics } from './services/analytics';
 
-// Public Pages
+// 3 Main Customer Pages + Utility Pages
 import { HomePage } from './pages/public/HomePage';
-import { TourDetailPage } from './pages/public/TourDetailPage';
-import { DestinationsPage } from './pages/public/DestinationsPage';
-import { DestinationDetailPage } from './pages/public/DestinationDetailPage';
-import { ActivitiesPage } from './pages/public/ActivitiesPage';
-import { ActivityDetailPage } from './pages/public/ActivityDetailPage';
-import { CustomTripPage } from './pages/public/CustomTripPage';
 import { AirportTransferPage } from './pages/public/AirportTransferPage';
-import { AboutPage } from './pages/public/AboutPage';
 import { ReviewsPage } from './pages/public/ReviewsPage';
 import { ContactPage } from './pages/public/ContactPage';
+import { AboutPage } from './pages/public/AboutPage';
 import { LoginPage } from './pages/public/LoginPage';
 import { RegisterPage } from './pages/public/RegisterPage';
+import { VerifyEmailPage } from './pages/public/VerifyEmailPage';
 import { ForgotPasswordPage } from './pages/public/ForgotPasswordPage';
 import { CheckoutPage } from './pages/public/CheckoutPage';
 import { TermsAndConditionsPage } from './pages/public/TermsAndConditionsPage';
 import { PrivacyPolicyPage } from './pages/public/PrivacyPolicyPage';
 import { CancellationRefundPolicyPage } from './pages/public/CancellationRefundPolicyPage';
 
-// Customer Portal Pages
+// Customer Portal Pages (Only Dashboard, My Bookings, Booking Detail, Profile, Payments)
 import { CustomerDashboardPage } from './pages/customer/CustomerDashboardPage';
-import { MyTripsPage } from './pages/customer/MyTripsPage';
 import { MyBookingsPage } from './pages/customer/MyBookingsPage';
 import { BookingDetailPage } from './pages/customer/BookingDetailPage';
 import { CustomerProfilePage } from './pages/customer/CustomerProfilePage';
-import { WishlistPage } from './pages/customer/WishlistPage';
 import { PaymentsPage } from './pages/customer/PaymentsPage';
-import { NotificationsPage } from './pages/customer/NotificationsPage';
 
 // Admin Suite Pages
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
@@ -72,22 +64,31 @@ export const App: React.FC = () => {
         
         {/* PUBLIC ROUTES (with PublicLayout: TopAnnouncement, Navbar, Footer) */}
         <Route element={<PublicLayout />}>
+          {/* 1. HOME */}
           <Route path="/" element={<HomePage />} />
-          {/* Public Tours redirected to /transfers which contains both transfers and all tour packages */}
-          <Route path="/tours" element={<Navigate to="/transfers" replace />} />
-          <Route path="/tours/:slug" element={<TourDetailPage />} />
-          <Route path="/destinations" element={<DestinationsPage />} />
-          <Route path="/destinations/:slug" element={<DestinationDetailPage />} />
-          <Route path="/activities" element={<ActivitiesPage />} />
-          <Route path="/activities/:slug" element={<ActivityDetailPage />} />
-          <Route path="/customize" element={<CustomTripPage />} />
+          
+          {/* 2. AIRPORT TRANSFER & TOURS (Combined Single Location) */}
           <Route path="/transfers" element={<AirportTransferPage />} />
           <Route path="/airport-transfer" element={<Navigate to="/transfers" replace />} />
-          <Route path="/about" element={<AboutPage />} />
+          
+          {/* 3. REVIEWS */}
           <Route path="/reviews" element={<ReviewsPage />} />
+
+          {/* Standalone Tours & Destinations public listing routes removed -> Redirects to /transfers or / */}
+          <Route path="/tours" element={<Navigate to="/transfers" replace />} />
+          <Route path="/tours/:slug" element={<Navigate to="/transfers" replace />} />
+          <Route path="/destinations" element={<Navigate to="/" replace />} />
+          <Route path="/destinations/:slug" element={<Navigate to="/" replace />} />
+          <Route path="/activities" element={<Navigate to="/transfers" replace />} />
+          <Route path="/activities/:slug" element={<Navigate to="/transfers" replace />} />
+          <Route path="/customize" element={<Navigate to="/transfers" replace />} />
+
+          {/* Static info & Auth pages */}
+          <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/terms-and-conditions" element={<TermsAndConditionsPage />} />
@@ -105,16 +106,16 @@ export const App: React.FC = () => {
           }
         >
           <Route index element={<CustomerDashboardPage />} />
-          <Route path="trips" element={<MyTripsPage />} />
           <Route path="bookings" element={<MyBookingsPage />} />
           <Route path="bookings/:id" element={<BookingDetailPage />} />
           <Route path="profile" element={<CustomerProfilePage />} />
-          <Route path="wishlist" element={<WishlistPage />} />
           <Route path="payments" element={<PaymentsPage />} />
-          <Route path="notifications" element={<NotificationsPage />} />
+          <Route path="trips" element={<Navigate to="/customer/bookings" replace />} />
+          <Route path="wishlist" element={<Navigate to="/customer" replace />} />
+          <Route path="notifications" element={<Navigate to="/customer" replace />} />
         </Route>
 
-        {/* ADMIN MANAGEMENT SUITE ROUTES (Protected) */}
+        {/* ADMIN SUITE ROUTES (Protected) */}
         <Route
           path="/admin"
           element={
@@ -127,6 +128,7 @@ export const App: React.FC = () => {
           <Route path="tours" element={<ManageToursPage />} />
           <Route path="tours/new" element={<EditTourPage />} />
           <Route path="tours/:id/edit" element={<EditTourPage />} />
+          <Route path="tours/edit/:id" element={<EditTourPage />} />
           <Route path="destinations" element={<ManageDestinationsPage />} />
           <Route path="activities" element={<ManageActivitiesPage />} />
           <Route path="hotels" element={<ManageHotelsPage />} />
@@ -136,13 +138,13 @@ export const App: React.FC = () => {
           <Route path="payments" element={<ManagePaymentsPage />} />
           <Route path="reviews" element={<ManageReviewsPage />} />
           <Route path="discounts" element={<ManageDiscountsPage />} />
-          <Route path="transfers" element={<ManageAirportTransfersPage />} />
           <Route path="reports" element={<ReportsPage />} />
+          <Route path="airport-transfers" element={<ManageAirportTransfersPage />} />
           <Route path="notifications" element={<AdminNotificationsPage />} />
           <Route path="settings" element={<AdminSettingsPage />} />
         </Route>
 
-        {/* CATCH-ALL ROUTE */}
+        {/* FALLBACK */}
         <Route path="*" element={<Navigate to="/" replace />} />
 
       </Routes>

@@ -1,67 +1,125 @@
 import React, { useState } from 'react';
 import { 
-   
   Plus, 
   Trash2, 
-  Search } from 'lucide-react';
-import { destinationService } from '../../services/destinationService';
-import type { Destination } from '../../types';
+  Search, 
+  Ticket, 
+  Save, 
+  CheckCircle2, 
+  Edit3
+} from 'lucide-react';
+import { destinationTicketService, type DestinationTicketRecord } from '../../services/destinationTicketService';
 import { Modal } from '../../components/common/Modal';
+import { formatPrice } from '../../utils/formatters';
 
 export const ManageDestinationsPage: React.FC = () => {
-  const [destinations, setDestinations] = useState<Destination[]>(() => destinationService.getAllDestinations());
+  const [destinations, setDestinations] = useState<DestinationTicketRecord[]>(() => destinationTicketService.getAllDestinations());
   const [search, setSearch] = useState('');
+  const [statusMsg, setStatusMsg] = useState('');
+  
+  // Modal state for creating/editing destination
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
-  // New destination form state
+  // Form state
   const [name, setName] = useState('');
-  const [sinhalaName, setSinhalaName] = useState('');
-  const [province, setProvince] = useState('Central Province');
-  const [tagline, setTagline] = useState('');
-  const [shortDescription, setShortDescription] = useState('');
-  const [bestTimeToVisit, setBestTimeToVisit] = useState('November to April');
-  const [recommendedDuration, ] = useState('2 - 3 Days');
-  const [startingPrice, setStartingPrice] = useState(180);
-  const [heroImage, setHeroImage] = useState('https://images.unsplash.com/photo-1588598198321-9735fd52455b?auto=format&fit=crop&w=1200&q=80');
+  const [subtitle, setSubtitle] = useState('');
+  const [region, setRegion] = useState('Central Cultural Triangle');
+  const [adultTicketPrice, setAdultTicketPrice] = useState<number>(6500);
+  const [childTicketPrice, setChildTicketPrice] = useState<number>(3250);
+  const [image, setImage] = useState('https://images.unsplash.com/photo-1588598198321-9735fd52455b?auto=format&fit=crop&w=800&q=80');
 
   const filtered = destinations.filter(d => 
     d.name.toLowerCase().includes(search.toLowerCase()) ||
-    d.province.toLowerCase().includes(search.toLowerCase())
+    d.region.toLowerCase().includes(search.toLowerCase()) ||
+    d.subtitle.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleDelete = (id: string) => {
-    if (confirm('Delete this destination?')) {
-      destinationService.deleteDestination(id);
-      setDestinations(destinations.filter(d => d.id !== id));
+  const handleOpenNewModal = () => {
+    setEditingId(null);
+    setName('');
+    setSubtitle('');
+    setRegion('Central Cultural Triangle');
+    setAdultTicketPrice(6500);
+    setChildTicketPrice(3250);
+    setImage('https://images.unsplash.com/photo-1588598198321-9735fd52455b?auto=format&fit=crop&w=800&q=80');
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEditModal = (dest: DestinationTicketRecord) => {
+    setEditingId(dest.id);
+    setName(dest.name);
+    setSubtitle(dest.subtitle);
+    setRegion(dest.region);
+    setAdultTicketPrice(dest.adultTicketPrice);
+    setChildTicketPrice(dest.childTicketPrice);
+    setImage(dest.image);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = (id: string, destName: string) => {
+    if (confirm(`Are you sure you want to delete "${destName}" from destination catalog?`)) {
+      destinationTicketService.deleteDestination(id);
+      setDestinations(destinationTicketService.getAllDestinations());
+      setStatusMsg(`Deleted "${destName}".`);
+      setTimeout(() => setStatusMsg(''), 3500);
     }
   };
 
-  const handleCreateDestination = (e: React.FormEvent) => {
-    e.preventDefault();
-    const newDest = destinationService.createDestination({
-      name,
-      sinhalaName,
-      province,
-      tagline,
-      shortDescription,
-      overview: shortDescription,
-      heroImage,
-      gallery: [heroImage],
-      bestTimeToVisit,
-      recommendedDuration,
-      startingPrice: Number(startingPrice),
-      popularActivities: ['Guided sightseeing', 'Local cuisine exploration'],
-      attractions: [],
-      coordinates: { lat: 7.0, lng: 80.5 },
-      climate: { temperature: '26°C - 31°C', rainfall: 'Moderate' },
-      featured: false
-    });
+  const handleToggleActive = (id: string) => {
+    const updated = destinationTicketService.toggleActive(id);
+    setDestinations(destinationTicketService.getAllDestinations());
+    setStatusMsg(`Destination "${updated.name}" is now ${updated.active ? 'Active' : 'Inactive'}.`);
+    setTimeout(() => setStatusMsg(''), 3500);
+  };
 
-    setDestinations([...destinations, newDest]);
+  // Quick inline price update for table
+  const handleQuickPriceChange = (id: string, field: 'adultTicketPrice' | 'childTicketPrice', val: number) => {
+    setDestinations(prev => prev.map(d => {
+      if (d.id === id) {
+        return { ...d, [field]: Math.max(0, val) };
+      }
+      return d;
+    }));
+  };
+
+  const handleSaveInlinePrices = (dest: DestinationTicketRecord) => {
+    destinationTicketService.updateDestination(dest.id, {
+      adultTicketPrice: Number(dest.adultTicketPrice),
+      childTicketPrice: Number(dest.childTicketPrice)
+    });
+    setStatusMsg(`Saved ticket rates for ${dest.name}: Adult ${formatPrice(dest.adultTicketPrice)}, Child ${formatPrice(dest.childTicketPrice)}.`);
+    setTimeout(() => setStatusMsg(''), 3500);
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingId) {
+      destinationTicketService.updateDestination(editingId, {
+        name,
+        subtitle,
+        region,
+        adultTicketPrice: Math.max(0, Number(adultTicketPrice)),
+        childTicketPrice: Math.max(0, Number(childTicketPrice)),
+        image
+      });
+      setStatusMsg(`Updated "${name}" ticket rates.`);
+    } else {
+      destinationTicketService.createDestination({
+        name,
+        subtitle,
+        region,
+        adultTicketPrice: Math.max(0, Number(adultTicketPrice)),
+        childTicketPrice: Math.max(0, Number(childTicketPrice)),
+        image,
+        active: true
+      });
+      setStatusMsg(`Added new destination "${name}".`);
+    }
+
+    setDestinations(destinationTicketService.getAllDestinations());
     setIsModalOpen(false);
-    setName('');
-    setTagline('');
-    setShortDescription('');
+    setTimeout(() => setStatusMsg(''), 3500);
   };
 
   return (
@@ -70,67 +128,132 @@ export const ManageDestinationsPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#062C22]">Manage Destinations</h1>
-          <p className="text-xs text-stone-500">Manage Sri Lankan regional catalog, seasons, and highlights.</p>
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#062C22]">Destinations & Ticket Rates</h1>
+          <p className="text-xs text-stone-500 mt-1">
+            Manage ticket admission rates in <strong>Sri Lankan Rupees (LKR)</strong> for iconic attractions across Sri Lanka.
+          </p>
         </div>
 
         <button
-          onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#0B3D2E] text-white hover:bg-[#134E3F] text-xs font-bold rounded-xl shadow-sm transition-all"
+          onClick={handleOpenNewModal}
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0B3D2E] text-white hover:bg-[#134E3F] text-xs font-bold rounded-xl shadow-xs transition-all shrink-0"
         >
           <Plus className="w-4 h-4 text-[#39A982]" />
-          <span>Add New Destination</span>
+          <span>Add Attraction Destination</span>
         </button>
       </div>
 
-      {/* Search */}
+      {statusMsg && (
+        <div className="p-3 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-xl border border-emerald-200 flex items-center gap-2 animate-fadeIn">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          <span>{statusMsg}</span>
+        </div>
+      )}
+
+      {/* Filter and Search Bar */}
       <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm flex items-center gap-3">
-        <Search className="w-4 h-4 text-stone-400" />
+        <Search className="w-4 h-4 text-stone-400 shrink-0" />
         <input
           type="text"
+          placeholder="Search by destination name, region, or attraction..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Filter destinations by name or province..."
-          className="w-full bg-transparent border-none text-xs text-[#062C22] focus:outline-none"
+          className="w-full text-xs bg-transparent focus:outline-none text-[#062C22] font-medium"
         />
       </div>
 
-      {/* Table */}
+      {/* Destinations Table */}
       <div className="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="bg-[#F8F7F2] text-stone-700 font-bold border-b border-stone-200">
               <tr>
-                <th className="py-3.5 px-6">Destination</th>
-                <th className="py-3.5 px-4">Province</th>
-                <th className="py-3.5 px-4">Best Season</th>
-                <th className="py-3.5 px-4">Suggested Duration</th>
-                <th className="py-3.5 px-4">Starting Price</th>
-                <th className="py-3.5 px-6 text-right">Actions</th>
+                <th className="py-3 px-6">Destination Attraction</th>
+                <th className="py-3 px-4">Region</th>
+                <th className="py-3 px-4">Adult Rate (LKR)</th>
+                <th className="py-3 px-4">Child Rate (LKR)</th>
+                <th className="py-3 px-4">Home Display</th>
+                <th className="py-3 px-6 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100 text-stone-600">
               {filtered.map((dest) => (
                 <tr key={dest.id} className="hover:bg-stone-50/50">
                   <td className="py-4 px-6 flex items-center gap-3">
-                    <img src={dest.heroImage} alt={dest.name} className="w-12 h-12 rounded-xl object-cover" />
+                    <img src={dest.image} alt={dest.name} className="w-12 h-12 rounded-xl object-cover" />
                     <div>
                       <h4 className="font-serif font-bold text-xs text-[#062C22]">{dest.name}</h4>
-                      <p className="text-[10px] text-stone-400">{dest.tagline}</p>
+                      <p className="text-[10px] text-stone-400 max-w-[220px] truncate">{dest.subtitle}</p>
                     </div>
                   </td>
-                  <td className="py-4 px-4 font-semibold text-[#176B52]">{dest.province}</td>
-                  <td className="py-4 px-4">{dest.bestTimeToVisit}</td>
-                  <td className="py-4 px-4">{dest.recommendedDuration}</td>
-                  <td className="py-4 px-4 font-bold text-[#062C22]">${dest.startingPrice}</td>
-                  <td className="py-4 px-6 text-right">
+                  <td className="py-4 px-4 font-semibold text-[#176B52]">{dest.region}</td>
+                  
+                  {/* Editable Adult Ticket Rate */}
+                  <td className="py-4 px-4">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-bold text-stone-400 text-[11px]">LKR</span>
+                      <input
+                        type="number"
+                        min="0"
+                        step="100"
+                        value={dest.adultTicketPrice}
+                        onChange={(e) => handleQuickPriceChange(dest.id, 'adultTicketPrice', Number(e.target.value))}
+                        className="w-24 px-2 py-1 bg-[#F8F7F2] border border-stone-300 rounded-lg font-bold text-xs text-[#0B3D2E] focus:ring-2 focus:ring-[#176B52]"
+                      />
+                    </div>
+                  </td>
+
+                  {/* Editable Child Ticket Rate */}
+                  <td className="py-4 px-4">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-bold text-stone-400 text-[11px]">LKR</span>
+                      <input
+                        type="number"
+                        min="0"
+                        step="100"
+                        value={dest.childTicketPrice}
+                        onChange={(e) => handleQuickPriceChange(dest.id, 'childTicketPrice', Number(e.target.value))}
+                        className="w-24 px-2 py-1 bg-[#F8F7F2] border border-stone-300 rounded-lg font-bold text-xs text-[#0B3D2E] focus:ring-2 focus:ring-[#176B52]"
+                      />
+                    </div>
+                  </td>
+
+                  {/* Status Toggle */}
+                  <td className="py-4 px-4">
                     <button
-                      onClick={() => handleDelete(dest.id)}
-                      className="p-1.5 text-stone-400 hover:text-rose-600"
-                      title="Delete Destination"
+                      onClick={() => handleToggleActive(dest.id)}
+                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all ${
+                        dest.active ? 'bg-emerald-100 text-emerald-800' : 'bg-stone-200 text-stone-600'
+                      }`}
                     >
-                      <Trash2 className="w-4 h-4" />
+                      {dest.active ? 'Active on Home' : 'Hidden'}
                     </button>
+                  </td>
+
+                  <td className="py-4 px-6 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => handleSaveInlinePrices(dest)}
+                        className="p-1.5 text-emerald-700 hover:bg-emerald-50 rounded-lg"
+                        title="Save Prices"
+                      >
+                        <Save className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleOpenEditModal(dest)}
+                        className="p-1.5 text-stone-400 hover:text-[#0B3D2E]"
+                        title="Edit Details"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(dest.id, dest.name)}
+                        className="p-1.5 text-stone-400 hover:text-rose-600"
+                        title="Delete Destination"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -139,105 +262,93 @@ export const ManageDestinationsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Add Destination Modal */}
+      {/* Add / Edit Destination Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="Add New Sri Lankan Destination"
+        title={editingId ? `Edit Destination: ${name}` : 'Add New Sri Lankan Destination'}
         maxWidth="md"
       >
-        <form onSubmit={handleCreateDestination} className="space-y-4">
+        <form onSubmit={handleFormSubmit} className="space-y-4 text-xs">
           <div className="space-y-1">
-            <label className="text-xs font-bold text-stone-700">Destination Name</label>
+            <label className="font-bold text-stone-700">Destination Name</label>
             <input
               type="text"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Jaffna"
+              placeholder="e.g. Anuradhapura"
               className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-stone-700">Sinhala / Tamil Name</label>
-              <input
-                type="text"
-                value={sinhalaName}
-                onChange={(e) => setSinhalaName(e.target.value)}
-                placeholder="e.g. යාපනය"
-                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-stone-700">Province</label>
-              <select
-                value={province}
-                onChange={(e) => setProvince(e.target.value)}
-                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
-              >
-                <option value="Central Province">Central Province</option>
-                <option value="Southern Province">Southern Province</option>
-                <option value="Western Province">Western Province</option>
-                <option value="Uva Province">Uva Province</option>
-                <option value="Eastern Province">Eastern Province</option>
-                <option value="Northern Province">Northern Province</option>
-              </select>
-            </div>
-          </div>
-
           <div className="space-y-1">
-            <label className="text-xs font-bold text-stone-700">Tagline</label>
+            <label className="font-bold text-stone-700">Region Tag</label>
             <input
               type="text"
-              value={tagline}
-              onChange={(e) => setTagline(e.target.value)}
-              placeholder="e.g. Historic Forts & Vibrant Culture"
+              required
+              value={region}
+              onChange={(e) => setRegion(e.target.value)}
+              placeholder="e.g. North Central Ancient Kingdom"
               className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
             />
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-bold text-stone-700">Short Description</label>
-            <textarea
-              rows={3}
+            <label className="font-bold text-stone-700">Short Subtitle / Description</label>
+            <input
+              type="text"
               required
-              value={shortDescription}
-              onChange={(e) => setShortDescription(e.target.value)}
-              placeholder="Overview of region..."
+              value={subtitle}
+              onChange={(e) => setSubtitle(e.target.value)}
+              placeholder="e.g. Ancient Sacred Bodhi Tree & Monasteries"
               className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          {/* Ticket Rates in LKR */}
+          <div className="grid grid-cols-2 gap-3 p-3.5 bg-[#DDEFE8]/50 rounded-2xl border border-stone-200">
             <div className="space-y-1">
-              <label className="text-xs font-bold text-stone-700">Best Time to Visit</label>
-              <input
-                type="text"
-                value={bestTimeToVisit}
-                onChange={(e) => setBestTimeToVisit(e.target.value)}
-                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-stone-700">Starting Price ($ USD)</label>
+              <label className="font-bold text-[#0B3D2E] flex items-center gap-1">
+                <Ticket className="w-3.5 h-3.5 text-[#176B52]" />
+                Adult Ticket (LKR)
+              </label>
               <input
                 type="number"
-                value={startingPrice}
-                onChange={(e) => setStartingPrice(Number(e.target.value))}
-                className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
+                min="0"
+                step="100"
+                required
+                value={adultTicketPrice}
+                onChange={(e) => setAdultTicketPrice(Number(e.target.value))}
+                className="w-full bg-white border border-stone-300 rounded-xl px-3 py-2 font-bold text-[#0B3D2E]"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="font-bold text-[#0B3D2E] flex items-center gap-1">
+                <Ticket className="w-3.5 h-3.5 text-[#176B52]" />
+                Child Ticket (LKR)
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="100"
+                required
+                value={childTicketPrice}
+                onChange={(e) => setChildTicketPrice(Number(e.target.value))}
+                className="w-full bg-white border border-stone-300 rounded-xl px-3 py-2 font-bold text-[#0B3D2E]"
               />
             </div>
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-bold text-stone-700">Hero Image URL</label>
+            <label className="font-bold text-stone-700">Hero Image URL</label>
             <input
               type="url"
-              value={heroImage}
-              onChange={(e) => setHeroImage(e.target.value)}
-              className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"
+              required
+              value={image}
+              onChange={(e) => setImage(e.target.value)}
+              className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3.5 py-2 text-xs text-[#062C22]"
             />
           </div>
 
@@ -245,7 +356,7 @@ export const ManageDestinationsPage: React.FC = () => {
             type="submit"
             className="w-full py-3.5 bg-[#0B3D2E] text-white font-bold text-xs rounded-xl shadow-md hover:bg-[#134E3F] transition-colors"
           >
-            Save Destination to Database
+            {editingId ? 'Save Destination Changes' : 'Create Destination with Ticket Rates'}
           </button>
         </form>
       </Modal>

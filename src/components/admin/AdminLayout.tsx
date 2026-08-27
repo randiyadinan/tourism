@@ -4,62 +4,30 @@ import {
   LayoutDashboard, 
   BookOpen, 
   MapPin, 
-  Activity as ActivityIcon, 
-  Hotel, 
   Car, 
-  Users, 
-  Calendar, 
-  CreditCard, 
-  Star, 
-  Percent, 
-  BarChart3, 
+  Plane,
   LogOut, 
   Compass, 
   Menu, 
   X,
-  Plane,
-  Bell,
-  Settings,
-  Shield } from 'lucide-react';
+  Eye
+} from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { TopAnnouncement } from '../common/TopAnnouncement';
 
 export const AdminLayout: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
 
-  const menuSections = [
-    {
-      title: 'Operations',
-      items: [
-        { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-        { name: 'Bookings', href: '/admin/bookings', icon: Calendar },
-        { name: 'Airport Transfers', href: '/admin/transfers', icon: Plane },
-        { name: 'Payments', href: '/admin/payments', icon: CreditCard },
-        { name: 'Customers', href: '/admin/customers', icon: Users },
-      ]
-    },
-    {
-      title: 'Catalog & Inventory',
-      items: [
-        { name: 'Tours', href: '/admin/tours', icon: BookOpen },
-        { name: 'Destinations', href: '/admin/destinations', icon: MapPin },
-        { name: 'Activities', href: '/admin/activities', icon: ActivityIcon },
-        { name: 'Hotels', href: '/admin/hotels', icon: Hotel },
-        { name: 'Fleet & Vehicles', href: '/admin/vehicles', icon: Car },
-      ]
-    },
-    {
-      title: 'Marketing & System',
-      items: [
-        { name: 'Reviews', href: '/admin/reviews', icon: Star },
-        { name: 'Coupons', href: '/admin/discounts', icon: Percent },
-        { name: 'Notifications', href: '/admin/notifications', icon: Bell },
-        { name: 'Reports & Analytics', href: '/admin/reports', icon: BarChart3 },
-        { name: 'Settings', href: '/admin/settings', icon: Settings },
-      ]
-    }
+  const navItems = [
+    { name: 'Dashboard', href: '/admin', icon: LayoutDashboard, end: true },
+    { name: 'Customer Bookings', href: '/admin/bookings', icon: Compass },
+    { name: 'Customer Profiles', href: '/admin/customers', icon: Eye },
+    { name: 'Tours & Itineraries', href: '/admin/tours', icon: BookOpen },
+    { name: 'Vehicle Daily Rates', href: '/admin/vehicles', icon: Car },
+    { name: 'Destinations & Tickets', href: '/admin/destinations', icon: MapPin },
+    { name: 'Airport Transfer Rates', href: '/admin/airport-transfers', icon: Plane },
   ];
 
   const handleLogout = () => {
@@ -68,104 +36,118 @@ export const AdminLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F3EFEA] flex flex-col font-sans">
+    <div className="min-h-screen bg-[#F8F7F2] flex flex-col">
       <TopAnnouncement />
 
       {/* Admin Topbar */}
-      <header className="bg-[#062C22] border-b border-[#176B52]/20 text-white px-4 sm:px-8 py-3.5 sticky top-0 z-40 shadow-md">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
+      <header className="bg-[#062C22] text-white border-b border-white/10 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-4">
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="lg:hidden p-1.5 rounded-lg bg-white/10 text-white"
+              className="lg:hidden p-2 rounded-xl text-stone-200 hover:bg-white/10"
+              aria-label="Toggle navigation"
             >
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
-            <Link to="/admin" className="flex items-center gap-2">
-              <Shield className="w-6 h-6 text-[#39A982]" />
-              <span className="font-serif text-xl font-bold tracking-wide">
-                Lanka<span className="text-[#39A982]">Voyage</span>
-              </span>
-              <span className="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded bg-[#176B52] text-[#062C22] ml-2">
-                Admin Suite
-              </span>
+
+            <Link to="/admin" className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-[#39A982] flex items-center justify-center text-white">
+                <Compass className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="font-serif text-lg font-bold text-white block leading-tight">LankaVoyage</span>
+                <span className="text-[9px] uppercase tracking-wider text-[#39A982] font-bold block">Admin Console</span>
+              </div>
             </Link>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <Link
               to="/"
-              className="hidden sm:inline-flex items-center gap-1.5 text-xs text-stone-300 hover:text-white bg-white/10 px-3 py-1.5 rounded-lg transition-colors"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-stone-200 text-xs font-semibold transition-colors"
             >
-              <Compass className="w-3.5 h-3.5 text-[#176B52]" />
-              View Public Website
+              <Eye className="w-3.5 h-3.5 text-[#39A982]" />
+              <span className="hidden sm:inline">View Live Site</span>
             </Link>
 
-            <div className="flex items-center gap-2">
-              <img
-                src={user?.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80'}
-                alt="Admin"
-                className="w-8 h-8 rounded-full border border-[#176B52] object-cover"
-              />
-              <span className="text-xs font-semibold hidden md:inline">{user?.name || 'Administrator'}</span>
-            </div>
+            <button
+              onClick={handleLogout}
+              className="p-2 text-stone-400 hover:text-rose-400 rounded-xl transition-colors"
+              title="Logout"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </header>
 
-      {/* Main Body */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full flex flex-col lg:flex-row gap-8 items-start">
+      {/* Main Admin Area */}
+      <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        {/* Admin Navigation Sidebar */}
-        <aside className={`w-full lg:w-64 bg-white rounded-3xl border border-stone-200 p-6 shadow-sm shrink-0 space-y-6 ${mobileOpen ? 'block' : 'hidden lg:block'}`}>
-          <div className="space-y-6">
-            {menuSections.map((section, sIdx) => (
-              <div key={sIdx} className="space-y-2">
-                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-widest block px-3">
-                  {section.title}
-                </span>
-                <div className="space-y-1">
-                  {section.items.map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <NavLink
-                        key={item.name}
-                        to={item.href}
-                        end={item.href === '/admin'}
-                        onClick={() => setMobileOpen(false)}
-                        className={({ isActive }) => `
-                          flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all
-                          ${isActive 
-                            ? 'bg-[#0B3D2E] text-white shadow-md' 
-                            : 'text-stone-600 hover:bg-[#F8F7F2] hover:text-[#062C22]'
-                          }
-                        `}
-                      >
-                        <Icon className="w-4 h-4 text-[#176B52]" />
-                        <span>{item.name}</span>
-                      </NavLink>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="pt-4 border-t border-stone-100">
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>Log Out Admin</span>
-            </button>
-          </div>
+        {/* Sidebar Navigation */}
+        <aside className="hidden lg:block lg:col-span-3 liquid-glass-white p-5 rounded-3xl border border-white/80 shadow-[0_10px_30px_-10px_rgba(6,44,34,0.08)] space-y-2">
+          <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider px-3 block mb-2">
+            Website Controls
+          </span>
+          <nav className="space-y-1">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <NavLink
+                  key={item.name}
+                  to={item.href}
+                  end={item.end}
+                  className={({ isActive }) =>
+                    `flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all ${
+                      isActive
+                        ? 'bg-[#0B3D2E] text-white shadow-xs'
+                        : 'text-stone-600 hover:bg-[#F8F7F2] hover:text-[#062C22]'
+                    }`
+                  }
+                >
+                  <Icon className="w-4 h-4 text-[#39A982]" />
+                  <span>{item.name}</span>
+                </NavLink>
+              );
+            })}
+          </nav>
         </aside>
 
-        {/* Admin Page Content */}
-        <main className="flex-1 w-full min-w-0">
+        {/* Mobile Navigation Drawer */}
+        {mobileOpen && (
+          <div className="lg:hidden col-span-1 bg-white p-4 rounded-2xl border border-stone-200 space-y-1">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <NavLink
+                  key={item.name}
+                  to={item.href}
+                  end={item.end}
+                  onClick={() => setMobileOpen(false)}
+                  className={({ isActive }) =>
+                    `flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-bold ${
+                      isActive
+                        ? 'bg-[#0B3D2E] text-white'
+                        : 'text-stone-600 hover:bg-stone-50'
+                    }`
+                  }
+                >
+                  <Icon className="w-4 h-4 text-[#39A982]" />
+                  <span>{item.name}</span>
+                </NavLink>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Content Outlet */}
+        <main className="lg:col-span-9">
           <Outlet />
         </main>
+
       </div>
     </div>
   );

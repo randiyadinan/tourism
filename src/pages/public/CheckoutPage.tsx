@@ -7,7 +7,7 @@ import {
   Users,
   ShieldCheck,
   CreditCard,
-  Building,
+  Banknote,
   CheckCircle2,
   Clock,
   Sparkles,
@@ -20,6 +20,7 @@ import { paymentService } from '../../services/paymentService';
 import { payhereService } from '../../services/payhereService';
 import { useAuth } from '../../context/AuthContext';
 import { analytics } from '../../services/analytics';
+import { formatPrice } from '../../utils/formatters';
 import type { PaymentMethod } from '../../types';
 
 export const CheckoutPage: React.FC = () => {
@@ -41,13 +42,16 @@ export const CheckoutPage: React.FC = () => {
     totalAmount?: number;
     destinations?: string[];
     vehicleType?: string;
+    flightNumber?: string;
+    arrivalTime?: string;
   } | null;
 
-  // Form State
   const [leadName, setLeadName] = useState(user?.name || '');
   const [leadEmail, setLeadEmail] = useState(user?.email || '');
   const [leadPhone, setLeadPhone] = useState(user?.phone || '');
   const [leadCountry, setLeadCountry] = useState(user?.country || 'United Kingdom');
+  const [flightNumber, setFlightNumber] = useState(state?.flightNumber || '');
+  const [flightNumberError, setFlightNumberError] = useState('');
   const [passportNumber, setPassportNumber] = useState('');
   const [specialRequests, setSpecialRequests] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('Credit / Debit Card');
@@ -72,21 +76,20 @@ export const CheckoutPage: React.FC = () => {
       const allBookings = bookingService.getAllBookings();
       const existing = allBookings.find(b => b.bookingCode === orderId || b.id === orderId);
 
-      if (paymentStatusParam === 'cancel' || paymentStatusParam === 'failed' || paymentStatusParam === '-1') {
+      if (paymentStatusParam === 'cancel' || paymentStatusParam === 'cancelled' || paymentStatusParam === 'failed' || paymentStatusParam === '-1') {
         setVerifyingPayment(false);
         setVerificationPending(false);
+        if (existing) {
+          bookingService.applyGatewayPaymentFailure(existing.id, paymentStatusParam.includes('cancel') ? 'CANCELLED' : 'FAILED');
+        }
         setSubmitError(`Payment was cancelled or unsuccessful with PayHere (Reference: ${orderId}). Please retry.`);
         return;
       }
 
-      fetch(`/api/payments/verify-status?order_id=${encodeURIComponent(orderId)}`)
-        .then(res => {
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          return res.json();
-        })
-        .then((verificationResult: any) => {
+      payhereService.getPaymentStatus(orderId)
+        .then((verificationResult) => {
           setVerifyingPayment(false);
-          if (verificationResult?.status === 'PAID' || verificationResult?.verified === true) {
+          if (verificationResult?.status === 'SUCCESS') {
             if (existing) {
               bookingService.applyGatewayPaymentSuccess(existing.id, {
                 amountPaid: existing.totalAmount,
@@ -97,13 +100,19 @@ export const CheckoutPage: React.FC = () => {
                 confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
               } catch (e) {}
             }
+          } else if (verificationResult?.status === 'FAILED' || verificationResult?.status === 'CANCELLED') {
+            if (existing) {
+              bookingService.applyGatewayPaymentFailure(existing.id, verificationResult.status);
+            }
+            setSubmitError(`PayHere payment ${verificationResult.status.toLowerCase()} for Order ${orderId}.`);
           } else {
+            // Still pending IPN or verification
             setVerificationPending(true);
             setVerifiedBookingCode(orderId);
           }
         })
         .catch(err => {
-          console.warn('Backend payment status verification request did not confirm payment:', err);
+          console.warn('Backend payment status verification check:', err);
           setVerifyingPayment(false);
           setVerificationPending(true);
           setVerifiedBookingCode(orderId);
@@ -118,7 +127,7 @@ export const CheckoutPage: React.FC = () => {
         state.tourId || 'tour-custom',
         state.tourTitle || 'Sri Lanka Tour',
         state.totalAmount,
-        'USD'
+        'LKR'
       );
     }
   }, [state]);
@@ -126,6 +135,13 @@ export const CheckoutPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError('');
+    setFlightNumberError('');
+
+    if (!flightNumber || !flightNumber.trim()) {
+      setFlightNumberError('Flight number is required.');
+      setSubmitError('Flight number is required.');
+      return;
+    }
 
     if (!agreeTerms) {
       setSubmitError('Please accept the Terms and Cancellation Policy to complete booking.');
@@ -140,48 +156,52 @@ export const CheckoutPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      const newBooking = bookingService.createBooking({
-        type: 'standard_tour',
-        userId: user?.id || 'guest-user',
-        customerName: leadName,
-        customerEmail: leadEmail,
-        customerPhone: leadPhone,
-        tourId: state.tourId,
-        tourTitle: state.tourTitle,
-        tourImage: state.tourImage,
-        startDate: state.startDate || '2026-10-15',
-        endDate: '2026-10-25',
-        adultsCount: state.adults || 2,
-        childrenCount: state.children || 0,
-        infantsCount: 0,
-        destinationsCovered: state.destinations || [],
-        vehicleType: state.vehicleType || 'Private Luxury Sedan',
-        airportPickup: state.airportPickup || false,
-        basePrice: state.totalAmount + (state.discountAmount || 0),
-        customizationTotal: state.airportPickup ? 40 : 0,
-        discountAmount: state.discountAmount || 0,
-        discountCode: state.discountCode,
-        taxAmount: 0,
-        totalAmount: state.totalAmount,
-        amountPaid: 0,
-        bookingStatus: 'Pending',
-        paymentStatus: 'Unpaid',
-        paymentMethod: paymentMethod,
-        notes: specialRequests,
-        travelers: [
-          {
-            title: 'Mr',
-            fullName: leadName,
-            email: leadEmail,
-            phone: leadPhone,
-            nationality: leadCountry,
-            passportNumber: passportNumber || undefined,
-            isLead: true
-          }
-        ]
-      });
-
       if (paymentMethod === 'Credit / Debit Card') {
+        // Step 1 & 2: Create booking with temporary/pending payment state
+        const newBooking = bookingService.createBooking({
+          type: 'standard_tour',
+          userId: user?.id || 'guest-user',
+          customerName: leadName,
+          customerEmail: leadEmail,
+          customerPhone: leadPhone,
+          tourId: state.tourId,
+          tourTitle: state.tourTitle,
+          tourImage: state.tourImage,
+          startDate: state.startDate || '2026-10-15',
+          endDate: '2026-10-25',
+          adultsCount: state.adults || 2,
+          childrenCount: state.children || 0,
+          infantsCount: 0,
+          destinationsCovered: state.destinations || [],
+          vehicleType: state.vehicleType || 'Private Luxury Sedan',
+          airportPickup: state.airportPickup || false,
+          flightNumber: flightNumber.trim(),
+          flightArrivalTime: state.arrivalTime || '14:30',
+          basePrice: state.totalAmount + (state.discountAmount || 0),
+          customizationTotal: state.airportPickup ? 40 : 0,
+          discountAmount: state.discountAmount || 0,
+          discountCode: state.discountCode,
+          taxAmount: 0,
+          totalAmount: state.totalAmount,
+          amountPaid: 0,
+          bookingStatus: 'Pending',
+          paymentStatus: 'NOT PAID',
+          paymentMethod: 'Credit / Debit Card',
+          notes: specialRequests,
+          travelers: [
+            {
+              title: 'Mr',
+              fullName: leadName,
+              email: leadEmail,
+              phone: leadPhone,
+              nationality: leadCountry,
+              passportNumber: passportNumber || undefined,
+              isLead: true
+            }
+          ]
+        });
+
+        // Step 3: Open PayHere flow
         try {
           const payhereData = await payhereService.initiatePayment({
             orderId: newBooking.bookingCode,
@@ -189,17 +209,19 @@ export const CheckoutPage: React.FC = () => {
             bookingCode: newBooking.bookingCode,
             userId: user?.id,
             amount: state.totalAmount,
-            currency: 'USD',
+            currency: 'LKR',
             itemTitle: state.tourTitle || 'Sri Lanka Tour',
             customerName: leadName,
             customerEmail: leadEmail,
             customerPhone: leadPhone,
+            flightNumber: flightNumber.trim(),
             city: 'Colombo',
             country: leadCountry || 'Sri Lanka'
           });
 
           payhereService.launchPayment(payhereData, {
             onCompleted: (orderId: string) => {
+              // Step 5: ONLY after PayHere confirms SUCCESS:
               bookingService.applyGatewayPaymentSuccess(newBooking.id, {
                 amountPaid: state.totalAmount!,
                 paymentMethod: 'Credit / Debit Card'
@@ -221,33 +243,89 @@ export const CheckoutPage: React.FC = () => {
                 orderId,
                 newBooking.bookingCode,
                 state.totalAmount!,
-                'USD'
+                'LKR'
               );
 
               try {
                 confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
               } catch (e) {}
 
+              // Step 6: Customer sees successful booking confirmation
               navigate(`/customer/bookings/${newBooking.id}`);
             },
             onDismissed: () => {
               setIsSubmitting(false);
+              bookingService.applyGatewayPaymentFailure(newBooking.id, 'CANCELLED');
+              setSubmitError(`PayHere payment was dismissed. Your booking ${newBooking.bookingCode} remains pending with Payment Status: NOT PAID.`);
             },
             onError: (err: string) => {
-              setSubmitError(`Payment Gateway Error: ${err}`);
               setIsSubmitting(false);
+              bookingService.applyGatewayPaymentFailure(newBooking.id, 'FAILED');
+              setSubmitError(`Payment Gateway Error: ${err}. Your booking ${newBooking.bookingCode} remains pending with Payment Status: FAILED.`);
             }
           });
         } catch (err: any) {
           console.error('Failed to initialize PayHere session:', err);
           setIsSubmitting(false);
-          navigate(`/customer/bookings/${newBooking.id}`);
+          setSubmitError(err?.message || 'Payment Gateway could not be reached. Please try again.');
         }
       } else {
+        // CASH PAYMENT FLOW:
+        // 1. Customer submits the booking.
+        // 2. Do NOT open PayHere.
+        // 3. Create the booking directly.
+        // 4. Set booking status = CONFIRMED.
+        // 5. Set payment status = NOT PAID.
+        // 6. Set payment method = CASH (Cash Payment).
+        const newBooking = bookingService.createBooking({
+          type: 'standard_tour',
+          userId: user?.id || 'guest-user',
+          customerName: leadName,
+          customerEmail: leadEmail,
+          customerPhone: leadPhone,
+          tourId: state.tourId,
+          tourTitle: state.tourTitle,
+          tourImage: state.tourImage,
+          startDate: state.startDate || '2026-10-15',
+          endDate: '2026-10-25',
+          adultsCount: state.adults || 2,
+          childrenCount: state.children || 0,
+          infantsCount: 0,
+          destinationsCovered: state.destinations || [],
+          vehicleType: state.vehicleType || 'Private Luxury Sedan',
+          airportPickup: state.airportPickup || false,
+          flightNumber: flightNumber.trim(),
+          flightArrivalTime: state.arrivalTime || '14:30',
+          basePrice: state.totalAmount + (state.discountAmount || 0),
+          customizationTotal: state.airportPickup ? 40 : 0,
+          discountAmount: state.discountAmount || 0,
+          discountCode: state.discountCode,
+          taxAmount: 0,
+          totalAmount: state.totalAmount,
+          amountPaid: 0,
+          bookingStatus: 'Confirmed',
+          paymentStatus: 'NOT PAID',
+          paymentMethod: 'Cash Payment',
+          notes: specialRequests,
+          travelers: [
+            {
+              title: 'Mr',
+              fullName: leadName,
+              email: leadEmail,
+              phone: leadPhone,
+              nationality: leadCountry,
+              passportNumber: passportNumber || undefined,
+              isLead: true
+            }
+          ]
+        });
+
         setIsSubmitting(false);
         try {
           confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
         } catch (e) {}
+
+        // Customer receives the booking confirmation showing Confirmed & NOT PAID
         navigate(`/customer/bookings/${newBooking.id}`);
       }
     } catch (err: any) {
@@ -435,7 +513,36 @@ export const CheckoutPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                  <div className="space-y-1">
+                    <label className="font-semibold text-[#17231F]">
+                      Flight Number <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={flightNumber}
+                      onChange={(e) => {
+                        setFlightNumber(e.target.value);
+                        if (e.target.value.trim()) {
+                          setFlightNumberError('');
+                        }
+                      }}
+                      placeholder="e.g. UL 504 / EK 650"
+                      className={`w-full bg-[#F8F7F2] border rounded-xl p-3 font-medium text-[#17231F] uppercase focus:outline-none focus:ring-2 ${
+                        flightNumberError 
+                          ? 'border-rose-400 focus:ring-rose-400 bg-rose-50/20' 
+                          : 'border-stone-300 focus:ring-[#176B52]'
+                      }`}
+                    />
+                    {flightNumberError && (
+                      <p className="text-xs text-rose-600 font-medium flex items-center gap-1 mt-1">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        <span>{flightNumberError}</span>
+                      </p>
+                    )}
+                  </div>
+
                   <div className="space-y-1">
                     <label className="font-semibold text-[#17231F]">Country of Residence</label>
                     <input
@@ -446,8 +553,9 @@ export const CheckoutPage: React.FC = () => {
                       className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-3 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
                     />
                   </div>
+
                   <div className="space-y-1">
-                    <label className="font-semibold text-[#17231F]">Passport Number (Optional)</label>
+                    <label className="font-semibold text-[#17231F]">Passport (Optional)</label>
                     <input
                       type="text"
                       value={passportNumber}
@@ -476,11 +584,12 @@ export const CheckoutPage: React.FC = () => {
               <h3 className="font-serif text-lg font-bold text-[#17231F]">Payment Options</h3>
 
               <div className="space-y-2.5">
+                {/* 1. Credit / Debit Card */}
                 <label
                   className={`p-4 rounded-2xl border flex items-center justify-between cursor-pointer transition-colors ${
                     paymentMethod === 'Credit / Debit Card'
                       ? 'bg-[#DDEFE8] border-[#176B52]'
-                      : 'bg-[#F8F7F2] border-stone-200'
+                      : 'bg-[#F8F7F2] border-stone-200 hover:bg-stone-100/60'
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -493,41 +602,42 @@ export const CheckoutPage: React.FC = () => {
                     />
                     <div>
                       <span className="text-xs sm:text-sm font-bold text-[#17231F] block">
-                        Credit / Debit Card (PayHere Gateway)
+                        Credit / Debit Card
                       </span>
                       <span className="text-[11px] text-[#68736E]">
-                        Instant secure checkout with Visa, Mastercard, AMEX
+                        Secure payment via PayHere
                       </span>
                     </div>
                   </div>
                   <CreditCard className="w-5 h-5 text-[#176B52]" />
                 </label>
 
+                {/* 2. Cash Payment */}
                 <label
                   className={`p-4 rounded-2xl border flex items-center justify-between cursor-pointer transition-colors ${
-                    paymentMethod === 'Bank Wire Transfer'
+                    paymentMethod === 'Cash Payment'
                       ? 'bg-[#DDEFE8] border-[#176B52]'
-                      : 'bg-[#F8F7F2] border-stone-200'
+                      : 'bg-[#F8F7F2] border-stone-200 hover:bg-stone-100/60'
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <input
                       type="radio"
                       name="payMethod"
-                      checked={paymentMethod === 'Bank Wire Transfer'}
-                      onChange={() => setPaymentMethod('Bank Wire Transfer')}
+                      checked={paymentMethod === 'Cash Payment'}
+                      onChange={() => setPaymentMethod('Cash Payment')}
                       className="text-[#176B52] focus:ring-[#176B52]"
                     />
                     <div>
                       <span className="text-xs sm:text-sm font-bold text-[#17231F] block">
-                        International Bank Wire Transfer
+                        Cash Payment
                       </span>
                       <span className="text-[11px] text-[#68736E]">
-                        Receive official bank invoice with SWIFT/IBAN instructions
+                        Pay at the agreed time/location
                       </span>
                     </div>
                   </div>
-                  <Building className="w-5 h-5 text-[#176B52]" />
+                  <Banknote className="w-5 h-5 text-[#176B52]" />
                 </label>
               </div>
             </div>
@@ -573,8 +683,8 @@ export const CheckoutPage: React.FC = () => {
                     <Lock className="w-4 h-4 text-[#DDEFE8]" />
                     <span>
                       {paymentMethod === 'Credit / Debit Card'
-                        ? `Pay $${state?.totalAmount?.toLocaleString() || '0'} with PayHere`
-                        : 'Confirm Reservation (Invoice Wire)'}
+                        ? `Pay ${formatPrice(state?.totalAmount || 0)} with PayHere`
+                        : 'Confirm Reservation (Cash Payment)'}
                     </span>
                   </>
                 )}
@@ -594,30 +704,23 @@ export const CheckoutPage: React.FC = () => {
 
               <div className="space-y-2.5 text-xs text-[#68736E]">
                 <div className="flex justify-between">
-                  <span>Base Tour Package</span>
+                  <span>Base Package</span>
                   <span className="font-semibold text-[#17231F]">
-                    ${((state?.totalAmount || 0) + (state?.discountAmount || 0) - (state?.airportPickup ? 40 : 0)).toLocaleString()}
+                    {formatPrice((state?.totalAmount || 0) + (state?.discountAmount || 0))}
                   </span>
                 </div>
-
-                {state?.airportPickup && (
-                  <div className="flex justify-between">
-                    <span>VIP Airport Pickup</span>
-                    <span className="font-semibold text-[#17231F]">+$40</span>
-                  </div>
-                )}
 
                 {state?.discountAmount && state.discountAmount > 0 ? (
                   <div className="flex justify-between text-emerald-800 font-semibold">
                     <span>Promo Discount ({state.discountCode})</span>
-                    <span>-${state.discountAmount.toLocaleString()}</span>
+                    <span>-{formatPrice(state.discountAmount)}</span>
                   </div>
                 ) : null}
 
                 <div className="flex justify-between text-base font-bold text-[#17231F] pt-3 border-t border-stone-200">
-                  <span>Total Due (USD)</span>
+                  <span>Total Due</span>
                   <span className="font-serif text-2xl text-[#0B3D2E]">
-                    ${state?.totalAmount?.toLocaleString() || '0'}
+                    {formatPrice(state?.totalAmount || 0)}
                   </span>
                 </div>
               </div>

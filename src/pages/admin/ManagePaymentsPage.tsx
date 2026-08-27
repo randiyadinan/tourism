@@ -4,6 +4,7 @@ import {
   Search, 
   RotateCcw } from 'lucide-react';
 import { paymentService } from "../../services/paymentService";
+import { formatPrice } from '../../utils/formatters';
 import type { PaymentTransaction } from '../../services/paymentService';
 
 export const ManagePaymentsPage: React.FC = () => {
@@ -37,7 +38,7 @@ export const ManagePaymentsPage: React.FC = () => {
 
         <div className="bg-white px-5 py-2.5 rounded-2xl border border-stone-200 shadow-xs flex items-center gap-2">
           <span className="text-xs text-stone-400 font-bold uppercase">Total Settled:</span>
-          <span className="font-serif text-lg font-bold text-[#0B3D2E]">${totalCollected.toLocaleString()} USD</span>
+          <span className="font-serif text-lg font-bold text-[#0B3D2E]">{formatPrice(totalCollected)}</span>
         </div>
       </div>
 
@@ -75,7 +76,7 @@ export const ManagePaymentsPage: React.FC = () => {
                   <td className="py-4 px-4 font-semibold text-[#176B52]">{t.bookingCode}</td>
                   <td className="py-4 px-4">{t.customerName}</td>
                   <td className="py-4 px-4">{t.paymentMethod}</td>
-                  <td className="py-4 px-4 font-bold text-[#062C22]">${t.amountUSD.toLocaleString()} USD</td>
+                  <td className="py-4 px-4 font-bold text-[#062C22]">{formatPrice(t.amountUSD)}</td>
                   <td className="py-4 px-4">
                     <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                       t.status === 'Successful' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'

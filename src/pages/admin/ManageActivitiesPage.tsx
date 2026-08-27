@@ -3,6 +3,7 @@ import { Plus, Trash2, Search } from 'lucide-react';
 import { activityService } from '../../services/activityService';
 import type { Activity, ActivityCategory } from '../../types';
 import { Modal } from '../../components/common/Modal';
+import { formatPrice } from '../../utils/formatters';
 
 export const ManageActivitiesPage: React.FC = () => {
   const [activities, setActivities] = useState<Activity[]>(() => activityService.getAllActivities());
@@ -14,7 +15,7 @@ export const ManageActivitiesPage: React.FC = () => {
   const [category, setCategory] = useState<ActivityCategory>('Wildlife');
   const [destination, setDestination] = useState('Yala National Park');
   const [duration, setDuration] = useState('3 - 4 Hours');
-  const [pricePerPerson, setPricePerPerson] = useState(65);
+  const [pricePerPerson, setPricePerPerson] = useState(15000);
   const [difficulty, setDifficulty] = useState<'Easy' | 'Moderate' | 'Strenuous'>('Easy');
   const [image, ] = useState('https://images.unsplash.com/photo-1534177616072-ef7dc120449d?auto=format&fit=crop&w=800&q=80');
   const [shortDescription, setShortDescription] = useState('');
@@ -120,7 +121,7 @@ export const ManageActivitiesPage: React.FC = () => {
                       {act.difficulty}
                     </span>
                   </td>
-                  <td className="py-4 px-4 font-bold text-[#062C22]">${act.pricePerPerson}</td>
+                  <td className="py-4 px-4 font-bold text-[#062C22]">{formatPrice(act.pricePerPerson)}</td>
                   <td className="py-4 px-6 text-right">
                     <button
                       onClick={() => handleDelete(act.id)}
@@ -200,9 +201,10 @@ export const ManageActivitiesPage: React.FC = () => {
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-bold text-stone-700">Price / Pax ($)</label>
+              <label className="text-xs font-bold text-stone-700">Price / Pax (LKR)</label>
               <input
                 type="number"
+                step="500"
                 value={pricePerPerson}
                 onChange={(e) => setPricePerPerson(Number(e.target.value))}
                 className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2 text-xs text-[#062C22]"

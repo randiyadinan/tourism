@@ -6,6 +6,7 @@ import {
   ShieldCheck } from 'lucide-react';
 import { paymentService } from '../../services/paymentService';
 import { useAuth } from '../../context/AuthContext';
+import { formatPrice } from '../../utils/formatters';
 
 export const PaymentsPage: React.FC = () => {
   const { user } = useAuth();
@@ -62,7 +63,7 @@ export const PaymentsPage: React.FC = () => {
                     <CreditCard className="w-3.5 h-3.5 text-[#176B52]" />
                     <span>{tx.paymentMethod} {tx.cardLast4 ? `(•• ${tx.cardLast4})` : ''}</span>
                   </td>
-                  <td className="py-4 px-4 font-bold text-[#062C22]">${tx.amountUSD.toLocaleString()} USD</td>
+                  <td className="py-4 px-4 font-bold text-[#062C22]">{formatPrice(tx.amountUSD)}</td>
                   <td className="py-4 px-4">
                     <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
                       {tx.status}

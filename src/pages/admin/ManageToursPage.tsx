@@ -10,6 +10,7 @@ import {
   Eye } from 'lucide-react';
 import { tourService } from '../../services/tourService';
 import type { Tour } from '../../types';
+import { formatPrice } from '../../utils/formatters';
 
 export const ManageToursPage: React.FC = () => {
   const [tours, setTours] = useState<Tour[]>(() => tourService.getAllTours());
@@ -95,7 +96,7 @@ export const ManageToursPage: React.FC = () => {
                   </td>
                   <td className="py-4 px-4 font-semibold text-[#176B52]">{tour.category}</td>
                   <td className="py-4 px-4">{tour.durationDays} Days / {tour.durationNights} Nights</td>
-                  <td className="py-4 px-4 font-bold text-[#062C22]">${tour.pricePerPerson}</td>
+                  <td className="py-4 px-4 font-bold text-[#062C22]">{formatPrice(tour.pricePerPerson)}</td>
                   <td className="py-4 px-4">
                     <button
                       onClick={() => handleToggleFeatured(tour.id)}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Search, MapPin, Navigation, X, RefreshCw, Loader2, Compass } from 'lucide-react';
+import { Search, MapPin, Navigation, X, RefreshCw, Loader2, Compass, AlertTriangle } from 'lucide-react';
 import { 
   AIRPORT_COORDINATES, 
   type PlaceResult, 
@@ -28,6 +28,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
   const [isResolvingPlace, setIsResolvingPlace] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isGoogleSdkReady, setIsGoogleSdkReady] = useState(false);
+  const [mapLoadError, setMapLoadError] = useState<string | null>(null);
 
   const searchBoxRef = useRef<HTMLInputElement>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -38,7 +39,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
   const airportMarkerRef = useRef<any>(null);
   const destMarkerRef = useRef<any>(null);
 
-  // Helper to fit bounds to Airport (CMB) and Destination (if selected) or center on CMB
+  // Helper to fit bounds to Airport (CMB) and Destination
   const fitMapBounds = useCallback(() => {
     if (googleMapInstanceRef.current && (window as any).google?.maps) {
       const g = (window as any).google;
@@ -48,7 +49,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
         const bounds = new g.maps.LatLngBounds();
         bounds.extend(new g.maps.LatLng(AIRPORT_COORDINATES.lat, AIRPORT_COORDINATES.lng));
         bounds.extend(new g.maps.LatLng(selectedDestination.lat, selectedDestination.lng));
-        map.fitBounds(bounds, { top: 50, right: 50, bottom: 50, left: 50 });
+        map.fitBounds(bounds, { top: 60, right: 60, bottom: 60, left: 60 });
       } else {
         map.setCenter({ lat: 7.8731, lng: 80.7718 });
         map.setZoom(8);
@@ -56,103 +57,91 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
     }
   }, [selectedDestination]);
 
-  // Clean initialization of standard native Google Maps JavaScript API
+  // Clean initialization of Google Maps JavaScript API
   useEffect(() => {
     let isMounted = true;
 
-    loadGoogleMapsScript().then((googleObj) => {
-      if (!isMounted) return;
+    loadGoogleMapsScript()
+      .then((googleObj) => {
+        if (!isMounted) return;
 
-      if (googleObj && googleObj.maps && mapContainerRef.current) {
-        try {
-          const container = mapContainerRef.current;
-          if (container.clientWidth === 0 || container.clientHeight === 0) return;
+        if (googleObj && googleObj.maps && mapContainerRef.current) {
+          try {
+            const container = mapContainerRef.current;
 
-          // Pure default native ROADMAP centered on Sri Lanka
-          const map = new googleObj.maps.Map(container, {
-            center: { lat: 7.8731, lng: 80.7718 },
-            zoom: 8,
-            mapTypeId: googleObj.maps.MapTypeId.ROADMAP,
-            gestureHandling: 'cooperative',
-            disableDefaultUI: false,
-            zoomControl: true,
-            mapTypeControl: false,
-            streetViewControl: false,
-            fullscreenControl: false
-          });
+            // Pure default native ROADMAP centered on Sri Lanka
+            const map = new googleObj.maps.Map(container, {
+              center: { lat: 7.8731, lng: 80.7718 },
+              zoom: 8,
+              mapTypeId: googleObj.maps.MapTypeId.ROADMAP,
+              gestureHandling: 'cooperative',
+              disableDefaultUI: false,
+              zoomControl: true,
+              mapTypeControl: false,
+              streetViewControl: false,
+              fullscreenControl: true
+            });
 
-          googleMapInstanceRef.current = map;
-          setIsGoogleSdkReady(true);
+            googleMapInstanceRef.current = map;
+            setIsGoogleSdkReady(true);
+            setMapLoadError(null);
 
-          // Dedicated Directions Renderer for crisp road routes
-          const directionsRenderer = new googleObj.maps.DirectionsRenderer({
-            map: map,
-            suppressMarkers: false,
-            polylineOptions: {
-              strokeColor: '#0B3D2E',
-              strokeWeight: 5,
-              strokeOpacity: 0.9
-            }
-          });
-          directionsRendererRef.current = directionsRenderer;
-
-          // Airport Marker (CMB) ALWAYS visible
-          const airportMarker = new googleObj.maps.Marker({
-            position: { lat: AIRPORT_COORDINATES.lat, lng: AIRPORT_COORDINATES.lng },
-            map: map,
-            title: AIRPORT_COORDINATES.name
-          });
-          airportMarkerRef.current = airportMarker;
-
-          // Destination Marker (created initially if destination provided, else created on select)
-          if (selectedDestination) {
-            const destMarker = new googleObj.maps.Marker({
-              position: { lat: selectedDestination.lat, lng: selectedDestination.lng },
+            // Dedicated Directions Renderer for crisp road routes
+            const directionsRenderer = new googleObj.maps.DirectionsRenderer({
               map: map,
-              title: selectedDestination.name
-            });
-            destMarkerRef.current = destMarker;
-          }
-
-          // Google Places Autocomplete on input element
-          if (searchBoxRef.current && googleObj.maps.places) {
-            const autocomplete = new googleObj.maps.places.Autocomplete(searchBoxRef.current, {
-              componentRestrictions: { country: 'lk' },
-              fields: ['place_id', 'geometry', 'name', 'formatted_address']
-            });
-
-            autocomplete.addListener('place_changed', () => {
-              const place = autocomplete.getPlace();
-              if (place.geometry && place.geometry.location) {
-                const loc = place.geometry.location;
-                const newPlace: PlaceResult = {
-                  placeId: place.place_id,
-                  name: place.name || 'Selected Place',
-                  formattedAddress: place.formatted_address || place.name || '',
-                  lat: typeof loc.lat === 'function' ? loc.lat() : loc.lat,
-                  lng: typeof loc.lng === 'function' ? loc.lng() : loc.lng
-                };
-                onSelectPlace(newPlace);
-                setSearchQuery(newPlace.name);
-                setShowSuggestions(false);
+              suppressMarkers: false,
+              polylineOptions: {
+                strokeColor: '#0B3D2E',
+                strokeWeight: 5,
+                strokeOpacity: 0.95
               }
             });
+            directionsRendererRef.current = directionsRenderer;
+
+            // Airport Marker (CMB) ALWAYS present as Origin
+            const airportMarker = new googleObj.maps.Marker({
+              position: { lat: AIRPORT_COORDINATES.lat, lng: AIRPORT_COORDINATES.lng },
+              map: map,
+              title: AIRPORT_COORDINATES.name,
+              label: {
+                text: 'CMB',
+                color: '#ffffff',
+                fontWeight: 'bold',
+                fontSize: '10px'
+              }
+            });
+            airportMarkerRef.current = airportMarker;
+
+            // Destination Marker (if already selected)
+            if (selectedDestination) {
+              const destMarker = new googleObj.maps.Marker({
+                position: { lat: selectedDestination.lat, lng: selectedDestination.lng },
+                map: map,
+                title: selectedDestination.name
+              });
+              destMarkerRef.current = destMarker;
+            }
+
+            // Initial resize and bounds
+            googleObj.maps.event.trigger(map, 'resize');
+            fitMapBounds();
+
+          } catch (err: any) {
+            console.warn('Google Map JS SDK init error:', err);
+            setMapLoadError(err.message || 'Map could not be loaded. Please check your map configuration.');
           }
-
-          // Initial resize trigger
-          googleObj.maps.event.trigger(map, 'resize');
-          fitMapBounds();
-
-        } catch (err: any) {
-          console.warn('Google Map JS SDK init error:', err);
         }
-      }
-    });
+      })
+      .catch((err) => {
+        if (!isMounted) return;
+        console.warn('Google Maps script load error:', err);
+        setMapLoadError('Google Maps could not be loaded. Please check API key configuration.');
+      });
 
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [fitMapBounds, selectedDestination]);
 
   // ResizeObserver: Trigger google.maps.event.trigger(map, 'resize') on container dimensions changes
   useEffect(() => {
@@ -179,13 +168,13 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
     };
   }, [fitMapBounds, routeData]);
 
-  // Update Google Map Route and Bounds when destination or route data changes
+  // Update Route and Markers whenever destination changes
   useEffect(() => {
     if (isGoogleSdkReady && googleMapInstanceRef.current && (window as any).google?.maps) {
       const g = (window as any).google;
       const map = googleMapInstanceRef.current;
 
-      // Update or clear destination marker position
+      // Destination marker update
       if (selectedDestination) {
         if (!destMarkerRef.current) {
           destMarkerRef.current = new g.maps.Marker({
@@ -202,13 +191,13 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
         destMarkerRef.current.setMap(null);
       }
 
-      // Clear previous fallback polyline if any
+      // Clear previous polyline
       if (fallbackPolylineRef.current) {
         fallbackPolylineRef.current.setMap(null);
         fallbackPolylineRef.current = null;
       }
 
-      // If no destination selected, clear all routes
+      // If no destination or route data, reset view
       if (!selectedDestination || !routeData) {
         if (directionsRendererRef.current) {
           directionsRendererRef.current.set('directions', null);
@@ -217,11 +206,11 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
         return;
       }
 
-      // 1. Google Directions Route
+      // 1. Render Google Directions Driving Route
       if (routeData.routeGeometry && directionsRendererRef.current) {
         directionsRendererRef.current.setDirections(routeData.routeGeometry);
       } 
-      // 2. High-precision Road Route Polyline (follows all roads/curves from CMB)
+      // 2. Render Real Road Polyline (Following all road curves)
       else if (routeData.polylineCoords && routeData.polylineCoords.length > 0) {
         if (directionsRendererRef.current) {
           directionsRendererRef.current.set('directions', null);
@@ -230,7 +219,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
           path: routeData.polylineCoords,
           geodesic: false,
           strokeColor: '#0B3D2E',
-          strokeOpacity: 0.9,
+          strokeOpacity: 0.95,
           strokeWeight: 5,
           map: map
         });
@@ -238,9 +227,9 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
 
         const bounds = new g.maps.LatLngBounds();
         routeData.polylineCoords.forEach((pt) => bounds.extend(new g.maps.LatLng(pt.lat, pt.lng)));
-        map.fitBounds(bounds, { top: 50, right: 50, bottom: 50, left: 50 });
+        map.fitBounds(bounds, { top: 60, right: 60, bottom: 60, left: 60 });
       } 
-      // 3. Re-fit bounds across CMB and Destination
+      // 3. Fallback fit bounds
       else {
         if (directionsRendererRef.current) {
           directionsRendererRef.current.set('directions', null);
@@ -250,7 +239,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
     }
   }, [selectedDestination, routeData, isGoogleSdkReady, fitMapBounds]);
 
-  // Live Places Search as customer types (Debounced)
+  // Live Places Search (Debounced)
   useEffect(() => {
     let active = true;
     if (!searchQuery || searchQuery.trim().length < 2) {
@@ -268,7 +257,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
           setShowSuggestions(true);
         }
       });
-    }, 250);
+    }, 200);
 
     return () => {
       active = false;
@@ -276,7 +265,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
     };
   }, [searchQuery]);
 
-  // Click outside to close suggestions dropdown
+  // Click outside to close suggestions
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
@@ -354,7 +343,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
                 handleExplicitSearch();
               }
             }}
-            placeholder="Search any hotel, villa, resort, attraction, town or address (e.g. Heritance Kandalama, Ella, Galle)..."
+            placeholder="Search destination (e.g. Kandy, Sigiriya, Galle, Ella, Nuwara Eliya)..."
             className="w-full pl-11 pr-24 py-3.5 bg-[#F8F7F2] border border-stone-300 rounded-2xl text-xs sm:text-sm font-semibold text-[#17231F] placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-[#176B52] shadow-2xs"
             aria-label="Search destination location using Google Maps Places"
           />
@@ -379,7 +368,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
           </div>
         </div>
 
-        {/* Suggestions Panel */}
+        {/* Suggestions Dropdown */}
         {showSuggestions && (
           <div className="absolute left-4 right-4 mt-2 bg-white border border-stone-200 rounded-2xl shadow-2xl py-2 max-h-80 overflow-y-auto z-50">
             <div className="px-3.5 py-1.5 text-[10px] font-bold text-[#176B52] uppercase tracking-wider border-b border-stone-100 flex items-center justify-between">
@@ -418,21 +407,11 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
                 </div>
               ))
             )}
-
-            {searchQuery.trim().length > 0 && (
-              <div 
-                onClick={handleExplicitSearch}
-                className="px-4 py-2.5 bg-stone-50 hover:bg-[#DDEFE8]/50 cursor-pointer flex items-center gap-2 text-xs font-semibold text-[#176B52] border-t border-stone-100"
-              >
-                <Search className="w-3.5 h-3.5" />
-                <span>Search Google Maps for "{searchQuery}"</span>
-              </div>
-            )}
           </div>
         )}
       </div>
 
-      {/* 2. Direct High-Resolution Google Maps Container */}
+      {/* 2. Interactive Google Maps Canvas */}
       <div 
         className="w-full relative overflow-hidden bg-[#EAF2ED]"
         style={{
@@ -442,7 +421,6 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
           position: 'relative'
         }}
       >
-        {/* The Native Google Maps Canvas */}
         <div 
           ref={mapContainerRef} 
           style={{
@@ -456,8 +434,17 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
           }}
         />
 
+        {/* Error notification banner if Google Maps fails */}
+        {mapLoadError && (
+          <div className="absolute inset-0 bg-stone-100 flex flex-col items-center justify-center p-6 text-center space-y-2 z-20">
+            <AlertTriangle className="w-8 h-8 text-amber-600" />
+            <h4 className="font-serif font-bold text-sm text-[#062C22]">Map Loading Notice</h4>
+            <p className="text-xs text-stone-600 max-w-sm">{mapLoadError}</p>
+          </div>
+        )}
+
         {/* Prompt when no destination selected yet */}
-        {!selectedDestination && (
+        {!selectedDestination && !mapLoadError && (
           <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-stone-200 shadow-md flex items-center gap-2.5 z-20 pointer-events-none">
             <Compass className="w-4 h-4 text-[#176B52] animate-pulse" />
             <span className="text-xs font-semibold text-[#0B3D2E]">
@@ -466,12 +453,12 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
           </div>
         )}
 
-        {/* Loading Route / Resolving Place Overlay */}
+        {/* Loading Route Overlay */}
         {(isLoadingRoute || isResolvingPlace) && (
           <div className="absolute inset-0 bg-white/70 flex flex-col items-center justify-center gap-2 z-20">
             <Loader2 className="w-8 h-8 text-[#176B52] animate-spin" />
             <span className="text-xs font-bold text-[#0B3D2E]">
-              {isResolvingPlace ? 'Resolving place location...' : 'Calculating driving route & distance...'}
+              {isResolvingPlace ? 'Resolving destination...' : 'Calculating driving route & distance...'}
             </span>
           </div>
         )}
@@ -485,7 +472,7 @@ export const GoogleMapDestinationSelector: React.FC<GoogleMapDestinationSelector
                 BANDARANAIKE (CMB) &rarr; {selectedDestination.name.split(',')[0].toUpperCase()}
               </span>
               <span className="text-[10px] font-bold text-[#0B3D2E] bg-[#DDEFE8] px-2 py-0.5 rounded-full">
-                {routeData.isLiveGoogleRoute ? 'Live Google Route' : 'Verified Route'}
+                Driving Route
               </span>
             </div>
 

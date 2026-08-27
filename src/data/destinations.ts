@@ -18,7 +18,7 @@ export const INITIAL_DESTINATIONS: Destination[] = [
     ],
     bestTimeToVisit: 'November to April (Dry & sunny)',
     recommendedDuration: '2 - 3 Days',
-    startingPrice: 180,
+    startingPrice: 55000,
     rating: 4.95,
     reviewCount: 428,
     popularActivities: ['Sigiriya Rock Fortress Climb', 'Pidurangala Sunrise Hike', 'Minneriya Elephant Gathering Safari', 'Hiriwadunna Village Tour'],
@@ -27,19 +27,19 @@ export const INITIAL_DESTINATIONS: Destination[] = [
         name: 'Sigiriya Lion Rock Citadel',
         description: 'Ascend through ancient landscaped water gardens and sky-high staircases flanked by colossal lion paws.',
         image: 'https://images.unsplash.com/photo-1588598198321-9735fd52455b?auto=format&fit=crop&w=800&q=80',
-        entranceFee: '$36 per person'
+        entranceFee: 'LKR 11,000 per person'
       },
       {
         name: 'Pidurangala Rock',
         description: 'Climb this nearby rock formation before dawn for panoramic sunrise views of Sigiriya Lion Rock emerging from morning mist.',
         image: 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=800&q=80',
-        entranceFee: '$3 per person'
+        entranceFee: 'LKR 1,000 per person'
       },
       {
         name: 'Dambulla Golden Cave Temple',
         description: 'Just 25 minutes away, discover five sacred caves housing over 150 Buddha statues with ancient mural-adorned ceilings.',
         image: 'https://images.unsplash.com/photo-1586861635167-e5223aadc9fe?auto=format&fit=crop&w=800&q=80',
-        entranceFee: '$10 per person'
+        entranceFee: 'LKR 3,000 per person'
       }
     ],
     coordinates: { lat: 7.9570, lng: 80.7603 },
@@ -63,7 +63,7 @@ export const INITIAL_DESTINATIONS: Destination[] = [
     ],
     bestTimeToVisit: 'January to May & July to September',
     recommendedDuration: '3 - 4 Days',
-    startingPrice: 220,
+    startingPrice: 65000,
     rating: 4.92,
     reviewCount: 512,
     popularActivities: ['Nine Arches Bridge Visit', 'Ella to Kandy Scenic Train', 'Little Adam’s Peak Hike', 'Ravana Falls & Zipline', 'Tea Factory Tasting'],
@@ -107,7 +107,7 @@ export const INITIAL_DESTINATIONS: Destination[] = [
     ],
     bestTimeToVisit: 'December to April & July/August (Esala Perahera festival)',
     recommendedDuration: '2 - 3 Days',
-    startingPrice: 195,
+    startingPrice: 58000,
     rating: 4.88,
     reviewCount: 384,
     popularActivities: ['Temple of the Tooth Blessing', 'Peradeniya Botanical Gardens', 'Kandyan Cultural Dance Show', 'Ceylon Spice Sanctuary'],
@@ -116,13 +116,13 @@ export const INITIAL_DESTINATIONS: Destination[] = [
         name: 'Temple of the Sacred Tooth Relic',
         description: 'Golden-roofed temple sanctuary venerating the physical tooth relic of Lord Gautama Buddha.',
         image: 'https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?auto=format&fit=crop&w=800&q=80',
-        entranceFee: '$15 per person'
+        entranceFee: 'LKR 4,500 per person'
       },
       {
         name: 'Royal Botanical Gardens, Peradeniya',
         description: '147 acres of rare tropical flora, iconic palm avenues, giant Javan fig tree, and an orchid house with over 4,000 species.',
         image: 'https://images.unsplash.com/photo-1586861635167-e5223aadc9fe?auto=format&fit=crop&w=800&q=80',
-        entranceFee: '$10 per person'
+        entranceFee: 'LKR 3,000 per person'
       }
     ],
     coordinates: { lat: 7.2906, lng: 80.6337 },
@@ -145,7 +145,7 @@ export const INITIAL_DESTINATIONS: Destination[] = [
     ],
     bestTimeToVisit: 'November to April (Calm blue waters)',
     recommendedDuration: '2 - 3 Days',
-    startingPrice: 210,
+    startingPrice: 65000,
     rating: 4.90,
     reviewCount: 460,
     popularActivities: ['Galle Fort Ramparts Sunset Walk', 'Lighthouse Photo Shoot', 'Maritime Archaeology Museum', 'Stilt Fishermen Watching'],
@@ -177,7 +177,7 @@ export const INITIAL_DESTINATIONS: Destination[] = [
     ],
     bestTimeToVisit: 'February to July (Best wildlife sightings)',
     recommendedDuration: '2 - 3 Days',
-    startingPrice: 260,
+    startingPrice: 85000,
     rating: 4.96,
     reviewCount: 390,
     popularActivities: ['4x4 Leopard Safari Jeep Tour', 'Luxury Glamping Under the Stars', 'Bird Watching at Kumana', 'Sithulpawwa Rock Monastery'],
@@ -186,7 +186,7 @@ export const INITIAL_DESTINATIONS: Destination[] = [
         name: 'Yala Block 1 Leopard Sanctuary',
         description: 'World-famous safari zone where wild leopards rest atop ancient granite boulders.',
         image: 'https://images.unsplash.com/photo-1534177616072-ef7dc120449d?auto=format&fit=crop&w=800&q=80',
-        entranceFee: '$45 per vehicle + park permit'
+        entranceFee: 'LKR 15,000 per vehicle + park permit'
       }
     ],
     coordinates: { lat: 6.3683, lng: 81.5215 },
@@ -209,7 +209,7 @@ export const INITIAL_DESTINATIONS: Destination[] = [
     ],
     bestTimeToVisit: 'February to May (Spring blossom season)',
     recommendedDuration: '2 - 3 Days',
-    startingPrice: 205,
+    startingPrice: 65000,
     rating: 4.87,
     reviewCount: 310,
     popularActivities: ['Pedro Tea Estate Tour', 'Gregory Lake Boating', 'Horton Plains & World’s End Trek', 'Grand Hotel High Tea'],
@@ -218,7 +218,7 @@ export const INITIAL_DESTINATIONS: Destination[] = [
         name: 'Horton Plains & World’s End',
         description: 'A protected highland plateau terminating at a dramatic 880-meter vertical sheer cliff drop into tea valleys.',
         image: 'https://images.unsplash.com/photo-1586861635167-e5223aadc9fe?auto=format&fit=crop&w=800&q=80',
-        entranceFee: '$25 per person'
+        entranceFee: 'LKR 8,000 per person'
       }
     ],
     coordinates: { lat: 6.9497, lng: 80.7891 },
@@ -240,7 +240,7 @@ export const INITIAL_DESTINATIONS: Destination[] = [
     ],
     bestTimeToVisit: 'Year-round (Best Nov - April)',
     recommendedDuration: '1 - 2 Days',
-    startingPrice: 150,
+    startingPrice: 45000,
     rating: 4.82,
     reviewCount: 295,
     popularActivities: ['Colombo Heritage Walking Tour', 'Galle Face Green Sunset Stroll', 'Pettah Floating Market', 'Lotus Tower Observation Deck'],
@@ -249,7 +249,7 @@ export const INITIAL_DESTINATIONS: Destination[] = [
         name: 'Gangaramaya Buddhist Temple',
         description: 'Vibrant lakeside temple complex displaying an eclectic collection of sacred artifacts, wood carvings, and jade statues.',
         image: 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=800&q=80',
-        entranceFee: '$4 per person'
+        entranceFee: 'LKR 1,500 per person'
       }
     ],
     coordinates: { lat: 6.9271, lng: 79.8612 },
@@ -271,7 +271,7 @@ export const INITIAL_DESTINATIONS: Destination[] = [
     ],
     bestTimeToVisit: 'November to April (Whale migration season)',
     recommendedDuration: '2 - 3 Days',
-    startingPrice: 190,
+    startingPrice: 60000,
     rating: 4.93,
     reviewCount: 478,
     popularActivities: ['Blue Whale & Dolphin Catamaran Safari', 'Coconut Tree Hill Sunset', 'Parrot Rock Tide Crossing', 'Secret Beach Snorkeling'],
@@ -302,7 +302,7 @@ export const INITIAL_DESTINATIONS: Destination[] = [
     ],
     bestTimeToVisit: 'October to April',
     recommendedDuration: '2 - 4 Days',
-    startingPrice: 175,
+    startingPrice: 55000,
     rating: 4.85,
     reviewCount: 340,
     popularActivities: ['Madu Ganga River Boat Safari', 'Kosgoda Sea Turtle Hatchery', 'Brief Garden by Bevis Bawa', 'Jet Ski & Wakeboarding'],
@@ -311,7 +311,7 @@ export const INITIAL_DESTINATIONS: Destination[] = [
         name: 'Madu Ganga Mangrove Lagoon',
         description: 'Glide through ancient mangrove tunnels to discover cinnamon island workshops and fish spa therapy.',
         image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80',
-        entranceFee: '$20 per private boat'
+        entranceFee: 'LKR 6,000 per private boat'
       }
     ],
     coordinates: { lat: 6.4258, lng: 79.9958 },
@@ -333,7 +333,7 @@ export const INITIAL_DESTINATIONS: Destination[] = [
     ],
     bestTimeToVisit: 'May to September (Prime surf season with dry sunny skies)',
     recommendedDuration: '3 - 5 Days',
-    startingPrice: 195,
+    startingPrice: 60000,
     rating: 4.89,
     reviewCount: 280,
     popularActivities: ['Main Point Surfing', 'Whiskey Point Surf Lessons', 'Pottuvil Lagoon Canoe Safari', 'Kudumbigala Monastery'],
@@ -364,7 +364,7 @@ export const INITIAL_DESTINATIONS: Destination[] = [
     ],
     bestTimeToVisit: 'January to September',
     recommendedDuration: '2 - 3 Days',
-    startingPrice: 230,
+    startingPrice: 70000,
     rating: 4.86,
     reviewCount: 215,
     popularActivities: ['Nallur Kovil Puja Ceremony', 'Delft Island Wild Horses Ferry', 'Jaffna Fort Exploration', 'Authentic Jaffna Crab Curry Feast'],
@@ -395,7 +395,7 @@ export const INITIAL_DESTINATIONS: Destination[] = [
     ],
     bestTimeToVisit: 'March to October (Calm seas & crystal clarity)',
     recommendedDuration: '3 - 4 Days',
-    startingPrice: 225,
+    startingPrice: 68000,
     rating: 4.91,
     reviewCount: 320,
     popularActivities: ['Pigeon Island Coral Snorkeling', 'Koneswaram Temple on Swami Rock', 'Nilaveli Beach Relaxation', 'Whale Watching (May - Oct)'],

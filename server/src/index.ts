@@ -1,6 +1,8 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { payhereRouter } from './routes/payhereRoutes.js';
+import { bookingRouter } from './routes/bookingRoutes.js';
+import { authRouter } from './routes/authRoutes.js';
 import type { Bindings } from './controllers/payhereController.js';
 
 const app = new Hono<{ Bindings: Bindings }>();
@@ -10,7 +12,7 @@ app.use(
   '*',
   cors({
     origin: '*',
-    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization']
   })
 );
@@ -19,7 +21,7 @@ app.use(
 app.get('/api/health', (c) => {
   return c.json({
     status: 'ok',
-    service: 'LankaVoyage Payment Backend (Cloudflare Worker)',
+    service: 'LankaVoyage API Backend',
     gateway: 'PayHere Sandbox',
     time: new Date().toISOString()
   });
@@ -27,6 +29,8 @@ app.get('/api/health', (c) => {
 
 // API Routes
 app.route('/api/payhere', payhereRouter);
+app.route('/api/bookings', bookingRouter);
+app.route('/api/auth', authRouter);
 
-// Export for Cloudflare Workers
+// Export for Cloudflare Workers / Node server
 export default app;

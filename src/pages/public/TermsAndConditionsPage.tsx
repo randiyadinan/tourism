@@ -91,7 +91,7 @@ export const TermsAndConditionsPage: React.FC = () => {
             <ul className="list-disc pl-5 space-y-1.5 text-xs text-stone-600">
               <li>For standard package bookings, a minimum 30% deposit is required upon reservation, with the balance due 14 days prior to arrival in Sri Lanka.</li>
               <li>Day tours and standalone airport transfers require 100% prepayment at the time of online confirmation.</li>
-              <li>Payments may be completed in United States Dollars (USD) or equivalent converted currencies as displayed during checkout.</li>
+              <li>Payments are processed in Sri Lankan Rupees (LKR) as displayed during checkout.</li>
             </ul>
           </section>
 

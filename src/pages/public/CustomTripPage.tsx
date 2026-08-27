@@ -48,7 +48,7 @@ export const CustomTripPage: React.FC = () => {
       children: 0,
       infants: 0,
       airport: 'Bandaranaike Intl Airport (CMB) - Colombo',
-      flightNumber: 'UL 504',
+      flightNumber: '',
       arrivalTime: '14:30',
       airportPickup: true,
       airportTransferOption: 'pickup',
@@ -66,7 +66,7 @@ export const CustomTripPage: React.FC = () => {
   const [contactEmail, setContactEmail] = useState(user?.email || '');
   const [contactPhone, setContactPhone] = useState(user?.phone || '');
   const [contactCountry, setContactCountry] = useState(user?.country || 'United Kingdom');
-  const [paymentMethod, setPaymentMethod] = useState<'PayHere Online Card' | 'Bank Wire Transfer' | 'Pay Later on Arrival'>('PayHere Online Card');
+  const [paymentMethod, setPaymentMethod] = useState<'Credit / Debit Card' | 'Cash Payment'>('Credit / Debit Card');
 
   const updateTrip = (updates: Partial<CustomTripState>) => {
     setTripState(prev => ({ ...prev, ...updates }));
@@ -84,6 +84,13 @@ export const CustomTripPage: React.FC = () => {
   ];
 
   const handleNext = () => {
+    // Validate flight number if on Arrival step (Step 3)
+    if (currentStep === 3) {
+      if (!tripState.flightNumber || !tripState.flightNumber.trim()) {
+        alert('Flight number is required.');
+        return;
+      }
+    }
     if (currentStep < 8) setCurrentStep(prev => prev + 1);
   };
 
@@ -93,6 +100,11 @@ export const CustomTripPage: React.FC = () => {
 
   const handleFinalBooking = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!tripState.flightNumber || !tripState.flightNumber.trim()) {
+      alert('Flight number is required.');
+      setCurrentStep(3);
+      return;
+    }
     setIsSubmitting(true);
 
     const cost = calculateCustomTripCost(tripState);
@@ -107,46 +119,47 @@ export const CustomTripPage: React.FC = () => {
       return found ? found.title : aId;
     });
 
-    const newBooking = bookingService.createBooking({
-      type: 'custom_trip',
-      userId: user?.id || 'guest-user',
-      customerName: contactName,
-      customerEmail: contactEmail,
-      customerPhone: contactPhone,
-      startDate: tripState.arrivalDate,
-      endDate: tripState.departureDate,
-      adultsCount: tripState.adults,
-      childrenCount: tripState.children,
-      infantsCount: tripState.infants,
-      destinationsCovered: destNames,
-      activitiesSelected: actNames,
-      vehicleType: tripState.transportType,
-      airportPickup: tripState.airportPickup,
-      flightNumber: tripState.flightNumber,
-      flightArrivalTime: tripState.arrivalTime,
-      basePrice: cost.baseTourTotal,
-      customizationTotal: cost.vehicleCost + cost.airportPickupCost,
-      discountAmount: cost.discount,
-      taxAmount: 0,
-      totalAmount: cost.estimatedTotal,
-      amountPaid: 0,
-      bookingStatus: 'Pending',
-      paymentStatus: 'Unpaid',
-      paymentMethod: paymentMethod === 'PayHere Online Card' ? 'Credit / Debit Card' : 'Bank Wire Transfer',
-      notes: tripState.specialRequests,
-      travelers: [
-        {
-          title: 'Mr',
-          fullName: contactName,
-          email: contactEmail,
-          phone: contactPhone,
-          nationality: contactCountry,
-          isLead: true
-        }
-      ]
-    });
+    if (paymentMethod === 'Credit / Debit Card') {
+      // Create pending booking for Card
+      const newBooking = bookingService.createBooking({
+        type: 'custom_trip',
+        userId: user?.id || 'guest-user',
+        customerName: contactName,
+        customerEmail: contactEmail,
+        customerPhone: contactPhone,
+        startDate: tripState.arrivalDate,
+        endDate: tripState.departureDate,
+        adultsCount: tripState.adults,
+        childrenCount: tripState.children,
+        infantsCount: tripState.infants,
+        destinationsCovered: destNames,
+        activitiesSelected: actNames,
+        vehicleType: tripState.transportType,
+        airportPickup: tripState.airportPickup,
+        flightNumber: tripState.flightNumber.trim(),
+        flightArrivalTime: tripState.arrivalTime,
+        basePrice: cost.baseTourTotal,
+        customizationTotal: cost.vehicleCost + cost.airportPickupCost,
+        discountAmount: cost.discount,
+        taxAmount: 0,
+        totalAmount: cost.estimatedTotal,
+        amountPaid: 0,
+        bookingStatus: 'Pending',
+        paymentStatus: 'NOT PAID',
+        paymentMethod: 'Credit / Debit Card',
+        notes: tripState.specialRequests,
+        travelers: [
+          {
+            title: 'Mr',
+            fullName: contactName,
+            email: contactEmail,
+            phone: contactPhone,
+            nationality: contactCountry,
+            isLead: true
+          }
+        ]
+      });
 
-    if (paymentMethod === 'PayHere Online Card') {
       try {
         const payhereData = await payhereService.initiatePayment({
           orderId: newBooking.bookingCode,
@@ -154,11 +167,12 @@ export const CustomTripPage: React.FC = () => {
           bookingCode: newBooking.bookingCode,
           userId: user?.id,
           amount: cost.estimatedTotal,
-          currency: 'USD',
+          currency: 'LKR',
           itemTitle: `${cost.daysCount}-Day Bespoke Sri Lanka Expedition`,
           customerName: contactName,
           customerEmail: contactEmail,
           customerPhone: contactPhone,
+          flightNumber: tripState.flightNumber.trim(),
           city: 'Colombo',
           country: 'Sri Lanka'
         });
@@ -191,18 +205,62 @@ export const CustomTripPage: React.FC = () => {
           },
           onDismissed: () => {
             setIsSubmitting(false);
+            bookingService.applyGatewayPaymentFailure(newBooking.id, 'CANCELLED');
+            alert('PayHere payment was cancelled. Your booking remains in pending status.');
           },
           onError: (err: string) => {
-            alert(`Payment Error: ${err}`);
             setIsSubmitting(false);
+            bookingService.applyGatewayPaymentFailure(newBooking.id, 'FAILED');
+            alert(`Payment Error: ${err}`);
           }
         });
       } catch (err: any) {
         console.error('Failed to initiate PayHere for custom trip:', err);
         setIsSubmitting(false);
-        navigate(`/customer/bookings/${newBooking.id}`);
+        alert(err?.message || 'Payment Gateway error');
       }
     } else {
+      // CASH PAYMENT FLOW:
+      // Create confirmed booking directly with NOT PAID status
+      const newBooking = bookingService.createBooking({
+        type: 'custom_trip',
+        userId: user?.id || 'guest-user',
+        customerName: contactName,
+        customerEmail: contactEmail,
+        customerPhone: contactPhone,
+        startDate: tripState.arrivalDate,
+        endDate: tripState.departureDate,
+        adultsCount: tripState.adults,
+        childrenCount: tripState.children,
+        infantsCount: tripState.infants,
+        destinationsCovered: destNames,
+        activitiesSelected: actNames,
+        vehicleType: tripState.transportType,
+        airportPickup: tripState.airportPickup,
+        flightNumber: tripState.flightNumber.trim(),
+        flightArrivalTime: tripState.arrivalTime,
+        basePrice: cost.baseTourTotal,
+        customizationTotal: cost.vehicleCost + cost.airportPickupCost,
+        discountAmount: cost.discount,
+        taxAmount: 0,
+        totalAmount: cost.estimatedTotal,
+        amountPaid: 0,
+        bookingStatus: 'Confirmed',
+        paymentStatus: 'NOT PAID',
+        paymentMethod: 'Cash Payment',
+        notes: tripState.specialRequests,
+        travelers: [
+          {
+            title: 'Mr',
+            fullName: contactName,
+            email: contactEmail,
+            phone: contactPhone,
+            nationality: contactCountry,
+            isLead: true
+          }
+        ]
+      });
+
       setIsSubmitting(false);
       try {
         confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
@@ -340,28 +398,30 @@ export const CustomTripPage: React.FC = () => {
                     {/* Payment Method Selector */}
                     <div className="space-y-1.5 pt-2">
                       <label className="font-semibold text-[#17231F] block">Select Payment Method</label>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                         {[
-                          { id: 'PayHere Online Card', label: 'Credit / Debit Card (PayHere)' },
-                          { id: 'Bank Wire Transfer', label: 'Bank Wire Transfer' },
-                          { id: 'Pay Later on Arrival', label: 'Pay Later on Arrival' }
+                          { id: 'Credit / Debit Card', label: 'Credit / Debit Card', desc: 'Secure payment via PayHere' },
+                          { id: 'Cash Payment', label: 'Cash Payment', desc: 'Pay at the agreed time/location' }
                         ].map((m) => (
                           <label
                             key={m.id}
-                            className={`p-3 rounded-xl border flex items-center gap-2 cursor-pointer transition-colors ${
+                            className={`p-3.5 rounded-xl border flex flex-col justify-center cursor-pointer transition-colors ${
                               paymentMethod === m.id
                                 ? 'bg-[#DDEFE8] border-[#176B52] text-[#0B3D2E] font-semibold'
-                                : 'bg-[#F8F7F2] border-stone-200 text-stone-600'
+                                : 'bg-[#F8F7F2] border-stone-200 text-stone-600 hover:bg-stone-100/60'
                             }`}
                           >
-                            <input
-                              type="radio"
-                              name="paymentMethod"
-                              checked={paymentMethod === m.id}
-                              onChange={() => setPaymentMethod(m.id as any)}
-                              className="text-[#176B52] focus:ring-[#176B52]"
-                            />
-                            <span className="text-xs">{m.label}</span>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="radio"
+                                name="paymentMethod"
+                                checked={paymentMethod === m.id}
+                                onChange={() => setPaymentMethod(m.id as any)}
+                                className="text-[#176B52] focus:ring-[#176B52]"
+                              />
+                              <span className="text-xs font-bold text-[#17231F]">{m.label}</span>
+                            </div>
+                            <span className="text-[10px] text-[#68736E] ml-5">{m.desc}</span>
                           </label>
                         ))}
                       </div>

@@ -2,6 +2,7 @@ import React from 'react';
 import { Clock, MapPin, Star, Heart, ArrowRight } from 'lucide-react';
 import type { Activity } from '../../types';
 import { useWishlist } from '../../context/WishlistContext';
+import { formatPrice } from '../../utils/formatters';
 
 interface ActivityCardProps {
   activity: Activity;
@@ -96,7 +97,7 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
             <span className="text-[10px] text-[#68736E] block font-medium uppercase tracking-wider">From</span>
             <div className="flex items-baseline gap-1">
               <span className="font-serif text-xl font-bold text-[#0B3D2E]">
-                ${activity.pricePerPerson}
+                {formatPrice(activity.pricePerPerson)}
               </span>
               <span className="text-[11px] text-[#68736E]">/ person</span>
             </div>

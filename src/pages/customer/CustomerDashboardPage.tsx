@@ -1,227 +1,239 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Calendar, 
-  MapPin, 
-   
-   
-   
-   
-  Sparkles, 
-  ArrowRight, 
-  
-  
-  Car } from 'lucide-react';
+  ArrowRight,
+  Eye,
+  CheckCircle2,
+  Clock
+} from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { bookingService } from '../../services/bookingService';
+import type { Booking } from '../../types';
 
 export const CustomerDashboardPage: React.FC = () => {
   const { user } = useAuth();
+  const [userBookings, setUserBookings] = useState<Booking[]>(() => (user ? bookingService.getUserBookings(user.id) : []));
 
-  const userBookings = user ? bookingService.getUserBookings(user.id) : [];
+  useEffect(() => {
+    if (user) {
+      setUserBookings(bookingService.getUserBookings(user.id));
+      bookingService.fetchBookingsFromServer().then(() => {
+        setUserBookings(bookingService.getUserBookings(user.id));
+      });
+    }
+  }, [user]);
+
   const pendingBookings = userBookings.filter(b => b.bookingStatus === 'Pending');
   const confirmedBookings = userBookings.filter(b => b.bookingStatus === 'Confirmed');
-  const activeTrip = userBookings.find(b => b.bookingStatus === 'Confirmed' || b.bookingStatus === 'Pending') || userBookings[0];
+
+  // Next upcoming confirmed (or pending) booking
+  const upcomingTrip = userBookings.find(b => b.bookingStatus === 'Confirmed') || userBookings[0];
+
+  // Recent bookings (top 5)
+  const recentBookings = userBookings.slice(0, 5);
 
   return (
     <div className="space-y-8">
       
-      {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-[#062C22] via-[#0B3D2E] to-[#134E3F] text-white p-8 sm:p-10 rounded-3xl shadow-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="space-y-2 max-w-xl z-10">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#176B52]/20 text-[#39A982] text-xs font-bold uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5" />
-            Welcome, {user?.name || 'Traveler'}
-          </div>
-          <h1 className="font-serif text-3xl sm:text-4xl font-bold">
-            Traveler Dashboard
-          </h1>
-          <p className="text-stone-300 text-xs sm:text-sm leading-relaxed">
-            Track your custom itineraries, review real-time booking confirmation status, and access digital travel vouchers.
-          </p>
-        </div>
-
-        <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0 z-10">
-          <Link
-            to="/customize"
-            className="w-full sm:w-auto text-center px-6 py-3 bg-[#176B52] hover:bg-[#39A982] text-[#062C22] text-xs font-bold rounded-xl shadow-lg transition-all"
-          >
-            Plan New Custom Trip
-          </Link>
-          <Link
-            to="/customer/bookings"
-            className="w-full sm:w-auto text-center px-6 py-3 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold rounded-xl border border-white/20 transition-all"
-          >
-            My Bookings ({userBookings.length})
-          </Link>
-        </div>
-
-        {/* Ambient Pattern */}
-        <div className="absolute right-0 top-0 bottom-0 w-1/2 opacity-10 bg-[radial-gradient(#176B52_1px,transparent_1px)] [background-size:16px_16px]" />
+      {/* 1. WELCOME BANNER */}
+      <div className="liquid-glass-white p-6 sm:p-8 rounded-3xl border border-white/80 shadow-[0_10px_30px_-10px_rgba(6,44,34,0.08)] space-y-1">
+        <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#062C22]">
+          Traveler Dashboard
+        </h1>
+        <p className="font-bold text-sm text-[#176B52]">
+          Welcome, {user?.name || 'Traveler'}
+        </p>
+        <p className="text-xs text-stone-500 max-w-2xl pt-0.5">
+          View your bookings, booking status, payment status, and travel details in one place.
+        </p>
       </div>
 
-      {/* KPI Highlights: Bookings status */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm space-y-1">
-          <span className="text-xs text-stone-400 font-semibold block uppercase">Total Bookings</span>
-          <span className="font-serif text-2xl font-bold text-[#062C22]">{userBookings.length}</span>
+      {/* 2. SUMMARY CARDS: Total Bookings, Confirmed, Pending */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        
+        {/* Total Bookings */}
+        <div className="liquid-glass-card glass-card-interactive p-5 rounded-2xl space-y-1">
+          <span className="text-xs text-stone-400 font-bold uppercase tracking-wider block">
+            Total Bookings
+          </span>
+          <span className="font-serif text-2xl sm:text-3xl font-bold text-[#062C22] block">
+            {userBookings.length}
+          </span>
           <p className="text-[11px] text-stone-500">All registered trips</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-emerald-200 shadow-sm space-y-1 bg-emerald-50/40">
-          <span className="text-xs text-emerald-800 font-semibold block uppercase">Confirmed</span>
-          <span className="font-serif text-2xl font-bold text-emerald-700">
+        {/* Confirmed */}
+        <div className="liquid-glass-card glass-card-interactive p-5 rounded-2xl space-y-1">
+          <span className="text-xs text-emerald-800 font-bold uppercase tracking-wider block flex items-center gap-1.5">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+            Confirmed
+          </span>
+          <span className="font-serif text-2xl sm:text-3xl font-bold text-emerald-700 block">
             {confirmedBookings.length}
           </span>
-          <p className="text-[11px] text-stone-500">Ready & Confirmed</p>
+          <p className="text-[11px] text-emerald-800">Ready for travel</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-amber-200 shadow-sm space-y-1 bg-amber-50/40 col-span-2 sm:col-span-1">
-          <span className="text-xs text-amber-800 font-semibold block uppercase">Pending Review</span>
-          <span className="font-serif text-2xl font-bold text-amber-700">
+        {/* Pending */}
+        <div className="liquid-glass-card glass-card-interactive p-5 rounded-2xl space-y-1">
+          <span className="text-xs text-amber-800 font-bold uppercase tracking-wider block flex items-center gap-1.5">
+            <Clock className="w-3.5 h-3.5 text-amber-600" />
+            Pending
+          </span>
+          <span className="font-serif text-2xl sm:text-3xl font-bold text-amber-700 block">
             {pendingBookings.length}
           </span>
-          <p className="text-[11px] text-stone-500">Awaiting confirmation</p>
+          <p className="text-[11px] text-amber-800">Awaiting review</p>
         </div>
+
       </div>
 
-      {/* Empty State when Customer has No Bookings */}
-      {userBookings.length === 0 && (
-        <div className="bg-white p-10 sm:p-12 rounded-3xl border border-stone-200 text-center space-y-4 shadow-sm">
-          <div className="w-16 h-16 rounded-2xl bg-[#F8F7F2] border border-stone-200 text-[#176B52] flex items-center justify-center mx-auto">
-            <Calendar className="w-8 h-8" />
+      {/* 3. UPCOMING TRIP (If any booking exists) */}
+      {upcomingTrip ? (
+        <div className="liquid-glass-white rounded-3xl border border-white/80 shadow-[0_10px_30px_-10px_rgba(6,44,34,0.08)] p-6 sm:p-7 space-y-5">
+          <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#176B52] block">
+                Upcoming Trip
+              </span>
+              <h2 className="font-serif text-lg sm:text-xl font-bold text-[#062C22]">
+                {upcomingTrip.tourTitle}
+              </h2>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                upcomingTrip.bookingStatus === 'Confirmed' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+              }`}>
+                {upcomingTrip.bookingStatus}
+              </span>
+              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                upcomingTrip.paymentStatus === 'Fully Paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-stone-100 text-stone-700'
+              }`}>
+                Payment: {upcomingTrip.paymentStatus}
+              </span>
+            </div>
           </div>
-          <div className="space-y-1">
-            <h3 className="font-serif text-xl font-bold text-[#062C22]">No bookings yet</h3>
-            <p className="text-xs text-stone-500 max-w-sm mx-auto">
-              Explore our curated tours or customize your own private Sri Lankan journey.
-            </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+            <div className="space-y-0.5">
+              <span className="text-stone-400 font-medium">Booking Reference</span>
+              <p className="font-bold text-[#176B52]">{upcomingTrip.bookingCode}</p>
+            </div>
+            <div className="space-y-0.5">
+              <span className="text-stone-400 font-medium">Travel Dates</span>
+              <p className="font-bold text-[#062C22]">{upcomingTrip.startDate} to {upcomingTrip.endDate}</p>
+            </div>
+            <div className="space-y-0.5">
+              <span className="text-stone-400 font-medium">Travelers & Vehicle</span>
+              <p className="font-bold text-[#062C22]">{upcomingTrip.totalTravelers} Pax &bull; {upcomingTrip.vehicleType || 'Private Vehicle'}</p>
+            </div>
+            <div className="space-y-0.5">
+              <span className="text-stone-400 font-medium">Destinations</span>
+              <p className="font-bold text-[#062C22] truncate">{upcomingTrip.destinationsCovered?.join(', ') || 'Sri Lanka'}</p>
+            </div>
           </div>
+
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-stone-100">
+            <Link
+              to={`/customer/bookings/${upcomingTrip.id}`}
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#0B3D2E] hover:bg-[#176B52] text-white text-xs font-bold rounded-xl shadow-xs transition-all"
+            >
+              <Eye className="w-3.5 h-3.5 text-[#39A982]" />
+              <span>View Booking</span>
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-white p-8 rounded-3xl border border-stone-200 text-center space-y-3 shadow-sm">
+          <Calendar className="w-8 h-8 text-stone-300 mx-auto" />
+          <h3 className="font-serif font-bold text-base text-[#062C22]">No bookings found</h3>
+          <p className="text-xs text-stone-500 max-w-sm mx-auto">
+            Book an airport transfer or explore chauffeured Sri Lanka tours.
+          </p>
           <Link
-            to="/tours"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[#0B3D2E] text-white hover:bg-[#134E3F] text-xs font-bold rounded-xl shadow-md transition-all"
+            to="/transfers"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#0B3D2E] text-white font-bold text-xs rounded-xl"
           >
-            <span>Explore Tours</span>
-            <ArrowRight className="w-4 h-4 text-[#39A982]" />
+            <span>Book Airport Transfer & Tours</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
       )}
 
-      {/* Active Upcoming Trip Card */}
-      {activeTrip && (
-        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-sm space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-100 pb-5">
-            <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-[#176B52]">
-                Upcoming Booking
-              </span>
-              <h3 className="font-serif text-2xl font-bold text-[#062C22] mt-0.5">
-                {activeTrip.tourTitle}
-              </h3>
-              <p className="text-xs text-stone-500 mt-0.5">Booking Ref: <strong>{activeTrip.bookingCode}</strong></p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className={`px-3.5 py-1 text-xs font-bold rounded-full ${
-                activeTrip.bookingStatus === 'Confirmed'
-                  ? 'bg-emerald-100 text-emerald-800'
-                  : activeTrip.bookingStatus === 'Pending'
-                  ? 'bg-amber-100 text-amber-800'
-                  : activeTrip.bookingStatus === 'Rejected'
-                  ? 'bg-rose-100 text-rose-800'
-                  : 'bg-stone-100 text-stone-700'
-              }`}>
-                {activeTrip.bookingStatus}
-              </span>
-              <span className="px-3 py-1 bg-[#F8F7F2] border border-stone-200 text-stone-700 text-xs font-semibold rounded-full">
-                {activeTrip.paymentStatus}
-              </span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-stone-600 bg-[#F8F7F2] p-5 rounded-2xl border border-stone-200/80">
-            <div className="flex items-center gap-3">
-              <Calendar className="w-4 h-4 text-[#176B52] shrink-0" />
-              <div>
-                <span className="font-bold text-[#062C22] block">Dates:</span>
-                <span>{activeTrip.startDate} to {activeTrip.endDate}</span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <Car className="w-4 h-4 text-[#176B52] shrink-0" />
-              <div>
-                <span className="font-bold text-[#062C22] block">Chauffeur Guide:</span>
-                <span>{activeTrip.bookingStatus === 'Confirmed' ? (activeTrip.assignedGuide?.name || 'Roshan Silva') : 'Allocated upon confirmation'}</span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <MapPin className="w-4 h-4 text-[#176B52] shrink-0" />
-              <div>
-                <span className="font-bold text-[#062C22] block">Destinations:</span>
-                <span className="truncate">{activeTrip.destinationsCovered?.slice(0, 3).join(', ') || 'Sri Lanka'}...</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
-            <Link
-              to="/customer/bookings"
-              className="inline-flex items-center gap-2 text-xs font-bold text-[#0B3D2E] hover:underline"
-            >
-              <span>View All My Bookings</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-
-            <Link
-              to={`/customer/bookings/${activeTrip.id}`}
-              className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#0B3D2E] text-white hover:bg-[#134E3F] text-xs font-bold rounded-xl shadow-sm transition-all"
-            >
-              <span>View Digital Voucher & Itinerary</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-        </div>
-      )}
-
-      {/* Recent Bookings List */}
-      {userBookings.length > 0 && (
-        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-sm space-y-4">
-          <div className="flex items-center justify-between border-b border-stone-100 pb-4">
-            <h3 className="font-serif text-xl font-bold text-[#062C22]">Recent Bookings</h3>
+      {/* 4. MY BOOKINGS LIST */}
+      <div className="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden p-6 sm:p-7 space-y-4">
+        <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+          <h3 className="font-serif text-lg font-bold text-[#062C22]">My Bookings</h3>
+          {userBookings.length > 5 && (
             <Link to="/customer/bookings" className="text-xs font-bold text-[#0B3D2E] hover:underline">
-              View All ({userBookings.length}) &rarr;
+              View All Bookings &rarr;
             </Link>
-          </div>
-
-          <div className="divide-y divide-stone-100">
-            {userBookings.slice(0, 3).map((b) => (
-              <div key={b.id} className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-[#176B52]">{b.bookingCode}</span>
-                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                      b.bookingStatus === 'Confirmed' ? 'bg-emerald-100 text-emerald-800' : b.bookingStatus === 'Pending' ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800'
-                    }`}>
-                      {b.bookingStatus}
-                    </span>
-                  </div>
-                  <h4 className="font-serif font-bold text-[#062C22] text-sm mt-0.5">{b.tourTitle}</h4>
-                  <p className="text-stone-500 text-[11px]">{b.startDate} to {b.endDate} • {b.totalTravelers} Travelers • ${b.totalAmount.toLocaleString()} USD</p>
-                </div>
-
-                <Link
-                  to={`/customer/bookings/${b.id}`}
-                  className="px-4 py-2 bg-[#F8F7F2] border border-stone-200 text-[#062C22] hover:bg-[#0B3D2E] hover:text-white text-xs font-bold rounded-xl transition-all self-start sm:self-center"
-                >
-                  View Voucher
-                </Link>
-              </div>
-            ))}
-          </div>
+          )}
         </div>
-      )}
+
+        {recentBookings.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-[#F8F7F2] text-stone-700 font-bold border-b border-stone-200">
+                <tr>
+                  <th className="py-3 px-4">Booking Ref</th>
+                  <th className="py-3 px-4">Service / Tour</th>
+                  <th className="py-3 px-4">Travel Date</th>
+                  <th className="py-3 px-4">Travelers</th>
+                  <th className="py-3 px-4">Status</th>
+                  <th className="py-3 px-4">Payment</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-stone-100 text-stone-600">
+                {recentBookings.map((b) => (
+                  <tr key={b.id} className="hover:bg-stone-50/50">
+                    <td className="py-3.5 px-4 font-bold text-[#176B52]">{b.bookingCode}</td>
+                    <td className="py-3.5 px-4 font-semibold text-[#062C22] max-w-[200px] truncate">{b.tourTitle}</td>
+                    <td className="py-3.5 px-4">{b.startDate}</td>
+                    <td className="py-3.5 px-4">{b.totalTravelers} Pax</td>
+                    <td className="py-3.5 px-4">
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                        b.bookingStatus === 'Confirmed' 
+                          ? 'bg-emerald-100 text-emerald-800' 
+                          : b.bookingStatus === 'Pending'
+                            ? 'bg-amber-100 text-amber-800'
+                            : 'bg-rose-100 text-rose-800'
+                      }`}>
+                        {b.bookingStatus}
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                        b.paymentStatus === 'PAID' || b.paymentStatus === 'Fully Paid'
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : b.paymentStatus === 'NOT PAID' || b.paymentStatus === 'Unpaid'
+                          ? 'bg-amber-100 text-amber-900'
+                          : 'bg-rose-100 text-rose-800'
+                      }`}>
+                        {b.paymentStatus === 'PAID' || b.paymentStatus === 'Fully Paid' ? 'PAID' : b.paymentStatus === 'NOT PAID' || b.paymentStatus === 'Unpaid' ? 'NOT PAID' : b.paymentStatus}
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-4 text-right">
+                      <Link
+                        to={`/customer/bookings/${b.id}`}
+                        className="inline-flex items-center gap-1 text-xs font-bold text-[#0B3D2E] hover:underline"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>View Booking</span>
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-xs text-stone-500 py-4 text-center">No recent bookings recorded.</p>
+        )}
+      </div>
 
     </div>
   );
