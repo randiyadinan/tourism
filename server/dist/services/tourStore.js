@@ -99,6 +99,8 @@ const INITIAL_SERVER_TOURS = [
         updatedAt: '2026-02-15T12:00:00Z'
     }
 ];
+import { getPrismaClient } from '../db/prisma.js';
+import { bookingStore } from './bookingStore.js';
 class TourStore {
     tours = new Map();
     constructor() {
@@ -106,8 +108,69 @@ class TourStore {
             this.tours.set(t.id, { ...t });
         }
     }
+    async persistToDb(tour) {
+        const prisma = getPrismaClient();
+        if (prisma) {
+            try {
+                await prisma.tour.upsert({
+                    where: { id: tour.id },
+                    create: {
+                        id: tour.id,
+                        slug: tour.slug,
+                        title: tour.title,
+                        subtitle: tour.subtitle,
+                        tagline: tour.tagline,
+                        category: tour.category,
+                        durationDays: tour.durationDays,
+                        durationNights: tour.durationNights,
+                        pricePerPerson: tour.pricePerPerson,
+                        originalPrice: tour.originalPrice,
+                        discountPercent: tour.discountPercent,
+                        featured: tour.featured,
+                        published: tour.published,
+                        rating: tour.rating,
+                        reviewCount: tour.reviewCount,
+                        difficulty: tour.difficulty,
+                        groupSizeMax: tour.groupSizeMax,
+                        startLocation: tour.startLocation,
+                        endLocation: tour.endLocation,
+                        heroImage: tour.heroImage,
+                        gallery: tour.gallery,
+                        overview: tour.overview,
+                        highlights: tour.highlights,
+                        destinations: tour.destinations,
+                        itinerary: tour.itinerary,
+                        inclusions: tour.inclusions,
+                        exclusions: tour.exclusions,
+                        accommodationType: tour.accommodationType,
+                        transportType: tour.transportType,
+                        importantInfo: [],
+                        faqs: []
+                    },
+                    update: {
+                        title: tour.title,
+                        subtitle: tour.subtitle,
+                        tagline: tour.tagline,
+                        pricePerPerson: tour.pricePerPerson,
+                        originalPrice: tour.originalPrice,
+                        discountPercent: tour.discountPercent,
+                        featured: tour.featured,
+                        published: tour.published,
+                        heroImage: tour.heroImage,
+                        gallery: tour.gallery,
+                        overview: tour.overview,
+                        highlights: tour.highlights,
+                        destinations: tour.destinations
+                    }
+                });
+            }
+            catch {
+                // Safe fallback
+            }
+        }
+    }
     getAllTours() {
-        return Array.from(this.tours.values());
+        return Array.from(this.tours.values()).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     }
     getTourById(idOrSlug) {
         const direct = this.tours.get(idOrSlug);
@@ -116,23 +179,33 @@ class TourStore {
         return Array.from(this.tours.values()).find(t => t.slug === idOrSlug);
     }
     createTour(input) {
-        if (!input.title || !input.title.trim()) {
-            throw new Error('Tour title is required.');
-        }
-        if (!input.pricePerPerson || input.pricePerPerson <= 0) {
-            throw new Error('Price per person must be greater than zero.');
-        }
-        const id = input.id || `tour-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
-        const slug = input.slug || input.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+        const id = input.id || `tour-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+        const slug = input.slug || input.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
         const newTour = {
-            ...input,
             id,
             slug,
+            title: input.title,
+            subtitle: input.subtitle || input.tagline || 'Experience Sri Lanka',
+            tagline: input.tagline || input.subtitle || 'Bespoke Island Discovery',
+            category: input.category || 'Cultural & Heritage',
+            durationDays: input.durationDays || 5,
+            durationNights: input.durationNights || Math.max(1, (input.durationDays || 5) - 1),
+            pricePerPerson: input.pricePerPerson,
+            originalPrice: input.originalPrice,
+            discountPercent: input.discountPercent,
+            difficulty: input.difficulty || 'Moderate',
+            groupSizeMax: input.groupSizeMax || 12,
+            startLocation: input.startLocation || 'Colombo (CMB)',
+            endLocation: input.endLocation || 'Colombo (CMB)',
+            heroImage: input.heroImage || input.gallery?.[0] || 'https://images.unsplash.com/photo-1588598198321-9735fd52455b?auto=format&fit=crop&w=800&q=80',
+            overview: input.overview || 'Immerse yourself in authentic Sri Lankan hospitality, world heritage landmarks, and stunning natural landscapes.',
+            accommodationType: input.accommodationType || '4-Star Boutique Hotels',
+            transportType: input.transportType || 'Private Air-Conditioned Vehicle',
             rating: 5.0,
             reviewCount: 1,
             featured: input.featured ?? false,
             published: input.published ?? true,
-            gallery: input.gallery || [input.heroImage],
+            gallery: input.gallery || [input.heroImage || 'https://images.unsplash.com/photo-1588598198321-9735fd52455b?auto=format&fit=crop&w=800&q=80'],
             highlights: input.highlights || [],
             destinations: input.destinations || ['Sri Lanka'],
             itinerary: input.itinerary || [],
@@ -142,6 +215,7 @@ class TourStore {
             updatedAt: new Date().toISOString()
         };
         this.tours.set(id, newTour);
+        this.persistToDb(newTour).catch(() => { });
         return newTour;
     }
     updateTour(id, updates) {
@@ -155,12 +229,32 @@ class TourStore {
             updatedAt: new Date().toISOString()
         };
         this.tours.set(tour.id, updated);
+        this.persistToDb(updated).catch(() => { });
         return updated;
     }
+    /**
+     * Safe Tour Deletion
+     * If existing bookings reference this tour, soft-deletes by setting published = false to preserve data integrity and foreign keys.
+     * If no bookings exist, deletes safely from store and database.
+     */
     deleteTour(id) {
         const tour = this.getTourById(id);
         if (!tour)
             return false;
+        // Check if active or historical bookings reference this tour
+        const existingBookings = bookingStore.getAllBookings().filter(b => b.tourId === tour.id);
+        if (existingBookings.length > 0) {
+            // Safe soft delete to prevent foreign key errors and preserve booking records
+            tour.published = false;
+            tour.updatedAt = new Date().toISOString();
+            this.tours.set(tour.id, tour);
+            this.persistToDb(tour).catch(() => { });
+            return true;
+        }
+        const prisma = getPrismaClient();
+        if (prisma) {
+            prisma.tour.delete({ where: { id: tour.id } }).catch(() => { });
+        }
         return this.tours.delete(tour.id);
     }
     togglePublished(id) {
@@ -170,6 +264,7 @@ class TourStore {
         tour.published = !tour.published;
         tour.updatedAt = new Date().toISOString();
         this.tours.set(tour.id, tour);
+        this.persistToDb(tour).catch(() => { });
         return tour;
     }
     toggleFeatured(id) {
@@ -179,6 +274,7 @@ class TourStore {
         tour.featured = !tour.featured;
         tour.updatedAt = new Date().toISOString();
         this.tours.set(tour.id, tour);
+        this.persistToDb(tour).catch(() => { });
         return tour;
     }
 }

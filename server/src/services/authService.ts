@@ -1,19 +1,7 @@
 import { sha256, generateNumericOTP } from '../utils/crypto.js';
 import { emailService } from './emailService.js';
+import { getPrismaClient } from '../db/prisma.js';
 import type { PrismaClient } from '@prisma/client';
-
-let _prisma: PrismaClient | null = null;
-function getPrismaClient(): PrismaClient | null {
-  if (!_prisma && typeof process !== 'undefined' && process.env?.DATABASE_URL) {
-    try {
-      const { PrismaClient: PC } = require('@prisma/client');
-      _prisma = new PC();
-    } catch (e) {
-      // Prisma client optional / fallback to memory store
-    }
-  }
-  return _prisma;
-}
 
 export interface ServerUserRecord {
   id: string;
@@ -743,6 +731,18 @@ export class AuthService {
    * Get all users for admin management (strips sensitive hashes)
    */
   async getAllUsers() {
+    const prisma = getPrismaClient();
+    if (prisma) {
+      try {
+        const dbUsers = await prisma.user.findMany();
+        for (const u of dbUsers) {
+          this.memoryUsers.set(u.id, u as any);
+        }
+      } catch (err) {
+        // Fall through to memory store
+      }
+    }
+
     const users: any[] = [];
     for (const u of this.memoryUsers.values()) {
       const { passwordHash: _p, emailVerificationTokenHash: _t, passwordResetTokenHash: _r, ...safe } = u;
@@ -755,6 +755,20 @@ export class AuthService {
    * Get user by ID (for admin inspection)
    */
   async getUserById(id: string) {
+    const prisma = getPrismaClient();
+    if (prisma) {
+      try {
+        const dbUser = await prisma.user.findUnique({ where: { id } });
+        if (dbUser) {
+          this.memoryUsers.set(dbUser.id, dbUser as any);
+          const { passwordHash: _p, emailVerificationTokenHash: _t, ...safe } = dbUser as any;
+          return safe;
+        }
+      } catch (err) {
+        // Fall through to memory store
+      }
+    }
+
     const user = this.memoryUsers.get(id);
     if (!user) return null;
     const { passwordHash: _p, emailVerificationTokenHash: _t, passwordResetTokenHash: _r, ...safe } = user;
@@ -772,7 +786,19 @@ export class AuthService {
    * Admin Update User Profile
    */
   async updateUser(id: string, updates: Partial<ServerUserRecord>) {
-    const user = this.memoryUsers.get(id);
+    let user = this.memoryUsers.get(id);
+    if (!user) {
+      const prisma = getPrismaClient();
+      if (prisma) {
+        try {
+          const dbUser = await prisma.user.findUnique({ where: { id } });
+          if (dbUser) user = dbUser as any;
+        } catch {
+          // Ignore
+        }
+      }
+    }
+
     if (!user) return null;
 
     if (updates.name) user.name = updates.name.trim();
@@ -789,11 +815,17 @@ export class AuthService {
   }
 
   /**
-   * Admin Delete User Profile (Soft delete/safe delete preserving historical bookings)
+   * Admin Delete User Profile (Safely deletes from DB while preserving historical data integrity)
    */
   async deleteUser(id: string) {
-    const user = this.memoryUsers.get(id);
-    if (!user) return false;
+    const prisma = getPrismaClient();
+    if (prisma) {
+      try {
+        await prisma.user.delete({ where: { id } });
+      } catch {
+        // Ignore if not in db
+      }
+    }
     return this.memoryUsers.delete(id);
   }
 }

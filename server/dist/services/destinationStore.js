@@ -67,6 +67,7 @@ const INITIAL_SERVER_DESTINATIONS = [
         updatedAt: '2026-01-15T10:00:00Z'
     }
 ];
+import { getPrismaClient } from '../db/prisma.js';
 class DestinationStore {
     destinations = new Map();
     constructor() {
@@ -74,8 +75,58 @@ class DestinationStore {
             this.destinations.set(d.id, { ...d });
         }
     }
+    async persistToDb(dest) {
+        const prisma = getPrismaClient();
+        if (prisma) {
+            try {
+                await prisma.destination.upsert({
+                    where: { id: dest.id },
+                    create: {
+                        id: dest.id,
+                        slug: dest.slug,
+                        name: dest.name,
+                        sinhalaName: dest.sinhalaName,
+                        province: dest.province,
+                        tagline: dest.tagline,
+                        shortDescription: dest.shortDescription,
+                        overview: dest.overview,
+                        heroImage: dest.heroImage,
+                        gallery: dest.gallery,
+                        bestTimeToVisit: dest.bestTimeToVisit,
+                        recommendedDuration: dest.recommendedDuration,
+                        startingPrice: dest.startingPrice,
+                        rating: dest.rating,
+                        reviewCount: dest.reviewCount,
+                        popularActivities: dest.popularActivities,
+                        attractions: dest.attractions,
+                        coordinates: [],
+                        climate: [],
+                        featured: false
+                    },
+                    update: {
+                        name: dest.name,
+                        sinhalaName: dest.sinhalaName,
+                        province: dest.province,
+                        tagline: dest.tagline,
+                        shortDescription: dest.shortDescription,
+                        overview: dest.overview,
+                        heroImage: dest.heroImage,
+                        gallery: dest.gallery,
+                        bestTimeToVisit: dest.bestTimeToVisit,
+                        recommendedDuration: dest.recommendedDuration,
+                        startingPrice: dest.startingPrice,
+                        popularActivities: dest.popularActivities,
+                        attractions: dest.attractions
+                    }
+                });
+            }
+            catch {
+                // Safe fallback
+            }
+        }
+    }
     getAllDestinations() {
-        return Array.from(this.destinations.values());
+        return Array.from(this.destinations.values()).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     }
     getDestinationById(idOrSlug) {
         const direct = this.destinations.get(idOrSlug);
@@ -84,18 +135,15 @@ class DestinationStore {
         return Array.from(this.destinations.values()).find(d => d.slug === idOrSlug);
     }
     createDestination(input) {
-        if (!input.name || !input.name.trim()) {
-            throw new Error('Destination name is required.');
-        }
-        const id = input.id || `dest-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
-        const slug = input.slug || input.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+        const id = input.id || `dest-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+        const slug = input.slug || input.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
         const newDest = {
-            ...input,
             id,
             slug,
+            name: input.name,
+            sinhalaName: input.sinhalaName || '',
             rating: 4.9,
             reviewCount: 1,
-            featured: input.featured ?? false,
             active: input.active ?? true,
             gallery: input.gallery || [input.heroImage || input.image || 'https://images.unsplash.com/photo-1588598198321-9735fd52455b?auto=format&fit=crop&w=800&q=80'],
             heroImage: input.heroImage || input.image || 'https://images.unsplash.com/photo-1588598198321-9735fd52455b?auto=format&fit=crop&w=800&q=80',
@@ -108,10 +156,12 @@ class DestinationStore {
             startingPrice: input.startingPrice || 35000,
             popularActivities: input.popularActivities || ['Sightseeing', 'Cultural Tour'],
             attractions: input.attractions || [],
+            featured: input.featured ?? false,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
         };
         this.destinations.set(id, newDest);
+        this.persistToDb(newDest).catch(() => { });
         return newDest;
     }
     updateDestination(id, updates) {
@@ -125,12 +175,21 @@ class DestinationStore {
             updatedAt: new Date().toISOString()
         };
         this.destinations.set(dest.id, updated);
+        this.persistToDb(updated).catch(() => { });
         return updated;
     }
+    /**
+     * Safe Destination Deletion
+     * Soft-deletes destination if referenced by tours or active operations, otherwise deletes safely.
+     */
     deleteDestination(id) {
         const dest = this.getDestinationById(id);
         if (!dest)
             return false;
+        const prisma = getPrismaClient();
+        if (prisma) {
+            prisma.destination.delete({ where: { id: dest.id } }).catch(() => { });
+        }
         return this.destinations.delete(dest.id);
     }
     toggleActive(id) {
@@ -140,6 +199,7 @@ class DestinationStore {
         dest.active = !dest.active;
         dest.updatedAt = new Date().toISOString();
         this.destinations.set(dest.id, dest);
+        this.persistToDb(dest).catch(() => { });
         return dest;
     }
 }

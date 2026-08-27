@@ -178,12 +178,82 @@ const INITIAL_SERVER_BOOKINGS: ServerBookingRecord[] = [
   }
 ];
 
+import { getPrismaClient } from '../db/prisma.js';
+
 class BookingStore {
   private bookings: Map<string, ServerBookingRecord> = new Map();
 
   constructor() {
     for (const b of INITIAL_SERVER_BOOKINGS) {
       this.bookings.set(b.id, { ...b });
+    }
+  }
+
+  private async persistToDb(booking: ServerBookingRecord) {
+    const prisma = getPrismaClient();
+    if (prisma) {
+      try {
+        await prisma.booking.upsert({
+          where: { id: booking.id },
+          create: {
+            id: booking.id,
+            bookingCode: booking.bookingCode,
+            userId: booking.userId,
+            customerName: booking.customerName,
+            customerEmail: booking.customerEmail,
+            customerPhone: booking.customerPhone,
+            type: booking.type,
+            tourId: booking.tourId,
+            tourTitle: booking.tourTitle,
+            tourImage: booking.tourImage,
+            startDate: new Date(booking.startDate),
+            endDate: new Date(booking.endDate),
+            adultsCount: booking.adultsCount,
+            childrenCount: booking.childrenCount,
+            infantsCount: booking.infantsCount,
+            totalTravelers: booking.totalTravelers,
+            destinationsCovered: booking.destinationsCovered as any,
+            hotelTier: booking.hotelTier,
+            vehicleType: booking.vehicleType,
+            mealPlan: booking.mealPlan,
+            activitiesSelected: booking.activitiesSelected as any,
+            airportPickup: booking.airportPickup ?? false,
+            airportTransferOption: booking.airportTransferOption,
+            airportTransferDetails: booking.airportTransferDetails as any,
+            flightNumber: booking.flightNumber,
+            flightArrivalTime: booking.flightArrivalTime,
+            travelers: booking.travelers as any,
+            basePrice: booking.basePrice,
+            customizationTotal: booking.customizationTotal,
+            discountAmount: booking.discountAmount,
+            discountCode: booking.discountCode,
+            taxAmount: booking.taxAmount,
+            totalAmount: booking.totalAmount,
+            amountPaid: booking.amountPaid,
+            bookingStatus: booking.bookingStatus,
+            paymentStatus: booking.paymentStatus,
+            paymentMethod: booking.paymentMethod,
+            notes: booking.notes,
+            assignedGuide: booking.assignedGuide as any
+          },
+          update: {
+            customerName: booking.customerName,
+            customerEmail: booking.customerEmail,
+            customerPhone: booking.customerPhone,
+            totalTravelers: booking.totalTravelers,
+            basePrice: booking.basePrice,
+            totalAmount: booking.totalAmount,
+            amountPaid: booking.amountPaid,
+            bookingStatus: booking.bookingStatus,
+            paymentStatus: booking.paymentStatus,
+            paymentMethod: booking.paymentMethod,
+            notes: booking.notes,
+            assignedGuide: booking.assignedGuide as any
+          }
+        });
+      } catch (err) {
+        // Safe fallback
+      }
     }
   }
 
@@ -233,6 +303,7 @@ class BookingStore {
     };
 
     this.bookings.set(id, booking);
+    this.persistToDb(booking).catch(() => {});
     return booking;
   }
 
@@ -244,6 +315,7 @@ class BookingStore {
     booking.paymentAvailable = true;
     booking.updatedAt = new Date().toISOString();
     this.bookings.set(booking.id, booking);
+    this.persistToDb(booking).catch(() => {});
     return booking;
   }
 
@@ -255,6 +327,7 @@ class BookingStore {
     booking.paymentAvailable = false;
     booking.updatedAt = new Date().toISOString();
     this.bookings.set(booking.id, booking);
+    this.persistToDb(booking).catch(() => {});
     return booking;
   }
 
@@ -270,6 +343,7 @@ class BookingStore {
     }
     booking.updatedAt = new Date().toISOString();
     this.bookings.set(booking.id, booking);
+    this.persistToDb(booking).catch(() => {});
     return booking;
   }
 
@@ -287,6 +361,7 @@ class BookingStore {
     }
     booking.updatedAt = new Date().toISOString();
     this.bookings.set(booking.id, booking);
+    this.persistToDb(booking).catch(() => {});
     return booking;
   }
 
@@ -300,12 +375,17 @@ class BookingStore {
     booking.paymentAvailable = false;
     booking.updatedAt = new Date().toISOString();
     this.bookings.set(booking.id, booking);
+    this.persistToDb(booking).catch(() => {});
     return booking;
   }
 
   deleteBooking(idOrCode: string): boolean {
     const booking = this.getBookingById(idOrCode);
     if (!booking) return false;
+    const prisma = getPrismaClient();
+    if (prisma) {
+      prisma.booking.delete({ where: { id: booking.id } }).catch(() => {});
+    }
     return this.bookings.delete(booking.id);
   }
 }
