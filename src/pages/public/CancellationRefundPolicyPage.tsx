@@ -191,15 +191,15 @@ export const CancellationRefundPolicyPage: React.FC = () => {
             <div className="bg-[#F8F7F2] p-5 rounded-2xl border border-stone-200 space-y-2 text-xs">
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-[#176B52] shrink-0 mt-0.5" />
-                <span>Level 14, West Tower, World Trade Center, Echelon Square, Colombo 01, Sri Lanka</span>
+                <span>[Registered Corporate Office Address, Colombo, Sri Lanka]</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-[#176B52] shrink-0" />
-                <a href="tel:+94771234567" className="text-[#0B3D2E] font-bold hover:underline">+94 77 123 4567</a>
+                <span className="text-[#0B3D2E] font-bold">[Official Contact Phone / +94 XX XXX XXXX]</span>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-[#176B52] shrink-0" />
-                <a href="mailto:concierge@lankavoyage.com" className="text-[#0B3D2E] font-bold hover:underline">concierge@lankavoyage.com</a>
+                <span className="text-[#0B3D2E] font-bold">[Official Contact Email / concierge@lankavoyage.com]</span>
               </div>
             </div>
           </section>

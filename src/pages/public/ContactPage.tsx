@@ -10,7 +10,8 @@ import {
   ChevronDown,
   Leaf
 } from 'lucide-react';
-import { SOCIAL_LINKS } from '../../config/socialLinks';
+import { getWhatsAppChatUrl, WHATSAPP_MESSAGES } from '../../config/whatsapp';
+import { WhatsAppIcon } from '../../components/common/WhatsAppButton';
 
 export const ContactPage: React.FC = () => {
   const [name, setName] = useState('');
@@ -84,7 +85,7 @@ export const ContactPage: React.FC = () => {
                   </div>
                   <div>
                     <span className="font-semibold text-[#17231F] block">Headquarters</span>
-                    <p>Level 14, World Trade Center, Echelon Square, Colombo 01, Sri Lanka</p>
+                    <p>[Registered Corporate Office Address, Colombo, Sri Lanka]</p>
                   </div>
                 </div>
 
@@ -94,7 +95,7 @@ export const ContactPage: React.FC = () => {
                   </div>
                   <div>
                     <span className="font-semibold text-[#17231F] block">Direct Phone</span>
-                    <a href="tel:+94771234567" className="hover:text-[#176B52] transition-colors">+94 77 123 4567</a>
+                    <span>[Official Contact Phone / +94 XX XXX XXXX]</span>
                   </div>
                 </div>
 
@@ -124,19 +125,18 @@ export const ContactPage: React.FC = () => {
             <div className="bg-[#062C22] text-white p-7 rounded-3xl shadow-md space-y-3 border border-white/10">
               <h3 className="font-serif text-lg font-bold">Prefer Instant Messaging?</h3>
               <p className="text-xs text-stone-300 leading-relaxed">
-                Connect directly with our senior travel planner on WhatsApp for fast questions and route suggestions.
+                Connect directly with our senior travel concierge on WhatsApp for instant inquiries, tailored quotes, and custom route suggestions.
               </p>
-              {SOCIAL_LINKS.whatsapp?.url ? (
-                <a
-                  href={SOCIAL_LINKS.whatsapp.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#25D366] text-white font-semibold text-xs rounded-xl hover:bg-[#20bd5a] transition-colors shadow-xs"
-                >
-                  <Phone className="w-3.5 h-3.5" />
-                  <span>Chat on WhatsApp</span>
-                </a>
-              ) : null}
+              <a
+                href={getWhatsAppChatUrl(WHATSAPP_MESSAGES.contact)}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Start direct WhatsApp chat with LankaVoyage travel team"
+                className="inline-flex items-center gap-2.5 px-6 py-3 bg-[#25D366] text-white font-bold text-xs rounded-2xl hover:bg-[#20bd5a] transition-all shadow-md hover:shadow-lg"
+              >
+                <WhatsAppIcon className="w-4 h-4 fill-white" />
+                <span>Chat on WhatsApp</span>
+              </a>
             </div>
 
           </div>

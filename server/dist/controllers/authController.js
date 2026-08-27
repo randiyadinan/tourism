@@ -1,5 +1,4 @@
 import { authService } from '../services/authService.js';
-import { emailService } from '../services/emailService.js';
 export async function registerController(c) {
     try {
         const body = await c.req.json().catch(() => ({}));
@@ -153,45 +152,5 @@ export async function resetPasswordController(c) {
     catch (error) {
         console.error('Error in reset-password controller:', error);
         return c.json({ success: false, error: error.message || 'Failed to reset password' }, 500);
-    }
-}
-/**
- * Diagnostic endpoint for testing real Resend delivery
- * POST /api/auth/test-email
- */
-export async function testEmailController(c) {
-    try {
-        const body = await c.req.json().catch(() => ({}));
-        const email = body.email;
-        if (!email || !email.includes('@')) {
-            return c.json({ success: false, error: 'A valid email address is required for testing.' }, 400);
-        }
-        const result = await emailService.sendTestEmail(email.trim().toLowerCase());
-        if (!result.success) {
-            return c.json({
-                success: false,
-                error: result.error,
-                fromEmail: result.fromEmail
-            }, 400);
-        }
-        return c.json({
-            success: true,
-            message: 'Test email successfully dispatched to Resend delivery network.',
-            messageId: result.id,
-            fromEmail: result.fromEmail
-        }, 200);
-    }
-    catch (error) {
-        return c.json({ success: false, error: error.message || 'Failed to dispatch test email' }, 500);
-    }
-}
-export async function getAllUsersController(c) {
-    try {
-        const users = await authService.getAllUsers();
-        return c.json({ success: true, data: users });
-    }
-    catch (error) {
-        console.error('Error fetching users:', error);
-        return c.json({ success: false, error: error.message || 'Failed to fetch users' }, 500);
     }
 }

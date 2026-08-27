@@ -6,8 +6,7 @@ import {
   resendVerificationController,
   forgotPasswordController,
   verifyResetOtpController,
-  resetPasswordController,
-  testEmailController
+  resetPasswordController
 } from '../controllers/authController.js';
 
 const authRouter = new Hono();
@@ -20,6 +19,5 @@ authRouter.post('/resend-verification', resendVerificationController);
 authRouter.post('/forgot-password', forgotPasswordController);
 authRouter.post('/verify-reset-otp', verifyResetOtpController);
 authRouter.post('/reset-password', resetPasswordController);
-authRouter.post('/test-email', testEmailController);
 
 export { authRouter };

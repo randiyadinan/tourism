@@ -3,7 +3,7 @@ import { INITIAL_USERS } from '../data/initialBookings';
 
 const USERS_KEY = 'lv_users_v2';
 const SESSION_KEY = 'lv_auth_session';
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 export interface AuthSession {
   userId: string;

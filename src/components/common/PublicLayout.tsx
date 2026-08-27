@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { TopAnnouncement } from './TopAnnouncement';
 import { Navbar } from './Navbar';
 import { Footer } from './Footer';
+import { FloatingWhatsAppButton } from './WhatsAppButton';
 
 export const PublicLayout: React.FC = () => {
   return (
@@ -13,6 +14,7 @@ export const PublicLayout: React.FC = () => {
         <Outlet />
       </main>
       <Footer />
+      <FloatingWhatsAppButton />
     </div>
   );
 };

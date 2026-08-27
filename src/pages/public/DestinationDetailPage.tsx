@@ -15,6 +15,8 @@ import { ActivityCard } from '../../components/activities/ActivityCard';
 import { StarRating } from '../../components/common/StarRating';
 import { analytics } from '../../services/analytics';
 import { handleImageError } from '../../utils/imageFallback';
+import { getWhatsAppChatUrl, WHATSAPP_MESSAGES } from '../../config/whatsapp';
+import { WhatsAppIcon } from '../../components/common/WhatsAppButton';
 
 export const DestinationDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -166,6 +168,18 @@ export const DestinationDetailPage: React.FC = () => {
                 Add to Custom Tour Wizard
               </Link>
             </div>
+
+            {/* WhatsApp Destination Inquiry */}
+            <a
+              href={getWhatsAppChatUrl(WHATSAPP_MESSAGES.destination(destination.name))}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Ask questions about visiting ${destination.name} on WhatsApp`}
+              className="w-full py-3 px-4 rounded-2xl bg-[#25D366]/10 hover:bg-[#25D366]/20 border border-[#25D366]/30 text-[#0B3D2E] font-semibold text-xs transition-all flex items-center justify-center gap-2 group"
+            >
+              <WhatsAppIcon className="w-4 h-4 fill-[#25D366] group-hover:scale-110 transition-transform" />
+              <span>Inquire About {destination.name} on WhatsApp</span>
+            </a>
           </div>
 
         </div>

@@ -7,10 +7,12 @@ import {
   Mail, 
   ShieldCheck, 
   Clock, 
-  Heart,
-  Globe2,
-  Camera
+  Heart, 
+  Globe2, 
+  Camera 
 } from 'lucide-react';
+import { getWhatsAppChatUrl, WHATSAPP_MESSAGES } from '../../config/whatsapp';
+import { WhatsAppIcon } from './WhatsAppButton';
 
 export const Footer: React.FC = () => {
   return (
@@ -61,6 +63,16 @@ export const Footer: React.FC = () => {
               </a>
 
               <a 
+                href={getWhatsAppChatUrl(WHATSAPP_MESSAGES.general)}
+                target="_blank" 
+                rel="noopener noreferrer"
+                aria-label="Chat with LankaVoyage Concierge on WhatsApp"
+                className="w-8 h-8 rounded-xl bg-[#25D366]/20 hover:bg-[#25D366] text-[#25D366] hover:text-white flex items-center justify-center transition-all"
+              >
+                <WhatsAppIcon className="w-4 h-4" />
+              </a>
+
+              <a 
                 href="mailto:concierge@lankavoyage.com" 
                 aria-label="Send email to LankaVoyage Concierge"
                 className="w-8 h-8 rounded-xl bg-white/10 hover:bg-[#176B52] text-stone-200 flex items-center justify-center transition-colors"
@@ -81,18 +93,24 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <Link to="/transfers" className="hover:text-[#39A982] transition-colors">
-                  Airport Transfer & Tours
-                </Link>
-              </li>
-              <li>
-                <Link to="/reviews" className="hover:text-[#39A982] transition-colors">
-                  Guest Reviews & Stories
+                  Transfers & Tours
                 </Link>
               </li>
               <li>
                 <Link to="/contact" className="hover:text-[#39A982] transition-colors">
                   Contact Concierge
                 </Link>
+              </li>
+              <li>
+                <a 
+                  href={getWhatsAppChatUrl(WHATSAPP_MESSAGES.general)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#39A982] hover:underline flex items-center gap-1.5"
+                >
+                  <WhatsAppIcon className="w-3.5 h-3.5" />
+                  <span>WhatsApp Chat</span>
+                </a>
               </li>
             </ul>
           </div>
@@ -103,15 +121,26 @@ export const Footer: React.FC = () => {
             <div className="space-y-2.5 text-xs sm:text-sm text-stone-300">
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-[#39A982] shrink-0 mt-0.5" />
-                <span>Level 14, World Trade Center, Colombo 01, Sri Lanka</span>
+                <span>[Registered Corporate Office Address, Colombo, Sri Lanka]</span>
               </div>
               <div className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-[#39A982] shrink-0" />
-                <a href="tel:+94771234567" className="hover:text-[#39A982]">+94 77 123 4567</a>
+                <span>[Official Contact Phone / +94 XX XXX XXXX]</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <WhatsAppIcon className="w-4 h-4 text-[#39A982] shrink-0" />
+                <a 
+                  href={getWhatsAppChatUrl(WHATSAPP_MESSAGES.general)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-stone-300 hover:text-[#39A982] transition-colors"
+                >
+                  WhatsApp: +94 XX XXX XXXX
+                </a>
               </div>
               <div className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-[#39A982] shrink-0" />
-                <a href="mailto:concierge@lankavoyage.com" className="hover:text-[#39A982]">concierge@lankavoyage.com</a>
+                <span>[Official Contact Email / concierge@lankavoyage.com]</span>
               </div>
               <div className="flex items-center gap-2.5">
                 <Clock className="w-4 h-4 text-[#39A982] shrink-0" />
@@ -126,7 +155,7 @@ export const Footer: React.FC = () => {
             <div className="space-y-2.5 text-xs text-stone-300">
               <div className="flex items-center gap-2 bg-white/5 p-2.5 rounded-xl border border-white/10">
                 <ShieldCheck className="w-4 h-4 text-[#39A982] shrink-0" />
-                <span>SLTDA Registered Agency (#TS/1142)</span>
+                <span>SLTDA Registered Agency ([Registration Placeholder])</span>
               </div>
               <div className="flex items-center gap-2 bg-white/5 p-2.5 rounded-xl border border-white/10">
                 <Compass className="w-4 h-4 text-[#39A982] shrink-0" />

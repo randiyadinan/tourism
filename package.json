@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "vite",
     "dev:server": "npm --prefix server run dev",
-    "build:server": "npm --prefix server run build",
-    "build": "npm --prefix server run build && tsc -b && vite build",
+    "build:server": "tsc -p server/tsconfig.json",
+    "build": "tsc -p server/tsconfig.json && tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview"
   },

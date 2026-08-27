@@ -279,6 +279,14 @@ class BookingStore {
       throw new Error('Flight number is required.');
     }
 
+    if (input.startDate && input.endDate) {
+      const start = new Date(input.startDate).getTime();
+      const end = new Date(input.endDate).getTime();
+      if (!isNaN(start) && !isNaN(end) && end < start) {
+        throw new Error('Invalid travel dates: End date cannot be before start date.');
+      }
+    }
+
     const randomCode = Math.floor(1000 + Math.random() * 9000);
     const id = input.id || `bk-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
     const bookingCode = input.bookingCode || `LV-2026-${randomCode}`;

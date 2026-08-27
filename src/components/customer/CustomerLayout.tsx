@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { TopAnnouncement } from '../common/TopAnnouncement';
+import { FloatingWhatsAppButton } from '../common/WhatsAppButton';
 
 export const CustomerSidebar: React.FC = () => {
   const { user, logout } = useAuth();
@@ -122,6 +123,7 @@ export const CustomerLayout: React.FC = () => {
           <Outlet />
         </main>
       </div>
+      <FloatingWhatsAppButton />
     </div>
   );
 };

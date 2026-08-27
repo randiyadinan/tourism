@@ -13,6 +13,8 @@ import type { Tour } from '../../types';
 import { vehiclePricingService } from '../../services/vehiclePricingService';
 import type { TourVehicleOption } from '../../data/tourVehiclePricing';
 import { formatPrice } from '../../utils/formatters';
+import { getWhatsAppChatUrl, WHATSAPP_MESSAGES } from '../../config/whatsapp';
+import { WhatsAppIcon } from '../common/WhatsAppButton';
 
 interface StickyBookingPanelProps {
   tour: Tour;
@@ -281,6 +283,20 @@ export const StickyBookingPanel: React.FC<StickyBookingPanelProps> = ({ tour, on
           <CheckCircle2 className="w-3.5 h-3.5 text-[#176B52]" />
           Fixed Itinerary
         </span>
+      </div>
+
+      {/* WhatsApp Quick Tour Inquiry */}
+      <div className="pt-2 border-t border-stone-100">
+        <a
+          href={getWhatsAppChatUrl(WHATSAPP_MESSAGES.tour(tour.title))}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Ask questions about ${tour.title} on WhatsApp`}
+          className="w-full py-2.5 px-4 rounded-xl bg-[#25D366]/10 hover:bg-[#25D366]/20 border border-[#25D366]/30 text-[#0B3D2E] font-semibold text-xs transition-all flex items-center justify-center gap-2 group"
+        >
+          <WhatsAppIcon className="w-4 h-4 fill-[#25D366] group-hover:scale-110 transition-transform" />
+          <span>Ask Questions on WhatsApp</span>
+        </a>
       </div>
 
     </div>

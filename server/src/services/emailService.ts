@@ -540,52 +540,6 @@ export class EmailService {
       return { success: false, error: err.message };
     }
   }
-
-  /**
-   * Diagnostic test email sending method
-   */
-  async sendTestEmail(to: string): Promise<{ success: boolean; id?: string; fromEmail?: string; error?: string }> {
-    let resend: Resend;
-    let fromEmail: string;
-    try {
-      const client = this.getResendClient();
-      resend = client.resend;
-      fromEmail = client.fromEmail;
-    } catch (err: any) {
-      console.error(`❌ [EmailService Test Config Error] To: ${to} | Error: ${err.message}`);
-      return { success: false, error: err.message };
-    }
-
-    try {
-      const subject = 'LankaVoyage Email Service Test';
-      const htmlContent = `
-        <div style="font-family: sans-serif; padding: 20px; color: #062C22;">
-          <h2>LankaVoyage Email Service Connected</h2>
-          <p>This is a live test email confirming that Resend delivery is operating correctly on LankaVoyage.</p>
-          <p><strong>Sender:</strong> ${fromEmail}</p>
-          <p><strong>Timestamp:</strong> ${new Date().toISOString()}</p>
-        </div>
-      `;
-
-      const response = await resend.emails.send({
-        from: fromEmail,
-        to: [to],
-        subject,
-        html: htmlContent,
-      });
-
-      if (response.error) {
-        console.error(`❌ [Resend Test Error] To: ${to} | Error: ${response.error.message}`);
-        return { success: false, error: response.error.message, fromEmail };
-      }
-
-      console.log(`✅ [Resend Test Success] Delivered to ${to} (ID: ${response.data?.id})`);
-      return { success: true, id: response.data?.id, fromEmail };
-    } catch (err: any) {
-      console.error(`❌ [Resend Test Exception] To: ${to} | Exception: ${err.message || err}`);
-      return { success: false, error: err.message || 'Failed to send test email', fromEmail };
-    }
-  }
 }
 
 function escapeHtml(str: string): string {
