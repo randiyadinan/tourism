@@ -1,14 +1,15 @@
-import { PrismaClient } from '@prisma/client';
-import crypto from 'crypto';
+import { sha256, generateRandomHex } from '../utils/crypto.js';
 import { emailService } from './emailService.js';
+import type { PrismaClient } from '@prisma/client';
 
 let _prisma: PrismaClient | null = null;
 function getPrismaClient(): PrismaClient | null {
-  if (!_prisma && process.env.DATABASE_URL) {
+  if (!_prisma && typeof process !== 'undefined' && process.env?.DATABASE_URL) {
     try {
-      _prisma = new PrismaClient();
+      const { PrismaClient: PC } = require('@prisma/client');
+      _prisma = new PC();
     } catch (e) {
-      console.warn('⚠️ [AuthService] Prisma client initialization notice:', e);
+      // Prisma client optional / fallback to memory store
     }
   }
   return _prisma;
@@ -89,11 +90,11 @@ export class AuthService {
   }
 
   hashToken(token: string): string {
-    return crypto.createHash('sha256').update(token).digest('hex');
+    return sha256(token);
   }
 
   generateSecureToken(): string {
-    return crypto.randomBytes(32).toString('hex');
+    return generateRandomHex(32);
   }
 
   private async findUserByEmail(email: string): Promise<ServerUserRecord | null> {
