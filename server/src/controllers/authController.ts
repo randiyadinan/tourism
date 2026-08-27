@@ -103,6 +103,88 @@ export async function resendVerificationController(c: Context) {
 }
 
 /**
+ * POST /api/auth/forgot-password
+ * Sends a 6-digit password reset OTP to the user's email
+ */
+export async function forgotPasswordController(c: Context) {
+  try {
+    const body = await c.req.json().catch(() => ({}));
+    const email = body.email;
+
+    if (!email || !email.trim()) {
+      return c.json({ success: false, error: 'Email address is required.' }, 400);
+    }
+
+    const result = await authService.requestPasswordReset(email);
+
+    if (!result.success) {
+      return c.json(result, 400);
+    }
+
+    return c.json(result, 200);
+  } catch (error: any) {
+    console.error('Error in forgot-password controller:', error);
+    return c.json({ success: false, error: error.message || 'Failed to process password reset request' }, 500);
+  }
+}
+
+/**
+ * POST /api/auth/verify-reset-otp
+ * Verifies the 6-digit OTP for password reset
+ */
+export async function verifyResetOtpController(c: Context) {
+  try {
+    const body = await c.req.json().catch(() => ({}));
+    const { email, code } = body;
+
+    if (!email || !code) {
+      return c.json({ success: false, error: 'Email and 6-digit code are required.' }, 400);
+    }
+
+    const result = await authService.verifyPasswordResetOtp(email, code);
+
+    if (!result.success) {
+      return c.json(result, 400);
+    }
+
+    return c.json(result, 200);
+  } catch (error: any) {
+    console.error('Error in verify-reset-otp controller:', error);
+    return c.json({ success: false, error: error.message || 'Failed to verify reset code' }, 500);
+  }
+}
+
+/**
+ * POST /api/auth/reset-password
+ * Updates the user's password and invalidates the reset OTP
+ */
+export async function resetPasswordController(c: Context) {
+  try {
+    const body = await c.req.json().catch(() => ({}));
+    const { email, code, newPassword } = body;
+
+    if (!email || !code || !newPassword) {
+      return c.json({ success: false, error: 'Email, verification code, and new password are required.' }, 400);
+    }
+
+    if (newPassword.length < 6) {
+      return c.json({ success: false, error: 'New password must be at least 6 characters long.' }, 400);
+    }
+
+    const result = await authService.resetPassword(email, code, newPassword);
+
+    if (!result.success) {
+      return c.json(result, 400);
+    }
+
+    return c.json(result, 200);
+  } catch (error: any) {
+    console.error('Error in reset-password controller:', error);
+    return c.json({ success: false, error: error.message || 'Failed to reset password' }, 500);
+  }
+}
+
+/**
  * Diagnostic endpoint for testing real Resend delivery
  * POST /api/auth/test-email
  */

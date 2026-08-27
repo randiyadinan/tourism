@@ -7,6 +7,13 @@ export interface SendVerificationOTPParams {
   expiresInMinutes?: number;
 }
 
+export interface SendPasswordResetOTPParams {
+  to: string;
+  name: string;
+  code: string;
+  expiresInMinutes?: number;
+}
+
 export interface SendAdminNewBookingParams {
   bookingCode: string;
   customerName: string;
@@ -140,7 +147,87 @@ export class EmailService {
   }
 
   /**
-   * 2. Sends Admin notification when customer creates a new PENDING booking request
+   * 2. Sends a branded LankaVoyage 6-digit Password Reset OTP email via Resend
+   */
+  async sendPasswordResetOTP(params: SendPasswordResetOTPParams): Promise<{ success: boolean; id?: string; error?: string }> {
+    const { to, name, code, expiresInMinutes = 10 } = params;
+
+    let resend: Resend;
+    let fromEmail: string;
+    try {
+      const client = this.getResendClient();
+      resend = client.resend;
+      fromEmail = client.fromEmail;
+    } catch (err: any) {
+      console.error(`❌ [EmailService Config Error] Recipient: ${to} | Error: ${err.message}`);
+      return { success: false, error: err.message };
+    }
+
+    try {
+      const subject = `${code} is your LankaVoyage password reset code`;
+      const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Reset Your LankaVoyage Password</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #F8F7F2; margin: 0; padding: 0; color: #17231F; }
+    .container { max-width: 540px; margin: 40px auto; background: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 10px 30px rgba(6,44,34,0.08); border: 1px solid #E6E4DC; }
+    .header { background: linear-gradient(135deg, #062C22 0%, #0B3D2E 100%); padding: 36px 30px; text-align: center; color: white; }
+    .logo-text { font-family: Georgia, serif; font-size: 26px; font-weight: 700; color: #ffffff; }
+    .logo-highlight { color: #39A982; }
+    .content { padding: 36px 32px; }
+    .otp-card { background: #FFFBEB; border: 2px dashed #D97706; border-radius: 18px; padding: 24px 20px; text-align: center; margin: 24px 0; }
+    .otp-code { font-family: monospace; font-size: 38px; font-weight: 800; letter-spacing: 10px; color: #92400E; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo-text">Lanka<span class="logo-highlight">Voyage</span></div>
+      <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #DDEFE8; margin-top: 6px;">Bespoke Sri Lanka Travel</div>
+    </div>
+    <div class="content">
+      <h1 style="font-family: Georgia, serif; font-size: 22px; color: #062C22; margin-top: 0;">Password Reset Request</h1>
+      <p>Hello <strong>${escapeHtml(name)}</strong>,</p>
+      <p>We received a request to reset the password for your LankaVoyage traveler account. Please enter the 6-digit code below to set a new password:</p>
+      <div class="otp-card">
+        <div class="otp-code">${code}</div>
+        <p style="font-size: 12px; color: #78350F; margin: 8px 0 0 0;">Enter this code on the password reset page</p>
+      </div>
+      <p style="font-size: 12px; color: #8C9993; margin-top: 20px; border-top: 1px solid #F0EEE6; padding-top: 14px;">⏱️ This single-use code expires in <strong>${expiresInMinutes} minutes</strong>. If you did not request a password reset, you can safely ignore this email.</p>
+    </div>
+    <div style="background: #F8F7F2; padding: 18px 30px; text-align: center; font-size: 11px; color: #8C9993; border-top: 1px solid #E6E4DC;">
+      &copy; ${new Date().getFullYear()} LankaVoyage Ltd. Colombo, Sri Lanka.
+    </div>
+  </div>
+</body>
+</html>
+`;
+
+      const response = await resend.emails.send({
+        from: fromEmail,
+        to: [to],
+        subject,
+        html: htmlContent,
+      });
+
+      if (response.error) {
+        console.error(`❌ [Resend Delivery Error] Password Reset To: ${to} | Error: ${response.error.message}`);
+        return { success: false, error: response.error.message };
+      }
+
+      console.log(`✅ [EmailService Success] Password reset OTP delivered to ${to} (Message ID: ${response.data?.id})`);
+      return { success: true, id: response.data?.id };
+    } catch (err: any) {
+      console.error(`❌ [EmailService Exception] Password Reset To: ${to} | Exception: ${err.message || err}`);
+      return { success: false, error: err.message || 'Failed to deliver password reset email through Resend.' };
+    }
+  }
+
+  /**
+   * 3. Sends Admin notification when customer creates a new PENDING booking request
    */
   async sendAdminNewBookingNotification(params: SendAdminNewBookingParams): Promise<{ success: boolean; id?: string; error?: string }> {
     let resend: Resend;
@@ -213,7 +300,7 @@ export class EmailService {
   }
 
   /**
-   * 3. Sends Customer Confirmation Email with PAY NOW button once Admin confirms booking
+   * 4. Sends Customer Confirmation Email with PAY NOW button once Admin confirms booking
    */
   async sendCustomerBookingConfirmed(params: SendCustomerConfirmationParams): Promise<{ success: boolean; id?: string; error?: string }> {
     let resend: Resend;
@@ -289,7 +376,7 @@ export class EmailService {
   }
 
   /**
-   * 4. Sends Customer Payment Success Email after verified PayHere IPN
+   * 5. Sends Customer Payment Success Email after verified PayHere IPN
    */
   async sendCustomerPaymentSuccess(params: SendPaymentSuccessParams): Promise<{ success: boolean; id?: string; error?: string }> {
     let resend: Resend;
@@ -347,7 +434,7 @@ export class EmailService {
   }
 
   /**
-   * 5. Sends Admin Notification upon verified PayHere payment
+   * 6. Sends Admin Notification upon verified PayHere payment
    */
   async sendAdminPaymentNotification(params: SendAdminPaymentNotificationParams): Promise<{ success: boolean; id?: string; error?: string }> {
     let resend: Resend;

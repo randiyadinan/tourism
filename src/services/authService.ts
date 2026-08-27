@@ -334,6 +334,114 @@ export const authService = {
   },
 
   /**
+   * Request password reset code (Forgot Password)
+   */
+  async requestPasswordReset(email: string): Promise<{ success: boolean; message?: string; error?: string }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim().toLowerCase() })
+      });
+
+      const data = await response.json();
+      if (response.ok && data.success) {
+        return {
+          success: true,
+          message: data.message || 'A 6-digit password reset code has been sent to your email.'
+        };
+      }
+
+      return {
+        success: false,
+        error: data.error || 'Failed to process password reset request.'
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        error: err.message || 'Could not connect to authentication server.'
+      };
+    }
+  },
+
+  /**
+   * Verify password reset 6-digit OTP
+   */
+  async verifyPasswordResetOtp(email: string, code: string): Promise<{ success: boolean; message?: string; error?: string }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/verify-reset-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          code: code.trim().replace(/\s+/g, '')
+        })
+      });
+
+      const data = await response.json();
+      if (response.ok && data.success) {
+        return {
+          success: true,
+          message: data.message || 'Code verified successfully.'
+        };
+      }
+
+      return {
+        success: false,
+        error: data.error || 'Invalid or expired verification code.'
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        error: err.message || 'Could not connect to authentication server.'
+      };
+    }
+  },
+
+  /**
+   * Complete password reset with new password
+   */
+  async resetPassword(email: string, code: string, newPassword: string): Promise<{ success: boolean; message?: string; error?: string }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          code: code.trim().replace(/\s+/g, ''),
+          newPassword
+        })
+      });
+
+      const data = await response.json();
+      if (response.ok && data.success) {
+        // Also update local mock storage if user exists locally
+        const users = this.getUsers();
+        const idx = users.findIndex(u => u.email.toLowerCase() === email.trim().toLowerCase());
+        if (idx !== -1) {
+          (users[idx] as any).passwordHash = newPassword;
+          localStorage.setItem(USERS_KEY, JSON.stringify(users));
+        }
+
+        return {
+          success: true,
+          message: data.message || 'Your password has been successfully reset! You can now log in.'
+        };
+      }
+
+      return {
+        success: false,
+        error: data.error || 'Failed to reset password.'
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        error: err.message || 'Could not connect to authentication server.'
+      };
+    }
+  },
+
+  /**
    * Update profile fields. Strips immutable or security fields like 'role' and 'id'.
    */
   updateProfile(userId: string, updates: Partial<User>): User {

@@ -4,6 +4,9 @@ import {
   loginController,
   verifyEmailController,
   resendVerificationController,
+  forgotPasswordController,
+  verifyResetOtpController,
+  resetPasswordController,
   testEmailController,
   getAllUsersController
 } from '../controllers/authController.js';
@@ -15,6 +18,9 @@ authRouter.post('/login', loginController);
 authRouter.get('/verify-email', verifyEmailController);
 authRouter.post('/verify-email', verifyEmailController);
 authRouter.post('/resend-verification', resendVerificationController);
+authRouter.post('/forgot-password', forgotPasswordController);
+authRouter.post('/verify-reset-otp', verifyResetOtpController);
+authRouter.post('/reset-password', resetPasswordController);
 authRouter.post('/test-email', testEmailController);
 authRouter.get('/users', getAllUsersController);
 

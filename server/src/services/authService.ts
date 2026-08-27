@@ -30,7 +30,10 @@ export interface ServerUserRecord {
   emailVerified: boolean;
   emailVerificationTokenHash?: string | null;
   emailVerificationExpiresAt?: Date | null;
+  passwordResetTokenHash?: string | null;
+  passwordResetExpiresAt?: Date | null;
   lastResentAt?: Date | null;
+  lastResetRequestedAt?: Date | null;
   createdAt: Date;
 }
 
@@ -52,6 +55,24 @@ export interface VerifyEmailResult {
     emailVerified: boolean;
     role: string;
   };
+  error?: string;
+}
+
+export interface ForgotPasswordResult {
+  success: boolean;
+  message?: string;
+  error?: string;
+}
+
+export interface VerifyPasswordResetOtpResult {
+  success: boolean;
+  message?: string;
+  error?: string;
+}
+
+export interface ResetPasswordResult {
+  success: boolean;
+  message?: string;
   error?: string;
 }
 
@@ -227,12 +248,12 @@ export class AuthService {
       };
     }
 
-    // Generate secure 6-digit code
+    // Generate 6-digit numeric OTP code
     const code = this.generate6DigitCode();
     const codeHash = this.hashCode(code);
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes expiry
 
-    // Send email via Resend and verify success
+    // Send OTP via Resend
     const emailResult = await emailService.sendVerificationOTP({
       to: cleanEmail,
       name: name.trim(),
@@ -243,23 +264,22 @@ export class AuthService {
     if (!emailResult.success) {
       return {
         success: false,
-        error: emailResult.error || 'Failed to send verification email. Please verify email settings.'
+        error: emailResult.error || 'Failed to deliver verification email. Please ensure your email address is valid.'
       };
     }
 
     const newUser: ServerUserRecord = {
-      id: `user-cust-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`,
+      id: `usr-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       name: name.trim(),
       email: cleanEmail,
-      role: 'customer', // Strictly customer
+      role: 'customer',
       passwordHash: password,
       phone: phone || '',
-      country: country || 'International',
+      country: country || 'Sri Lanka',
       emailVerified: false,
       emailVerificationTokenHash: codeHash,
       emailVerificationExpiresAt: expiresAt,
       lastResentAt: new Date(),
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
       createdAt: new Date()
     };
 
@@ -279,11 +299,11 @@ export class AuthService {
   }
 
   /**
-   * Resend 6-digit verification code with rate limit cooldown
+   * Resend 6-digit verification code with 30s rate-limit cooldown
    */
   async resendVerification(email: string): Promise<{ success: boolean; message?: string; error?: string }> {
-    if (!email) {
-      return { success: false, error: 'Email address is required.' };
+    if (!email || !email.trim()) {
+      return { success: false, error: 'Email is required' };
     }
 
     const cleanEmail = email.trim().toLowerCase();
@@ -372,7 +392,7 @@ export class AuthService {
       };
     }
 
-    // Check code expiry
+    // Check expiry
     if (user.emailVerificationExpiresAt && new Date() > new Date(user.emailVerificationExpiresAt)) {
       return {
         success: false,
@@ -411,6 +431,153 @@ export class AuthService {
   }
 
   /**
+   * Request Password Reset (Forgot Password Flow)
+   * Generates 6-digit numeric OTP, sets 10-min expiry, enforces 30s resend cooldown,
+   * sends branded email via Resend, stores only secure SHA-256 hash.
+   */
+  async requestPasswordReset(email: string): Promise<ForgotPasswordResult> {
+    if (!email || !email.trim()) {
+      return { success: false, error: 'Email address is required.' };
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const user = await this.findUserByEmail(cleanEmail);
+
+    if (!user) {
+      return { success: false, error: 'No account found with this email address. Please check your spelling or register.' };
+    }
+
+    // Enforce 30-second rate-limit cooldown
+    if (user.lastResetRequestedAt) {
+      const elapsedSeconds = (Date.now() - new Date(user.lastResetRequestedAt).getTime()) / 1000;
+      if (elapsedSeconds < 30) {
+        const remainingSeconds = Math.ceil(30 - elapsedSeconds);
+        return {
+          success: false,
+          error: `Please wait ${remainingSeconds} seconds before requesting another reset code.`
+        };
+      }
+    }
+
+    const code = this.generate6DigitCode();
+    const codeHash = this.hashCode(code);
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes expiry
+
+    const emailResult = await emailService.sendPasswordResetOTP({
+      to: cleanEmail,
+      name: user.name,
+      code,
+      expiresInMinutes: 10
+    });
+
+    if (!emailResult.success) {
+      return {
+        success: false,
+        error: emailResult.error || 'Failed to deliver password reset email. Please try again.'
+      };
+    }
+
+    user.passwordResetTokenHash = codeHash;
+    user.passwordResetExpiresAt = expiresAt;
+    user.lastResetRequestedAt = new Date();
+    await this.saveUser(user);
+
+    return {
+      success: true,
+      message: 'A 6-digit password reset code has been sent to your email.'
+    };
+  }
+
+  /**
+   * Verify Password Reset 6-Digit OTP
+   */
+  async verifyPasswordResetOtp(email: string, code: string): Promise<VerifyPasswordResetOtpResult> {
+    if (!email || !email.trim()) {
+      return { success: false, error: 'Email address is required.' };
+    }
+
+    if (!code || !code.trim()) {
+      return { success: false, error: 'Verification code is required.' };
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanCode = code.trim().replace(/\s+/g, '');
+
+    const user = await this.findUserByEmail(cleanEmail);
+    if (!user) {
+      return { success: false, error: 'No account found with this email address.' };
+    }
+
+    if (!user.passwordResetTokenHash) {
+      return { success: false, error: 'No active password reset request found. Please request a new code.' };
+    }
+
+    if (user.passwordResetExpiresAt && new Date() > new Date(user.passwordResetExpiresAt)) {
+      return { success: false, error: 'The reset code has expired. Please request a new code.' };
+    }
+
+    const inputHash = this.hashCode(cleanCode);
+    if (user.passwordResetTokenHash !== inputHash) {
+      return { success: false, error: 'Invalid 6-digit reset code. Please check and try again.' };
+    }
+
+    return {
+      success: true,
+      message: 'Verification code confirmed. You may now enter your new password.'
+    };
+  }
+
+  /**
+   * Reset Password: Verifies OTP, sets new password, immediately invalidates OTP (single-use)
+   */
+  async resetPassword(email: string, code: string, newPassword?: string): Promise<ResetPasswordResult> {
+    if (!email || !email.trim()) {
+      return { success: false, error: 'Email address is required.' };
+    }
+
+    if (!code || !code.trim()) {
+      return { success: false, error: 'Reset code is required.' };
+    }
+
+    if (!newPassword || newPassword.length < 6) {
+      return { success: false, error: 'New password must be at least 6 characters long.' };
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanCode = code.trim().replace(/\s+/g, '');
+
+    const user = await this.findUserByEmail(cleanEmail);
+    if (!user) {
+      return { success: false, error: 'No account found with this email address.' };
+    }
+
+    if (!user.passwordResetTokenHash) {
+      return { success: false, error: 'This reset code is invalid or has already been used. Please request a new one.' };
+    }
+
+    if (user.passwordResetExpiresAt && new Date() > new Date(user.passwordResetExpiresAt)) {
+      return { success: false, error: 'This reset code has expired. Please request a new one.' };
+    }
+
+    const inputHash = this.hashCode(cleanCode);
+    if (user.passwordResetTokenHash !== inputHash) {
+      return { success: false, error: 'Invalid 6-digit reset code. Please check and try again.' };
+    }
+
+    // Set new password
+    user.passwordHash = newPassword;
+    // Invalidate OTP immediately (single-use)
+    user.passwordResetTokenHash = null;
+    user.passwordResetExpiresAt = null;
+    await this.saveUser(user);
+
+    return {
+      success: true,
+      message: 'Your password has been successfully reset! You can now log in with your new password.'
+    };
+  }
+
+  /**
    * Login method verifying credentials AND requiring emailVerified = true for customers
    */
   async login(email: string, password?: string): Promise<{ success: boolean; user?: any; error?: string; requiresVerification?: boolean; code?: string }> {
@@ -439,7 +606,7 @@ export class AuthService {
       };
     }
 
-    const { passwordHash: _hash, emailVerificationTokenHash: _tHash, ...safeUser } = user;
+    const { passwordHash: _hash, emailVerificationTokenHash: _tHash, passwordResetTokenHash: _rHash, ...safeUser } = user;
     return {
       success: true,
       user: safeUser
@@ -452,7 +619,7 @@ export class AuthService {
   async getAllUsers() {
     const users: any[] = [];
     for (const u of this.memoryUsers.values()) {
-      const { passwordHash: _p, emailVerificationTokenHash: _t, ...safe } = u;
+      const { passwordHash: _p, emailVerificationTokenHash: _t, passwordResetTokenHash: _r, ...safe } = u;
       users.push(safe);
     }
     return users;
