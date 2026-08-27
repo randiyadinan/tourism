@@ -4,15 +4,13 @@ import { authService } from '../services/authService.js';
 export async function registerController(c: Context) {
   try {
     const body = await c.req.json().catch(() => ({}));
-    const origin = c.req.header('origin') || c.req.header('referer');
 
     const result = await authService.register({
       name: body.name,
       email: body.email,
       password: body.password,
       phone: body.phone,
-      country: body.country,
-      origin: origin ? new URL(origin).origin : undefined
+      country: body.country
     });
 
     if (!result.success) {
@@ -36,6 +34,8 @@ export async function loginController(c: Context) {
         return c.json({
           success: false,
           requiresVerification: true,
+          code: 'EMAIL_NOT_VERIFIED',
+          email: body.email,
           error: result.error || 'Please verify your email before signing in.'
         }, 403);
       }
@@ -51,14 +51,22 @@ export async function loginController(c: Context) {
 
 export async function verifyEmailController(c: Context) {
   try {
-    const token = c.req.query('token') || (await c.req.json().catch(() => ({}))).token;
-    const email = c.req.query('email') || (await c.req.json().catch(() => ({}))).email;
+    const body = await c.req.json().catch(() => ({}));
+    const queryEmail = c.req.query('email');
+    const queryCode = c.req.query('code') || c.req.query('token');
 
-    if (!token) {
-      return c.json({ success: false, error: 'Verification token is required.', message: 'Invalid verification token.' }, 400);
+    const email = body.email || queryEmail;
+    const code = body.code || body.token || queryCode;
+
+    if (!email || !code) {
+      return c.json({ 
+        success: false, 
+        error: 'Both email and 6-digit verification code are required.', 
+        message: 'Please enter your email and the 6-digit code.' 
+      }, 400);
     }
 
-    const result = await authService.verifyEmail(token, email);
+    const result = await authService.verifyEmail(email, code);
 
     if (!result.success) {
       return c.json(result, 400);
@@ -74,12 +82,13 @@ export async function verifyEmailController(c: Context) {
 export async function resendVerificationController(c: Context) {
   try {
     const body = await c.req.json().catch(() => ({}));
-    const origin = c.req.header('origin') || c.req.header('referer');
+    const email = body.email;
 
-    const result = await authService.resendVerification(
-      body.email,
-      origin ? new URL(origin).origin : undefined
-    );
+    if (!email) {
+      return c.json({ success: false, error: 'Email is required' }, 400);
+    }
+
+    const result = await authService.resendVerification(email);
 
     if (!result.success) {
       return c.json(result, 400);

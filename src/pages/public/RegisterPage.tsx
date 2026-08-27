@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   Compass, 
   Mail, 
@@ -9,15 +9,12 @@ import {
   Globe, 
   ArrowRight, 
   AlertCircle, 
-  ShieldCheck, 
-  CheckCircle2, 
-  Send,
-  RefreshCw
+  ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { authService } from '../../services/authService';
 
 export const RegisterPage: React.FC = () => {
+  const navigate = useNavigate();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -26,12 +23,6 @@ export const RegisterPage: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  
-  // Verification Pending Screen state
-  const [isPendingVerification, setIsPendingVerification] = useState(false);
-  const [registeredEmail, setRegisteredEmail] = useState('');
-  const [resending, setResending] = useState(false);
-  const [resendStatus, setResendStatus] = useState<string | null>(null);
 
   const { register } = useAuth();
 
@@ -54,93 +45,17 @@ export const RegisterPage: React.FC = () => {
     setLoading(false);
 
     if (res.success) {
-      setRegisteredEmail(email);
-      setIsPendingVerification(true);
+      // Redirect directly to /verify-email with the email populated
+      navigate(`/verify-email?email=${encodeURIComponent(email.trim().toLowerCase())}`);
     } else {
       setError(res.error || 'Failed to create account');
     }
   };
 
-  const handleResend = async () => {
-    if (!registeredEmail) return;
-    setResending(true);
-    setResendStatus(null);
-    const res = await authService.resendVerification(registeredEmail);
-    setResending(false);
-    if (res.success) {
-      setResendStatus('Verification link re-sent! Please check your inbox & spam folder.');
-    } else {
-      setResendStatus(res.error || 'Failed to resend verification email.');
-    }
-  };
-
-  // Render Verification Pending Screen
-  if (isPendingVerification) {
-    return (
-      <div className="min-h-[85vh] bg-[#F8F7F2] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        {/* Ambient background glows */}
-        <div className="ambient-glow-orb w-96 h-96 bg-[#39A982] top-10 -left-20 opacity-20" />
-        <div className="ambient-glow-orb w-96 h-96 bg-[#C5A059] bottom-10 -right-20 opacity-15" />
-
-        <div className="max-w-md w-full relative z-10">
-          <div className="liquid-glass-white rounded-3xl border border-white/80 p-8 sm:p-10 shadow-[0_15px_40px_-15px_rgba(6,44,34,0.12)] space-y-6 text-center animate-scale-in">
-            
-            {/* Header Icon */}
-            <div className="w-16 h-16 rounded-3xl bg-[#DDEFE8] text-[#176B52] flex items-center justify-center mx-auto border border-[#39A982]/30 shadow-sm">
-              <Mail className="w-8 h-8 text-[#176B52]" />
-            </div>
-
-            <div className="space-y-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#DDEFE8] text-[#0B3D2E] text-[11px] font-bold uppercase tracking-wider border border-[#39A982]/20">
-                <Send className="w-3 h-3 text-[#39A982]" />
-                Verification Email Sent
-              </span>
-              <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#062C22]">
-                Check Your Email
-              </h2>
-              <p className="text-xs text-stone-600 leading-relaxed max-w-sm mx-auto">
-                We sent a secure activation link to <strong className="text-[#062C22]">{registeredEmail}</strong>. Please click the link to verify your account.
-              </p>
-            </div>
-
-            {resendStatus && (
-              <div className="p-3 bg-emerald-50 text-emerald-800 text-xs rounded-xl border border-emerald-200 flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>{resendStatus}</span>
-              </div>
-            )}
-
-            <div className="space-y-3 pt-2">
-              <Link
-                to="/login"
-                className="glass-btn-primary w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl text-white font-bold text-xs shadow-md"
-              >
-                <span>Proceed to Sign In</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-
-              <button
-                type="button"
-                onClick={handleResend}
-                disabled={resending}
-                className="w-full py-2.5 bg-white hover:bg-stone-50 border border-stone-200 rounded-xl text-xs font-semibold text-stone-700 flex items-center justify-center gap-2 transition-all disabled:opacity-60"
-              >
-                {resending ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
-                <span>{resending ? 'Resending...' : "Didn't get an email? Resend"}</span>
-              </button>
-            </div>
-
-            <p className="text-[11px] text-stone-500 pt-2 border-t border-stone-200/60">
-              Can't find the email? Check your Spam or Promotions folder.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-[85vh] bg-[#F8F7F2] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-[85vh] bg-[#F8F7F2] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <div className="ambient-glow-orb w-96 h-96 bg-[#39A982] top-10 -left-20 opacity-20" />
+      <div className="ambient-glow-orb w-96 h-96 bg-[#C5A059] bottom-10 -right-20 opacity-15" />
       <div className="max-w-md w-full space-y-8 bg-white p-8 sm:p-10 rounded-3xl border border-stone-200 shadow-xl">
         
         <div className="text-center space-y-2">

@@ -257,13 +257,17 @@ export const authService = {
   },
 
   /**
-   * Verify email with token against backend API
+   * Verify email with 6-digit code (OTP) against backend API
    */
-  async verifyEmail(token: string, email?: string): Promise<{ success: boolean; message: string; error?: string; user?: any }> {
+  async verifyEmail(email: string, code: string): Promise<{ success: boolean; message: string; error?: string; user?: any }> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/verify-email?token=${encodeURIComponent(token)}${email ? `&email=${encodeURIComponent(email)}` : ''}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
+      const response = await fetch(`${API_BASE_URL}/api/auth/verify-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          code: code.trim()
+        })
       });
 
       const data = await response.json();
@@ -286,8 +290,8 @@ export const authService = {
 
       return {
         success: false,
-        error: data.error || 'Verification token is invalid or expired.',
-        message: data.message || 'Verification failed.'
+        error: data.error || 'Verification code is invalid or expired.',
+        message: data.message || data.error || 'Verification failed.'
       };
     } catch (err: any) {
       return {

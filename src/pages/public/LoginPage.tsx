@@ -53,6 +53,10 @@ export const LoginPage: React.FC = () => {
     }
   };
 
+  const handleGoToVerify = () => {
+    navigate(`/verify-email?email=${encodeURIComponent(email.trim().toLowerCase())}`);
+  };
+
   const handleResendVerification = async () => {
     if (!email) return;
     setResending(true);
@@ -139,16 +143,25 @@ export const LoginPage: React.FC = () => {
                 <span className="font-semibold">{error}</span>
               </div>
               {showResendPrompt && (
-                <div className="pt-1 border-t border-rose-200/60 flex items-center justify-between">
-                  <span className="text-[11px] text-rose-700">Need a new verification email?</span>
-                  <button
-                    type="button"
-                    onClick={handleResendVerification}
-                    disabled={resending}
-                    className="text-[11px] font-bold text-[#176B52] hover:underline disabled:opacity-50"
-                  >
-                    {resending ? 'Sending...' : 'Resend Email'}
-                  </button>
+                <div className="pt-2 border-t border-rose-200/60 flex flex-col sm:flex-row items-center justify-between gap-2">
+                  <span className="text-[11px] text-rose-700">Account not verified yet.</span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleGoToVerify}
+                      className="px-2.5 py-1 bg-[#176B52] text-white rounded-lg text-[11px] font-bold hover:bg-[#0B3D2E] transition-colors"
+                    >
+                      Enter 6-Digit Code
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleResendVerification}
+                      disabled={resending}
+                      className="text-[11px] font-bold text-[#176B52] hover:underline disabled:opacity-50"
+                    >
+                      {resending ? 'Sending...' : 'Resend Code'}
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

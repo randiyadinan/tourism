@@ -225,3 +225,25 @@ export function generateRandomHex(byteCount = 32): string {
   }
   return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
 }
+
+export function generateNumericOTP(digits = 6): string {
+  let otp = '';
+  const bytes = new Uint8Array(digits);
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    crypto.getRandomValues(bytes);
+    for (let i = 0; i < digits; i++) {
+      otp += (bytes[i] % 10).toString();
+    }
+  } else {
+    for (let i = 0; i < digits; i++) {
+      otp += Math.floor(Math.random() * 10).toString();
+    }
+  }
+  // Ensure exactly required digits and not all zeros if edge case
+  if (otp.length !== digits || otp === '000000') {
+    const min = Math.pow(10, digits - 1);
+    const max = Math.pow(10, digits) - 1;
+    return Math.floor(min + Math.random() * (max - min + 1)).toString();
+  }
+  return otp;
+}
