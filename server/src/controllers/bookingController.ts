@@ -68,7 +68,12 @@ export async function getBookingById(c: Context) {
       return c.json({ success: false, error: 'Booking not found' }, 404);
     }
 
+    const authHeader = c.req.header('authorization') || c.req.header('Authorization');
     const authUser = await getOptionalAuthUser(c);
+
+    if (authHeader && !authUser) {
+      return c.json({ success: false, error: '401 Unauthorized: Invalid or expired session token.' }, 401);
+    }
 
     // Admin has full access
     if (authUser && authUser.role === 'admin') {
@@ -90,7 +95,15 @@ export async function getBookingById(c: Context) {
       return c.json({ success: true, data: booking });
     }
 
-    return c.json({ success: true, data: booking });
+    // Unauthenticated guest: Only allow lookup by full booking reference code (e.g. LV-2026-8891)
+    if (idOrCode === booking.bookingCode) {
+      return c.json({ success: true, data: booking });
+    }
+
+    return c.json({
+      success: false,
+      error: '403 Forbidden: Authentication required to access booking by ID.'
+    }, 403);
   } catch (error: any) {
     console.error('Error fetching booking:', error);
     return c.json({ success: false, error: error.message || 'Failed to fetch booking' }, 500);
