@@ -9,6 +9,7 @@ import {
   Edit3
 } from 'lucide-react';
 import { destinationTicketService, type DestinationTicketRecord } from '../../services/destinationTicketService';
+import { adminService } from '../../services/adminService';
 import { Modal } from '../../components/common/Modal';
 import { formatPrice } from '../../utils/formatters';
 
@@ -57,17 +58,19 @@ export const ManageDestinationsPage: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleDelete = (id: string, destName: string) => {
+  const handleDelete = async (id: string, destName: string) => {
     if (confirm(`Are you sure you want to delete "${destName}" from destination catalog?`)) {
       destinationTicketService.deleteDestination(id);
+      await adminService.deleteDestination(id).catch(() => {});
       setDestinations(destinationTicketService.getAllDestinations());
       setStatusMsg(`Deleted "${destName}".`);
       setTimeout(() => setStatusMsg(''), 3500);
     }
   };
 
-  const handleToggleActive = (id: string) => {
+  const handleToggleActive = async (id: string) => {
     const updated = destinationTicketService.toggleActive(id);
+    await adminService.updateDestination(id, { active: updated.active } as any).catch(() => {});
     setDestinations(destinationTicketService.getAllDestinations());
     setStatusMsg(`Destination "${updated.name}" is now ${updated.active ? 'Active' : 'Inactive'}.`);
     setTimeout(() => setStatusMsg(''), 3500);
@@ -83,16 +86,20 @@ export const ManageDestinationsPage: React.FC = () => {
     }));
   };
 
-  const handleSaveInlinePrices = (dest: DestinationTicketRecord) => {
+  const handleSaveInlinePrices = async (dest: DestinationTicketRecord) => {
     destinationTicketService.updateDestination(dest.id, {
       adultTicketPrice: Number(dest.adultTicketPrice),
       childTicketPrice: Number(dest.childTicketPrice)
     });
+    await adminService.updateDestination(dest.id, {
+      adultTicketPrice: Number(dest.adultTicketPrice),
+      childTicketPrice: Number(dest.childTicketPrice)
+    } as any).catch(() => {});
     setStatusMsg(`Saved ticket rates for ${dest.name}: Adult ${formatPrice(dest.adultTicketPrice)}, Child ${formatPrice(dest.childTicketPrice)}.`);
     setTimeout(() => setStatusMsg(''), 3500);
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (editingId) {
       destinationTicketService.updateDestination(editingId, {
@@ -103,6 +110,14 @@ export const ManageDestinationsPage: React.FC = () => {
         childTicketPrice: Math.max(0, Number(childTicketPrice)),
         image
       });
+      await adminService.updateDestination(editingId, {
+        name,
+        subtitle,
+        region,
+        adultTicketPrice: Math.max(0, Number(adultTicketPrice)),
+        childTicketPrice: Math.max(0, Number(childTicketPrice)),
+        heroImage: image
+      } as any).catch(() => {});
       setStatusMsg(`Updated "${name}" ticket rates.`);
     } else {
       destinationTicketService.createDestination({
@@ -114,6 +129,15 @@ export const ManageDestinationsPage: React.FC = () => {
         image,
         active: true
       });
+      await adminService.createDestination({
+        name,
+        subtitle,
+        region,
+        adultTicketPrice: Math.max(0, Number(adultTicketPrice)),
+        childTicketPrice: Math.max(0, Number(childTicketPrice)),
+        heroImage: image,
+        active: true
+      }).catch(() => {});
       setStatusMsg(`Added new destination "${name}".`);
     }
 

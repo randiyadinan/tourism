@@ -3,6 +3,9 @@ import { cors } from 'hono/cors';
 import { payhereRouter } from './routes/payhereRoutes.js';
 import { bookingRouter } from './routes/bookingRoutes.js';
 import { authRouter } from './routes/authRoutes.js';
+import { adminRouter } from './routes/adminRoutes.js';
+import { tourStore } from './services/tourStore.js';
+import { destinationStore } from './services/destinationStore.js';
 import type { Bindings } from './controllers/payhereController.js';
 
 const app = new Hono<{ Bindings: Bindings }>();
@@ -13,7 +16,7 @@ app.use(
   cors({
     origin: '*',
     allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowHeaders: ['Content-Type', 'Authorization']
+    allowHeaders: ['Content-Type', 'Authorization', 'x-user-role', 'x-user-email', 'x-user-id']
   })
 );
 
@@ -51,7 +54,32 @@ app.get('/health', (c) => {
   });
 });
 
-// API Routes (Mounted under both /api/* and /* for transparent Vercel Function routing)
+// Public Tours & Destinations Endpoints
+app.get('/api/tours', (c) => {
+  const tours = tourStore.getAllTours().filter(t => t.published);
+  return c.json({ success: true, data: tours });
+});
+app.get('/api/tours/:idOrSlug', (c) => {
+  const tour = tourStore.getTourById(c.req.param('idOrSlug'));
+  if (!tour) return c.json({ success: false, error: 'Tour not found' }, 404);
+  return c.json({ success: true, data: tour });
+});
+
+app.get('/api/destinations', (c) => {
+  const destinations = destinationStore.getAllDestinations().filter(d => d.active);
+  return c.json({ success: true, data: destinations });
+});
+app.get('/api/destinations/:idOrSlug', (c) => {
+  const dest = destinationStore.getDestinationById(c.req.param('idOrSlug'));
+  if (!dest) return c.json({ success: false, error: 'Destination not found' }, 404);
+  return c.json({ success: true, data: dest });
+});
+
+// Admin Management Router (Mounted under /api/admin and /admin)
+app.route('/api/admin', adminRouter);
+app.route('/admin', adminRouter);
+
+// Standard API Routes (Mounted under both /api/* and /* for transparent Vercel Function routing)
 app.route('/api/payhere', payhereRouter);
 app.route('/payhere', payhereRouter);
 

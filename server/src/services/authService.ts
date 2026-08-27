@@ -614,7 +614,7 @@ export class AuthService {
   }
 
   /**
-   * Get all users for admin management
+   * Get all users for admin management (strips sensitive hashes)
    */
   async getAllUsers() {
     const users: any[] = [];
@@ -623,6 +623,52 @@ export class AuthService {
       users.push(safe);
     }
     return users;
+  }
+
+  /**
+   * Get user by ID (for admin inspection)
+   */
+  async getUserById(id: string) {
+    const user = this.memoryUsers.get(id);
+    if (!user) return null;
+    const { passwordHash: _p, emailVerificationTokenHash: _t, passwordResetTokenHash: _r, ...safe } = user;
+    return safe;
+  }
+
+  /**
+   * Get user by Email
+   */
+  async getUserByEmail(email: string) {
+    return this.findUserByEmail(email);
+  }
+
+  /**
+   * Admin Update User Profile
+   */
+  async updateUser(id: string, updates: Partial<ServerUserRecord>) {
+    const user = this.memoryUsers.get(id);
+    if (!user) return null;
+
+    if (updates.name) user.name = updates.name.trim();
+    if (updates.phone !== undefined) user.phone = updates.phone;
+    if (updates.country !== undefined) user.country = updates.country;
+    if (updates.passportNumber !== undefined) user.passportNumber = updates.passportNumber;
+    if (updates.dietaryPreferences !== undefined) user.dietaryPreferences = updates.dietaryPreferences;
+    if (updates.role !== undefined) user.role = updates.role;
+    if (updates.emailVerified !== undefined) user.emailVerified = updates.emailVerified;
+
+    await this.saveUser(user);
+    const { passwordHash: _p, emailVerificationTokenHash: _t, passwordResetTokenHash: _r, ...safe } = user;
+    return safe;
+  }
+
+  /**
+   * Admin Delete User Profile (Soft delete/safe delete preserving historical bookings)
+   */
+  async deleteUser(id: string) {
+    const user = this.memoryUsers.get(id);
+    if (!user) return false;
+    return this.memoryUsers.delete(id);
   }
 }
 

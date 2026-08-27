@@ -37,6 +37,14 @@ export interface SendCustomerConfirmationParams {
   payNowUrl: string;
 }
 
+export interface SendCustomerRejectionParams {
+  to: string;
+  name: string;
+  bookingCode: string;
+  tourTitle: string;
+  reason?: string;
+}
+
 export interface SendPaymentSuccessParams {
   to: string;
   name: string;
@@ -371,6 +379,64 @@ export class EmailService {
       return { success: true, id: response.data?.id };
     } catch (err: any) {
       console.error(`❌ [EmailService Exception] Customer Confirmation: ${err.message}`);
+      return { success: false, error: err.message };
+    }
+  }
+
+  /**
+   * 4b. Sends Customer Rejection Email when Admin rejects a booking request
+   */
+  async sendCustomerBookingRejected(params: SendCustomerRejectionParams): Promise<{ success: boolean; id?: string; error?: string }> {
+    let resend: Resend;
+    let fromEmail: string;
+    try {
+      const client = this.getResendClient();
+      resend = client.resend;
+      fromEmail = client.fromEmail;
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+
+    try {
+      const subject = `Update regarding your LankaVoyage Booking Request (${params.bookingCode})`;
+      const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Booking Request Update</title></head>
+<body style="font-family: sans-serif; background: #F8F7F2; padding: 20px; color: #062C22;">
+  <div style="max-width: 560px; margin: 0 auto; background: white; border-radius: 24px; border: 1px solid #E6E4DC; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.06);">
+    <div style="background: #062C22; padding: 32px 24px; color: white; text-align: center;">
+      <h1 style="font-family: Georgia, serif; font-size: 24px; margin: 0;">Lanka<span style="color: #39A982;">Voyage</span></h1>
+      <p style="font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #DDEFE8; margin-top: 6px;">Bespoke Sri Lanka Travel</p>
+    </div>
+    <div style="padding: 32px;">
+      <div style="background: #FEF2F2; border: 1px solid #FECACA; padding: 14px 18px; border-radius: 14px; margin-bottom: 22px; text-align: center;">
+        <span style="color: #991B1B; font-weight: bold; font-size: 14px;">Booking Request Status: Not Confirmed</span>
+      </div>
+      <p>Hello <strong>${escapeHtml(params.name)}</strong>,</p>
+      <p>Thank you for your interest in traveling with LankaVoyage. After reviewing operational availability for <strong>${escapeHtml(params.tourTitle)}</strong> (Ref: <strong>${escapeHtml(params.bookingCode)}</strong>), our operations team is unable to confirm your booking for the requested dates.</p>
+      
+      ${params.reason ? `<p style="background: #F8F7F2; padding: 12px 16px; border-radius: 12px; font-size: 13px; color: #4B5563;"><strong>Note from concierge:</strong> ${escapeHtml(params.reason)}</p>` : ''}
+
+      <p style="font-size: 13px; color: #4B5563;">No payment has been charged. We invite you to explore alternative dates or custom itineraries with our travel specialists.</p>
+      <p style="font-size: 11px; color: #8C9993; text-align: center; border-top: 1px solid #F0EEE6; padding-top: 16px; margin-top: 24px;">
+        Dedicated Chauffeur & VIP Airport Transfers &bull; LankaVoyage Ltd.
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+`;
+
+      const response = await resend.emails.send({
+        from: fromEmail,
+        to: [params.to],
+        subject,
+        html: htmlContent
+      });
+
+      return { success: !response.error, id: response.data?.id, error: response.error?.message };
+    } catch (err: any) {
       return { success: false, error: err.message };
     }
   }

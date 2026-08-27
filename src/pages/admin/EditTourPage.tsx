@@ -10,6 +10,7 @@ import {
   MapPin
 } from 'lucide-react';
 import { tourService } from '../../services/tourService';
+import { adminService } from '../../services/adminService';
 import type { TourCategory, TourDifficulty, ItineraryDay } from '../../types';
 
 export const EditTourPage: React.FC = () => {
@@ -88,7 +89,7 @@ export const EditTourPage: React.FC = () => {
     setItinerary(list);
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     const destList = destinationsStr.split(',').map(s => s.trim()).filter(Boolean);
 
@@ -130,13 +131,18 @@ export const EditTourPage: React.FC = () => {
       faqs: [{ question: 'Is the itinerary fixed?', answer: 'Yes, all days and destinations follow the expertly curated itinerary.' }]
     };
 
-    if (isNew) {
-      tourService.createTour(tourData as any);
-    } else {
-      tourService.updateTour(id!, tourData);
+    try {
+      if (isNew) {
+        tourService.createTour(tourData as any);
+        await adminService.createTour(tourData as any).catch((_e: any) => console.warn('Admin API tour creation note:', _e));
+      } else {
+        tourService.updateTour(id!, tourData);
+        await adminService.updateTour(id!, tourData).catch((_e: any) => console.warn('Admin API tour update note:', _e));
+      }
+      navigate('/admin/tours');
+    } catch (err: any) {
+      alert(err.message || 'Failed to save tour.');
     }
-
-    navigate('/admin/tours');
   };
 
   return (

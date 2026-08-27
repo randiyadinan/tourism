@@ -1,0 +1,190 @@
+export interface ServerDestinationRecord {
+  id: string;
+  slug: string;
+  name: string;
+  sinhalaName?: string;
+  province: string;
+  tagline: string;
+  shortDescription: string;
+  overview: string;
+  heroImage: string;
+  gallery: string[];
+  bestTimeToVisit: string;
+  recommendedDuration: string;
+  startingPrice: number;
+  rating: number;
+  reviewCount: number;
+  popularActivities: string[];
+  attractions: Array<{
+    name: string;
+    description: string;
+    image: string;
+    entranceFee?: string;
+  }>;
+  featured: boolean;
+  active: boolean;
+  adultTicketPrice?: number;
+  childTicketPrice?: number;
+  region?: string;
+  subtitle?: string;
+  image?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+const INITIAL_SERVER_DESTINATIONS: ServerDestinationRecord[] = [
+  {
+    id: 'dest-sigiriya',
+    slug: 'sigiriya',
+    name: 'Sigiriya',
+    sinhalaName: 'සීගිරිය',
+    province: 'Central Province',
+    tagline: 'The Ancient Lion Rock Fortress & 8th Wonder',
+    shortDescription: 'Marvel at King Kashyapa’s 5th-century palace citadel rising 200 meters above emerald jungle canopies.',
+    overview: 'Sigiriya is a breathtaking UNESCO World Heritage site and an ancient masterpiece of architecture, urban planning, hydraulic engineering, and fresco artistry.',
+    heroImage: 'https://images.unsplash.com/photo-1588598198321-9735fd52455b?auto=format&fit=crop&w=1600&q=85',
+    gallery: [
+      'https://images.unsplash.com/photo-1588598198321-9735fd52455b?auto=format&fit=crop&w=800&q=80'
+    ],
+    bestTimeToVisit: 'November to April (Dry & sunny)',
+    recommendedDuration: '2 - 3 Days',
+    startingPrice: 55000,
+    rating: 4.95,
+    reviewCount: 428,
+    popularActivities: ['Sigiriya Rock Fortress Climb', 'Pidurangala Sunrise Hike', 'Minneriya Elephant Gathering Safari'],
+    attractions: [
+      {
+        name: 'Sigiriya Lion Rock Citadel',
+        description: 'Ascend through ancient landscaped water gardens and sky-high staircases flanked by colossal lion paws.',
+        image: 'https://images.unsplash.com/photo-1588598198321-9735fd52455b?auto=format&fit=crop&w=800&q=80',
+        entranceFee: 'LKR 11,000 per person'
+      }
+    ],
+    featured: true,
+    active: true,
+    adultTicketPrice: 6500,
+    childTicketPrice: 3250,
+    region: 'Central Cultural Triangle',
+    subtitle: 'Ancient 5th Century Citadel',
+    image: 'https://images.unsplash.com/photo-1588598198321-9735fd52455b?auto=format&fit=crop&w=800&q=80',
+    createdAt: '2026-01-10T10:00:00Z',
+    updatedAt: '2026-01-10T10:00:00Z'
+  },
+  {
+    id: 'dest-ella',
+    slug: 'ella',
+    name: 'Ella',
+    sinhalaName: 'ඇල්ල',
+    province: 'Uva Province',
+    tagline: 'Misty Peaks, Tea Hills & The Nine Arches Bridge',
+    shortDescription: 'A serene mountain enclave famed for pine forests, dramatic ravines, tea estates, and iconic colonial railway bridges.',
+    overview: 'Nestled deep in the central highlands, Ella is Sri Lanka’s favorite nature sanctuary.',
+    heroImage: 'https://images.unsplash.com/photo-1546708973-b339540b5162?auto=format&fit=crop&w=1600&q=85',
+    gallery: [
+      'https://images.unsplash.com/photo-1546708973-b339540b5162?auto=format&fit=crop&w=800&q=80'
+    ],
+    bestTimeToVisit: 'December to May',
+    recommendedDuration: '2 - 4 Days',
+    startingPrice: 48000,
+    rating: 4.92,
+    reviewCount: 382,
+    popularActivities: ['Nine Arches Bridge Train Watching', 'Little Adam’s Peak Hike', 'Ravana Falls Abseiling'],
+    attractions: [],
+    featured: true,
+    active: true,
+    adultTicketPrice: 3500,
+    childTicketPrice: 1750,
+    region: 'Central Highlands',
+    subtitle: 'Misty Mountains & Tea Estates',
+    image: 'https://images.unsplash.com/photo-1546708973-b339540b5162?auto=format&fit=crop&w=800&q=80',
+    createdAt: '2026-01-15T10:00:00Z',
+    updatedAt: '2026-01-15T10:00:00Z'
+  }
+];
+
+class DestinationStore {
+  private destinations: Map<string, ServerDestinationRecord> = new Map();
+
+  constructor() {
+    for (const d of INITIAL_SERVER_DESTINATIONS) {
+      this.destinations.set(d.id, { ...d });
+    }
+  }
+
+  getAllDestinations(): ServerDestinationRecord[] {
+    return Array.from(this.destinations.values());
+  }
+
+  getDestinationById(idOrSlug: string): ServerDestinationRecord | undefined {
+    const direct = this.destinations.get(idOrSlug);
+    if (direct) return direct;
+    return Array.from(this.destinations.values()).find(d => d.slug === idOrSlug);
+  }
+
+  createDestination(input: Omit<ServerDestinationRecord, 'id' | 'createdAt' | 'updatedAt' | 'rating' | 'reviewCount'> & { id?: string }): ServerDestinationRecord {
+    if (!input.name || !input.name.trim()) {
+      throw new Error('Destination name is required.');
+    }
+
+    const id = input.id || `dest-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    const slug = input.slug || input.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+
+    const newDest: ServerDestinationRecord = {
+      ...input,
+      id,
+      slug,
+      rating: 4.9,
+      reviewCount: 1,
+      featured: input.featured ?? false,
+      active: input.active ?? true,
+      gallery: input.gallery || [input.heroImage || input.image || 'https://images.unsplash.com/photo-1588598198321-9735fd52455b?auto=format&fit=crop&w=800&q=80'],
+      heroImage: input.heroImage || input.image || 'https://images.unsplash.com/photo-1588598198321-9735fd52455b?auto=format&fit=crop&w=800&q=80',
+      province: input.province || 'Central Province',
+      tagline: input.tagline || input.subtitle || 'Bespoke Sri Lanka Destination',
+      shortDescription: input.shortDescription || input.subtitle || 'Experience the beauty of Sri Lanka.',
+      overview: input.overview || input.shortDescription || 'Experience the beauty of Sri Lanka.',
+      bestTimeToVisit: input.bestTimeToVisit || 'Year-round',
+      recommendedDuration: input.recommendedDuration || '2 - 3 Days',
+      startingPrice: input.startingPrice || 35000,
+      popularActivities: input.popularActivities || ['Sightseeing', 'Cultural Tour'],
+      attractions: input.attractions || [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    this.destinations.set(id, newDest);
+    return newDest;
+  }
+
+  updateDestination(id: string, updates: Partial<ServerDestinationRecord>): ServerDestinationRecord | undefined {
+    const dest = this.getDestinationById(id);
+    if (!dest) return undefined;
+
+    const updated: ServerDestinationRecord = {
+      ...dest,
+      ...updates,
+      id: dest.id,
+      updatedAt: new Date().toISOString()
+    };
+
+    this.destinations.set(dest.id, updated);
+    return updated;
+  }
+
+  deleteDestination(id: string): boolean {
+    const dest = this.getDestinationById(id);
+    if (!dest) return false;
+    return this.destinations.delete(dest.id);
+  }
+
+  toggleActive(id: string): ServerDestinationRecord | undefined {
+    const dest = this.getDestinationById(id);
+    if (!dest) return undefined;
+    dest.active = !dest.active;
+    dest.updatedAt = new Date().toISOString();
+    this.destinations.set(dest.id, dest);
+    return dest;
+  }
+}
+
+export const destinationStore = new DestinationStore();
