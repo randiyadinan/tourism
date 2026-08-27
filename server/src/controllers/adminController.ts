@@ -523,39 +523,109 @@ export async function getAdminReports(c: Context) {
       .slice(0, 5);
 
     // 6. MONTHLY BUSINESS SUMMARY (Last 6-12 Months)
-    const monthlySummaryMap: Record<string, { month: string; bookings: number; confirmed: number; paid: number; revenue: number }> = {};
+    const monthlySummaryMap: Record<string, {
+      month: string;
+      bookings: number;
+      pending: number;
+      confirmed: number;
+      rejected: number;
+      paid: number;
+      unpaid: number;
+      totalRevenue: number;
+      paidRevenue: number;
+      outstandingRevenue: number;
+      revenue: number; // backward compatibility
+    }> = {};
+
     for (const b of allBookings) {
       const date = new Date(b.createdAt || b.startDate);
       const monthKey = date.toLocaleString('en-US', { month: 'short', year: 'numeric' });
       if (!monthlySummaryMap[monthKey]) {
-        monthlySummaryMap[monthKey] = { month: monthKey, bookings: 0, confirmed: 0, paid: 0, revenue: 0 };
+        monthlySummaryMap[monthKey] = {
+          month: monthKey,
+          bookings: 0,
+          pending: 0,
+          confirmed: 0,
+          rejected: 0,
+          paid: 0,
+          unpaid: 0,
+          totalRevenue: 0,
+          paidRevenue: 0,
+          outstandingRevenue: 0,
+          revenue: 0
+        };
       }
       monthlySummaryMap[monthKey].bookings += 1;
-      if (b.bookingStatus === 'Confirmed' || b.bookingStatus === 'Completed') {
-        monthlySummaryMap[monthKey].confirmed += 1;
-      }
-      if (b.paymentStatus === 'PAID' || b.paymentStatus === 'Fully Paid') {
+      if (b.bookingStatus === 'Pending') monthlySummaryMap[monthKey].pending += 1;
+      if (b.bookingStatus === 'Confirmed' || b.bookingStatus === 'Completed') monthlySummaryMap[monthKey].confirmed += 1;
+      if (b.bookingStatus === 'Rejected' || b.bookingStatus === 'Cancelled') monthlySummaryMap[monthKey].rejected += 1;
+
+      const isPaid = b.paymentStatus === 'PAID' || b.paymentStatus === 'Fully Paid';
+      const paidAmt = b.amountPaid || (isPaid ? b.totalAmount : 0);
+      const totalAmt = b.totalAmount || 0;
+
+      if (isPaid) {
         monthlySummaryMap[monthKey].paid += 1;
+      } else {
+        monthlySummaryMap[monthKey].unpaid += 1;
       }
-      monthlySummaryMap[monthKey].revenue += (b.amountPaid || (b.paymentStatus === 'PAID' ? b.totalAmount : 0));
+
+      monthlySummaryMap[monthKey].totalRevenue += totalAmt;
+      monthlySummaryMap[monthKey].paidRevenue += paidAmt;
+      monthlySummaryMap[monthKey].outstandingRevenue += Math.max(0, totalAmt - paidAmt);
+      monthlySummaryMap[monthKey].revenue += paidAmt;
     }
 
     const monthlySummary = Object.values(monthlySummaryMap).slice(-8);
 
-    // 7. RECENT BUSINESS ACTIVITY
-    const recentActivity = allBookings
-      .slice(-10)
-      .reverse()
-      .map(b => ({
-        id: b.id,
-        bookingCode: b.bookingCode,
-        customerName: b.customerName,
-        tourTitle: b.tourTitle,
-        totalAmount: b.totalAmount,
-        bookingStatus: b.bookingStatus,
-        paymentStatus: b.paymentStatus,
-        timestamp: b.updatedAt || b.createdAt
-      }));
+    // 7. RECENT BUSINESS ACTIVITY (Bookings, Payments, Customer Registrations)
+    const recentActivityList: Array<{
+      id: string;
+      type: 'BOOKING' | 'PAYMENT' | 'CUSTOMER';
+      title: string;
+      description: string;
+      amount?: number;
+      status: string;
+      timestamp: string;
+    }> = [];
+
+    for (const b of allBookings.slice(-6)) {
+      recentActivityList.push({
+        id: `act-bk-${b.id}`,
+        type: 'BOOKING',
+        title: `Booking ${b.bookingCode}`,
+        description: `${b.customerName} - ${b.tourTitle || 'Custom Itinerary'}`,
+        amount: b.totalAmount,
+        status: b.bookingStatus,
+        timestamp: b.createdAt
+      });
+      if (b.paymentStatus === 'PAID' || b.paymentStatus === 'Fully Paid') {
+        recentActivityList.push({
+          id: `act-pay-${b.id}`,
+          type: 'PAYMENT',
+          title: `Payment Received (${b.bookingCode})`,
+          description: `${b.paymentMethod || 'PayHere Online'} - ${b.customerName}`,
+          amount: b.amountPaid || b.totalAmount,
+          status: 'PAID',
+          timestamp: b.updatedAt || b.createdAt
+        });
+      }
+    }
+
+    for (const u of customersOnly.slice(-4)) {
+      recentActivityList.push({
+        id: `act-user-${u.id}`,
+        type: 'CUSTOMER',
+        title: `New Traveler Registered`,
+        description: `${u.name} (${u.country || 'International'})`,
+        status: u.emailVerified ? 'Verified' : 'Pending Verification',
+        timestamp: u.createdAt instanceof Date ? u.createdAt.toISOString() : String(u.createdAt)
+      });
+    }
+
+    const recentActivity = recentActivityList
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      .slice(0, 10);
 
     // 8. PENDING ADMINISTRATIVE ACTIONS
     const pendingActions = {

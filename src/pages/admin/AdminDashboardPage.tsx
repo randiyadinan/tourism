@@ -64,7 +64,6 @@ export const AdminDashboardPage: React.FC = () => {
 
   const overview = reportsData?.overview;
   const topTours = reportsData?.topTours || [];
-  const customerAnalytics = reportsData?.customerAnalytics;
   const monthlySummary = reportsData?.monthlySummary || [];
   const recentActivity = reportsData?.recentActivity || [];
   const pendingActions = reportsData?.pendingActions;
@@ -122,62 +121,80 @@ export const AdminDashboardPage: React.FC = () => {
         </div>
       )}
 
-      {/* 2. Top Summary KPI Cards (Real Backend Data) */}
+      {/* 2. Top Summary KPI Cards (All 8 Core Metrics) */}
       {overview && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           
-          {/* Total Revenue */}
+          {/* 1. Total Customers */}
           <div className="liquid-glass-white p-4 rounded-2xl border border-white/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.06)] space-y-1">
-            <span className="text-[10px] text-stone-400 font-bold uppercase block">Total Revenue</span>
-            <span className="font-serif text-xl font-bold text-emerald-800 block truncate">
-              {formatPrice(overview.totalRevenue)}
-            </span>
-            <p className="text-[10px] text-stone-500">Collected Funds (LKR)</p>
-          </div>
-
-          {/* Total Bookings */}
-          <div className="liquid-glass-white p-4 rounded-2xl border border-white/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.06)] space-y-1">
-            <span className="text-[10px] text-stone-400 font-bold uppercase block">Total Bookings</span>
-            <span className="font-serif text-xl font-bold text-[#062C22] block">
-              {overview.totalBookings}
-            </span>
-            <p className="text-[10px] text-emerald-700 font-bold">{overview.conversionRate}% Conversion</p>
-          </div>
-
-          {/* Pending Bookings */}
-          <div className="liquid-glass-white p-4 rounded-2xl border border-white/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.06)] space-y-1">
-            <span className="text-[10px] text-stone-400 font-bold uppercase block">Pending Bookings</span>
-            <span className="font-serif text-xl font-bold text-amber-700 block">
-              {overview.pendingBookings}
-            </span>
-            <p className="text-[10px] text-stone-500">Awaiting Admin Review</p>
-          </div>
-
-          {/* Confirmed Bookings */}
-          <div className="liquid-glass-white p-4 rounded-2xl border border-white/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.06)] space-y-1">
-            <span className="text-[10px] text-stone-400 font-bold uppercase block">Confirmed Bookings</span>
-            <span className="font-serif text-xl font-bold text-[#0B3D2E] block">
-              {overview.confirmedBookings}
-            </span>
-            <p className="text-[10px] text-stone-500">Payment Unlocked</p>
-          </div>
-
-          {/* Total Customers */}
-          <div className="liquid-glass-white p-4 rounded-2xl border border-white/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.06)] space-y-1">
-            <span className="text-[10px] text-stone-400 font-bold uppercase block">Total Customers</span>
-            <span className="font-serif text-xl font-bold text-[#062C22] block">
+            <span className="text-[10px] text-stone-400 font-bold uppercase block">1. Total Customers</span>
+            <span className="font-serif text-2xl font-bold text-[#062C22] block">
               {overview.totalCustomers}
             </span>
             <p className="text-[10px] text-stone-500">Registered Travelers</p>
           </div>
 
-          {/* Unpaid Confirmed Bookings */}
+          {/* 2. Total Bookings */}
           <div className="liquid-glass-white p-4 rounded-2xl border border-white/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.06)] space-y-1">
-            <span className="text-[10px] text-stone-400 font-bold uppercase block">Unpaid Confirmed</span>
-            <span className="font-serif text-xl font-bold text-rose-700 block">
-              {pendingActions?.unpaidConfirmedCount || 0}
+            <span className="text-[10px] text-stone-400 font-bold uppercase block">2. Total Bookings</span>
+            <span className="font-serif text-2xl font-bold text-[#062C22] block">
+              {overview.totalBookings}
             </span>
-            <p className="text-[10px] text-stone-500">Waiting for Payment</p>
+            <p className="text-[10px] text-emerald-700 font-bold">{overview.conversionRate}% Conversion</p>
+          </div>
+
+          {/* 3. Total Revenue */}
+          <div className="liquid-glass-white p-4 rounded-2xl border border-white/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.06)] space-y-1">
+            <span className="text-[10px] text-stone-400 font-bold uppercase block">3. Total Revenue</span>
+            <span className="font-serif text-2xl font-bold text-[#0B3D2E] block truncate">
+              {formatPrice(overview.totalExpectedAmount || overview.totalRevenue)}
+            </span>
+            <p className="text-[10px] text-stone-500">Gross Booking Value</p>
+          </div>
+
+          {/* 4. Paid Revenue */}
+          <div className="liquid-glass-white p-4 rounded-2xl border border-white/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.06)] space-y-1">
+            <span className="text-[10px] text-stone-400 font-bold uppercase block">4. Paid Revenue</span>
+            <span className="font-serif text-2xl font-bold text-emerald-800 block truncate">
+              {formatPrice(overview.totalRevenue)}
+            </span>
+            <p className="text-[10px] text-emerald-700 font-bold">Collected Funds</p>
+          </div>
+
+          {/* 5. Outstanding Amount */}
+          <div className="liquid-glass-white p-4 rounded-2xl border border-white/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.06)] space-y-1">
+            <span className="text-[10px] text-stone-400 font-bold uppercase block">5. Outstanding Amount</span>
+            <span className="font-serif text-2xl font-bold text-amber-800 block truncate">
+              {formatPrice(overview.outstandingAmount)}
+            </span>
+            <p className="text-[10px] text-stone-500">Uncollected Balance</p>
+          </div>
+
+          {/* 6. Pending Bookings */}
+          <div className="liquid-glass-white p-4 rounded-2xl border border-white/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.06)] space-y-1">
+            <span className="text-[10px] text-stone-400 font-bold uppercase block">6. Pending Bookings</span>
+            <span className="font-serif text-2xl font-bold text-amber-700 block">
+              {overview.pendingBookings}
+            </span>
+            <p className="text-[10px] text-stone-500">Awaiting Admin Review</p>
+          </div>
+
+          {/* 7. Confirmed Bookings */}
+          <div className="liquid-glass-white p-4 rounded-2xl border border-white/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.06)] space-y-1">
+            <span className="text-[10px] text-stone-400 font-bold uppercase block">7. Confirmed Bookings</span>
+            <span className="font-serif text-2xl font-bold text-[#176B52] block">
+              {overview.confirmedBookings}
+            </span>
+            <p className="text-[10px] text-stone-500">Payment Unlocked</p>
+          </div>
+
+          {/* 8. Rejected Bookings */}
+          <div className="liquid-glass-white p-4 rounded-2xl border border-white/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.06)] space-y-1">
+            <span className="text-[10px] text-stone-400 font-bold uppercase block">8. Rejected Bookings</span>
+            <span className="font-serif text-2xl font-bold text-rose-700 block">
+              {overview.rejectedBookings}
+            </span>
+            <p className="text-[10px] text-stone-500">Declined Requests</p>
           </div>
 
         </div>
@@ -216,80 +233,99 @@ export const AdminDashboardPage: React.FC = () => {
       {overview && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           
-          {/* Revenue & Booking Over Time Chart */}
+          {/* Revenue Analytics Timeline */}
           <div className="lg:col-span-8 liquid-glass-white p-6 rounded-3xl border border-white/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.06)] space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
                 <h3 className="font-serif text-lg font-bold text-[#062C22] flex items-center gap-2">
                   <BarChart3 className="w-5 h-5 text-[#176B52]" />
-                  Revenue & Booking Volume Timeline
+                  Revenue Analytics
                 </h3>
-                <p className="text-xs text-stone-400">Monthly gross turnover & booking conversion</p>
+                <p className="text-xs text-stone-400">Monthly gross total, collected revenue, and outstanding balance</p>
               </div>
-              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#F8F7F2] text-[#0B3D2E] border border-stone-200">
-                Avg Value: {formatPrice(overview.averageBookingValue)}
-              </span>
+              <div className="flex items-center gap-3 text-[10px] font-bold">
+                <span className="flex items-center gap-1 text-emerald-800">
+                  <span className="w-2.5 h-2.5 rounded-sm bg-[#176B52]" /> Paid
+                </span>
+                <span className="flex items-center gap-1 text-amber-700">
+                  <span className="w-2.5 h-2.5 rounded-sm bg-amber-400" /> Outstanding
+                </span>
+              </div>
             </div>
 
             {monthlySummary.length > 0 ? (
-              <div className="space-y-3.5 pt-2">
+              <div className="space-y-4 pt-2">
                 {monthlySummary.map((m: any, idx: number) => {
-                  const maxRevenue = Math.max(...monthlySummary.map((item: any) => item.revenue), 1);
-                  const pct = Math.round((m.revenue / maxRevenue) * 100);
+                  const maxRevenue = Math.max(...monthlySummary.map((item: any) => item.totalRevenue || item.revenue), 1);
+                  const paidPct = Math.round(((m.paidRevenue || m.revenue) / maxRevenue) * 100);
+                  const outstandingPct = Math.round(((m.outstandingRevenue || 0) / maxRevenue) * 100);
 
                   return (
-                    <div key={idx} className="space-y-1 text-xs">
+                    <div key={idx} className="space-y-1.5 text-xs">
                       <div className="flex justify-between font-bold text-[#062C22]">
                         <span className="flex items-center gap-2">
-                          <span>{m.month}</span>
-                          <span className="text-[11px] font-semibold text-stone-500">
-                            ({m.bookings} trips &bull; {m.paid} paid)
+                          <span className="font-serif">{m.month}</span>
+                          <span className="text-[11px] font-normal text-stone-500">
+                            ({m.bookings} total &bull; {m.paid} paid &bull; {m.unpaid || 0} unpaid)
                           </span>
                         </span>
-                        <span className="text-emerald-800">{formatPrice(m.revenue)}</span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-emerald-800 font-bold">{formatPrice(m.paidRevenue || m.revenue)}</span>
+                          {m.outstandingRevenue > 0 && (
+                            <span className="text-amber-700 text-[11px]">({formatPrice(m.outstandingRevenue)} due)</span>
+                          )}
+                        </div>
                       </div>
-                      <div className="h-3 bg-stone-100 rounded-full overflow-hidden flex">
+                      <div className="h-3 bg-stone-100 rounded-full overflow-hidden flex gap-1 p-0.5">
                         <div
-                          className="bg-gradient-to-r from-[#0B3D2E] to-[#39A982] rounded-full transition-all duration-500"
-                          style={{ width: `${Math.max(6, pct)}%` }}
+                          className="bg-[#176B52] rounded-full transition-all duration-500"
+                          style={{ width: `${Math.max(4, paidPct)}%` }}
+                          title={`Paid: ${formatPrice(m.paidRevenue || m.revenue)}`}
                         />
+                        {outstandingPct > 0 && (
+                          <div
+                            className="bg-amber-400 rounded-full transition-all duration-500"
+                            style={{ width: `${Math.max(4, outstandingPct)}%` }}
+                            title={`Outstanding: ${formatPrice(m.outstandingRevenue)}`}
+                          />
+                        )}
                       </div>
                     </div>
                   );
                 })}
               </div>
             ) : (
-              <p className="text-xs text-stone-400 py-8 text-center">No monthly historical transactions found.</p>
+              <p className="text-xs text-stone-400 py-8 text-center">No monthly revenue data available.</p>
             )}
           </div>
 
-          {/* Booking Status & Payment Channels */}
+          {/* Booking Analytics Breakdown */}
           <div className="lg:col-span-4 space-y-6">
             
-            {/* Booking Status Breakdown */}
+            {/* Booking Analytics */}
             <div className="liquid-glass-white p-6 rounded-3xl border border-white/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.06)] space-y-3">
-              <h3 className="font-serif text-base font-bold text-[#062C22]">Booking Status Breakdown</h3>
+              <h3 className="font-serif text-base font-bold text-[#062C22]">Booking Analytics</h3>
               
               <div className="space-y-2 text-xs">
-                <div className="flex justify-between items-center p-2 rounded-xl bg-amber-50 border border-amber-200/80 text-amber-900 font-bold">
-                  <span>Pending Review</span>
-                  <span>{overview.pendingBookings}</span>
+                <div className="flex justify-between items-center p-2.5 rounded-xl bg-amber-50 border border-amber-200/80 text-amber-900 font-bold">
+                  <span>Pending</span>
+                  <span className="px-2 py-0.5 rounded-md bg-amber-200/60">{overview.pendingBookings}</span>
                 </div>
-                <div className="flex justify-between items-center p-2 rounded-xl bg-emerald-50 border border-emerald-200/80 text-emerald-900 font-bold">
-                  <span>Confirmed Trips</span>
-                  <span>{overview.confirmedBookings}</span>
+                <div className="flex justify-between items-center p-2.5 rounded-xl bg-emerald-50 border border-emerald-200/80 text-emerald-900 font-bold">
+                  <span>Confirmed</span>
+                  <span className="px-2 py-0.5 rounded-md bg-emerald-200/60">{overview.confirmedBookings}</span>
                 </div>
-                <div className="flex justify-between items-center p-2 rounded-xl bg-rose-50 border border-rose-200/80 text-rose-900 font-bold">
-                  <span>Rejected / Cancelled</span>
-                  <span>{overview.rejectedBookings + overview.cancelledBookings}</span>
+                <div className="flex justify-between items-center p-2.5 rounded-xl bg-rose-50 border border-rose-200/80 text-rose-900 font-bold">
+                  <span>Rejected</span>
+                  <span className="px-2 py-0.5 rounded-md bg-rose-200/60">{overview.rejectedBookings}</span>
                 </div>
-                <div className="flex justify-between items-center p-2 rounded-xl bg-teal-50 border border-teal-200/80 text-teal-900 font-bold">
-                  <span>Paid Orders</span>
-                  <span>{overview.paidBookings}</span>
+                <div className="flex justify-between items-center p-2.5 rounded-xl bg-teal-50 border border-teal-200/80 text-teal-900 font-bold">
+                  <span>Paid</span>
+                  <span className="px-2 py-0.5 rounded-md bg-teal-200/60">{overview.paidBookings}</span>
                 </div>
-                <div className="flex justify-between items-center p-2 rounded-xl bg-stone-100 border border-stone-200 text-stone-700 font-bold">
-                  <span>Unpaid Invoices</span>
-                  <span>{overview.unpaidBookings}</span>
+                <div className="flex justify-between items-center p-2.5 rounded-xl bg-stone-100 border border-stone-200 text-stone-700 font-bold">
+                  <span>Unpaid</span>
+                  <span className="px-2 py-0.5 rounded-md bg-stone-200">{overview.unpaidBookings}</span>
                 </div>
               </div>
             </div>
@@ -304,7 +340,7 @@ export const AdminDashboardPage: React.FC = () => {
               <div className="space-y-2 text-xs">
                 {Object.keys(revenueByMethod).length > 0 ? (
                   Object.entries(revenueByMethod).map(([method, amount]: [string, any], idx) => (
-                    <div key={idx} className="flex justify-between items-center p-2 rounded-xl bg-[#F8F7F2] border border-stone-200/80 font-medium">
+                    <div key={idx} className="flex justify-between items-center p-2.5 rounded-xl bg-[#F8F7F2] border border-stone-200/80 font-medium">
                       <span className="text-[#062C22] font-bold">{method}</span>
                       <span className="text-emerald-800 font-bold">{formatPrice(amount)}</span>
                     </div>
@@ -320,19 +356,19 @@ export const AdminDashboardPage: React.FC = () => {
         </div>
       )}
 
-      {/* 5. Top Tours & Customer Overview */}
+      {/* 5. Popular Tours & Popular Destinations */}
       {overview && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           
-          {/* Top 5 Tours */}
+          {/* Top 5 Popular Tours */}
           <div className="liquid-glass-white p-6 rounded-3xl border border-white/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.06)] space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-serif text-lg font-bold text-[#062C22] flex items-center gap-2">
                 <Compass className="w-5 h-5 text-[#176B52]" />
-                Top Performing Tours
+                Popular Tours (Top 5)
               </h3>
               <Link to="/admin/tours" className="text-xs font-bold text-[#176B52] hover:underline">
-                View All Tours &rarr;
+                Manage Tours &rarr;
               </Link>
             </div>
 
@@ -341,8 +377,13 @@ export const AdminDashboardPage: React.FC = () => {
                 {topTours.map((t: any, idx: number) => (
                   <div key={idx} className="p-3.5 bg-[#F8F7F2] rounded-2xl border border-stone-200/80 flex items-center justify-between text-xs">
                     <div className="space-y-0.5 max-w-[260px]">
-                      <h4 className="font-bold text-[#062C22] truncate">{t.name}</h4>
-                      <p className="text-[10px] text-stone-500">{t.bookingsCount} Total Bookings</p>
+                      <div className="flex items-center gap-2">
+                        <span className="w-5 h-5 rounded-full bg-[#062C22] text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+                          {idx + 1}
+                        </span>
+                        <h4 className="font-bold text-[#062C22] truncate">{t.name}</h4>
+                      </div>
+                      <p className="text-[10px] text-stone-500 pl-7">{t.bookingsCount} Bookings</p>
                     </div>
                     <div className="text-right">
                       <div className="font-bold text-emerald-800">{formatPrice(t.revenue)}</div>
@@ -356,62 +397,47 @@ export const AdminDashboardPage: React.FC = () => {
             )}
           </div>
 
-          {/* Customer Overview & Top Spenders */}
+          {/* Popular Destinations */}
           <div className="liquid-glass-white p-6 rounded-3xl border border-white/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.06)] space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-serif text-lg font-bold text-[#062C22] flex items-center gap-2">
-                <Users className="w-5 h-5 text-[#176B52]" />
-                Customer Intelligence
+                <MapPin className="w-5 h-5 text-[#176B52]" />
+                Popular Destinations
               </h3>
-              <Link to="/admin/customers" className="text-xs font-bold text-[#176B52] hover:underline">
-                View Directory &rarr;
+              <Link to="/admin/destinations" className="text-xs font-bold text-[#176B52] hover:underline">
+                Manage Destinations &rarr;
               </Link>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
-              <div className="p-2.5 bg-[#F8F7F2] rounded-xl border border-stone-200/80">
-                <span className="text-[10px] text-stone-400 uppercase font-bold block">Total</span>
-                <span className="font-bold text-[#062C22] text-sm">{customerAnalytics?.totalCustomers || 0}</span>
-              </div>
-              <div className="p-2.5 bg-[#F8F7F2] rounded-xl border border-stone-200/80">
-                <span className="text-[10px] text-stone-400 uppercase font-bold block">Verified</span>
-                <span className="font-bold text-emerald-800 text-sm">{customerAnalytics?.verifiedCustomers || 0}</span>
-              </div>
-              <div className="p-2.5 bg-[#F8F7F2] rounded-xl border border-stone-200/80">
-                <span className="text-[10px] text-stone-400 uppercase font-bold block">This Month</span>
-                <span className="font-bold text-[#0B3D2E] text-sm">{customerAnalytics?.newCustomersThisMonth || 0}</span>
-              </div>
-              <div className="p-2.5 bg-[#F8F7F2] rounded-xl border border-stone-200/80">
-                <span className="text-[10px] text-stone-400 uppercase font-bold block">Bookers</span>
-                <span className="font-bold text-[#176B52] text-sm">{customerAnalytics?.customersWithBookings || 0}</span>
-              </div>
-            </div>
-
-            {/* Top Customers Leaderboard */}
-            <div className="space-y-2">
-              <span className="text-[10px] font-bold text-stone-400 uppercase block">Top Traveler Spenders</span>
-              {customerAnalytics?.topCustomers?.length > 0 ? (
-                customerAnalytics.topCustomers.map((cust: any) => (
-                  <div key={cust.id} className="p-2.5 bg-[#F8F7F2] rounded-xl border border-stone-200/80 flex items-center justify-between text-xs">
-                    <div>
-                      <div className="font-bold text-[#062C22]">{cust.name}</div>
-                      <div className="text-[10px] text-stone-400">{cust.country} &bull; {cust.bookingsCount} trips</div>
+            {reportsData?.topDestinations && reportsData.topDestinations.length > 0 ? (
+              <div className="space-y-2.5">
+                {reportsData.topDestinations.map((d: any, idx: number) => (
+                  <div key={idx} className="p-3.5 bg-[#F8F7F2] rounded-2xl border border-stone-200/80 flex items-center justify-between text-xs">
+                    <div className="space-y-0.5 max-w-[260px]">
+                      <div className="flex items-center gap-2">
+                        <span className="w-5 h-5 rounded-full bg-[#176B52] text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+                          {idx + 1}
+                        </span>
+                        <h4 className="font-bold text-[#062C22] truncate">{d.name}</h4>
+                      </div>
+                      <p className="text-[10px] text-stone-500 pl-7">{d.bookingsCount} Traveler Bookings</p>
                     </div>
-                    <div className="font-bold text-emerald-800">
-                      {formatPrice(cust.totalSpend)}
+                    <div className="text-right">
+                      <div className="font-bold text-emerald-800">{formatPrice(d.revenue)}</div>
+                      <div className="text-[10px] text-stone-400">Revenue Share</div>
                     </div>
                   </div>
-                ))
-              ) : (
-                <p className="text-xs text-stone-400 text-center py-2">No customer spending records.</p>
-              )}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-stone-400 py-6 text-center">No destination booking data recorded yet.</p>
+            )}
           </div>
 
         </div>
       )}
 
-      {/* 6. Recent Business Activity */}
+      {/* 6. Recent Business Activity (Bookings, Payments, Customer Registrations) */}
       {recentActivity.length > 0 && (
         <div className="liquid-glass-white p-6 rounded-3xl border border-white/80 shadow-[0_4px_20px_-4px_rgba(6,44,34,0.06)] space-y-4">
           <div className="flex items-center justify-between">
@@ -423,20 +449,33 @@ export const AdminDashboardPage: React.FC = () => {
 
           <div className="space-y-2">
             {recentActivity.map((act: any) => (
-              <div key={act.id} className="p-3 bg-[#F8F7F2] rounded-xl border border-stone-200/80 flex items-center justify-between text-xs">
-                <div className="flex items-center gap-3">
-                  <span className="font-mono font-bold text-[#176B52]">{act.bookingCode}</span>
-                  <span className="font-bold text-[#062C22]">{act.customerName}</span>
-                  <span className="text-stone-400 hidden sm:inline">&bull; {act.tourTitle}</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                    act.bookingStatus === 'Confirmed' ? 'bg-emerald-100 text-emerald-800' :
-                    act.bookingStatus === 'Pending' ? 'bg-amber-100 text-amber-800' : 'bg-stone-200 text-stone-700'
+              <div key={act.id} className="p-3 bg-[#F8F7F2] rounded-xl border border-stone-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                <div className="flex items-center gap-2.5">
+                  <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase ${
+                    act.type === 'PAYMENT' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' :
+                    act.type === 'CUSTOMER' ? 'bg-indigo-100 text-indigo-800 border border-indigo-200' :
+                    'bg-amber-100 text-amber-800 border border-amber-200'
                   }`}>
-                    {act.bookingStatus}
+                    {act.type || 'BOOKING'}
                   </span>
-                  <span className="font-bold text-[#062C22]">{formatPrice(act.totalAmount)}</span>
+                  <div>
+                    <span className="font-bold text-[#062C22]">{act.title || act.customerName}</span>
+                    <span className="text-stone-500 ml-2">{act.description || act.tourTitle}</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
+                  {act.amount !== undefined && (
+                    <span className="font-bold text-emerald-800">{formatPrice(act.amount)}</span>
+                  )}
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                    act.status === 'Confirmed' || act.status === 'PAID' || act.status === 'Verified' ? 'bg-emerald-100 text-emerald-800' :
+                    act.status === 'Pending' || act.status === 'Pending Verification' ? 'bg-amber-100 text-amber-800' : 'bg-stone-200 text-stone-700'
+                  }`}>
+                    {act.status}
+                  </span>
+                  <span className="text-[10px] text-stone-400">
+                    {act.timestamp ? new Date(act.timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''}
+                  </span>
                 </div>
               </div>
             ))}
