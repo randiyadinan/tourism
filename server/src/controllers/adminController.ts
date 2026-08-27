@@ -357,3 +357,258 @@ export async function deleteAdminDestination(c: Context) {
     return c.json({ success: false, error: error.message || 'Failed to delete destination' }, 500);
   }
 }
+
+// ══════════════════════════════════════════════════════════════════════
+// 5. ADMIN BUSINESS REPORTS & ANALYTICS
+// ══════════════════════════════════════════════════════════════════════
+
+export async function getAdminReports(c: Context) {
+  try {
+    const period = c.req.query('period') || 'all'; // 'today', '7d', '30d', 'this_month', 'this_year', 'all', or custom
+    const startDateQuery = c.req.query('startDate');
+    const endDateQuery = c.req.query('endDate');
+
+    const allBookings = bookingStore.getAllBookings();
+    const allUsers = await authService.getAllUsers();
+    const allTours = tourStore.getAllTours();
+    const allDestinations = destinationStore.getAllDestinations();
+
+    const now = new Date();
+
+    // Date filtering helper
+    let filterStart: Date | null = null;
+    let filterEnd: Date | null = null;
+
+    if (period === 'today') {
+      filterStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      filterEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+    } else if (period === '7d') {
+      filterStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      filterEnd = now;
+    } else if (period === '30d') {
+      filterStart = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      filterEnd = now;
+    } else if (period === 'this_month') {
+      filterStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      filterEnd = now;
+    } else if (period === 'this_year') {
+      filterStart = new Date(now.getFullYear(), 0, 1);
+      filterEnd = now;
+    } else if (startDateQuery && endDateQuery) {
+      filterStart = new Date(startDateQuery);
+      filterEnd = new Date(endDateQuery + 'T23:59:59.999Z');
+    }
+
+    const filteredBookings = allBookings.filter(b => {
+      if (!filterStart) return true;
+      const bDate = new Date(b.createdAt || b.startDate);
+      if (filterStart && bDate < filterStart) return false;
+      if (filterEnd && bDate > filterEnd) return false;
+      return true;
+    });
+
+    // 1. BUSINESS OVERVIEW
+    const totalBookings = filteredBookings.length;
+    const pendingBookings = filteredBookings.filter(b => b.bookingStatus === 'Pending').length;
+    const confirmedBookings = filteredBookings.filter(b => b.bookingStatus === 'Confirmed').length;
+    const rejectedBookings = filteredBookings.filter(b => b.bookingStatus === 'Rejected').length;
+    const completedBookings = filteredBookings.filter(b => b.bookingStatus === 'Completed').length;
+    const cancelledBookings = filteredBookings.filter(b => b.bookingStatus === 'Cancelled').length;
+
+    const paidBookings = filteredBookings.filter(b => b.paymentStatus === 'PAID' || b.paymentStatus === 'Fully Paid').length;
+    const unpaidBookings = filteredBookings.filter(b => b.paymentStatus === 'NOT PAID' || b.paymentStatus === 'Unpaid' || b.paymentStatus === 'FAILED').length;
+
+    // Real Financial Totals
+    const totalRevenue = filteredBookings.reduce((sum, b) => sum + (b.amountPaid || (b.paymentStatus === 'PAID' ? b.totalAmount : 0)), 0);
+    const totalExpectedAmount = filteredBookings.reduce((sum, b) => sum + (b.totalAmount || 0), 0);
+    const outstandingAmount = Math.max(0, totalExpectedAmount - totalRevenue);
+
+    // This Month & This Year Revenue
+    const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfCurrentYear = new Date(now.getFullYear(), 0, 1);
+
+    const revenueThisMonth = allBookings
+      .filter(b => new Date(b.createdAt || b.startDate) >= startOfCurrentMonth)
+      .reduce((sum, b) => sum + (b.amountPaid || (b.paymentStatus === 'PAID' ? b.totalAmount : 0)), 0);
+
+    const revenueThisYear = allBookings
+      .filter(b => new Date(b.createdAt || b.startDate) >= startOfCurrentYear)
+      .reduce((sum, b) => sum + (b.amountPaid || (b.paymentStatus === 'PAID' ? b.totalAmount : 0)), 0);
+
+    const averageBookingValue = totalBookings > 0 ? Math.round(totalExpectedAmount / totalBookings) : 0;
+    const conversionRate = totalBookings > 0 ? Number(((confirmedBookings + paidBookings) / (totalBookings || 1) * 100).toFixed(1)) : 0;
+
+    // 2. REVENUE BY PAYMENT METHOD
+    const revenueByMethod: Record<string, number> = {};
+    for (const b of filteredBookings) {
+      const method = b.paymentMethod || 'PayHere Online';
+      const paid = b.amountPaid || (b.paymentStatus === 'PAID' ? b.totalAmount : 0);
+      revenueByMethod[method] = (revenueByMethod[method] || 0) + paid;
+    }
+
+    // 3. TOP TOURS PERFORMANCE
+    const tourPerformanceMap: Record<string, { name: string; bookingsCount: number; revenue: number }> = {};
+    for (const b of filteredBookings) {
+      const tourName = b.tourTitle || 'Custom Trip / Transfer';
+      if (!tourPerformanceMap[tourName]) {
+        tourPerformanceMap[tourName] = { name: tourName, bookingsCount: 0, revenue: 0 };
+      }
+      tourPerformanceMap[tourName].bookingsCount += 1;
+      tourPerformanceMap[tourName].revenue += (b.amountPaid || (b.paymentStatus === 'PAID' ? b.totalAmount : 0));
+    }
+
+    const sortedTours = Object.values(tourPerformanceMap)
+      .map(t => ({
+        ...t,
+        averageValue: t.bookingsCount > 0 ? Math.round(t.revenue / t.bookingsCount) : 0
+      }))
+      .sort((a, b) => b.revenue - a.revenue);
+
+    const topTours = sortedTours.slice(0, 5);
+    const leastTours = sortedTours.length > 5 ? sortedTours.slice(-3).reverse() : [];
+
+    // 4. DESTINATION ANALYTICS
+    const destinationStatsMap: Record<string, { name: string; bookingsCount: number; revenue: number }> = {};
+    for (const b of filteredBookings) {
+      const dests = b.destinationsCovered && b.destinationsCovered.length > 0
+        ? b.destinationsCovered
+        : ['Colombo / Western'];
+      
+      const portionRevenue = (b.amountPaid || (b.paymentStatus === 'PAID' ? b.totalAmount : 0)) / dests.length;
+
+      for (const d of dests) {
+        if (!destinationStatsMap[d]) {
+          destinationStatsMap[d] = { name: d, bookingsCount: 0, revenue: 0 };
+        }
+        destinationStatsMap[d].bookingsCount += 1;
+        destinationStatsMap[d].revenue += Math.round(portionRevenue);
+      }
+    }
+
+    const topDestinations = Object.values(destinationStatsMap)
+      .sort((a, b) => b.bookingsCount - a.bookingsCount || b.revenue - a.revenue)
+      .slice(0, 6);
+
+    // 5. CUSTOMER ANALYTICS
+    const customersOnly = allUsers.filter(u => u.role === 'customer');
+    const totalCustomers = customersOnly.length;
+    const verifiedCustomers = customersOnly.filter(u => u.emailVerified).length;
+    const newCustomersThisMonth = customersOnly.filter(u => new Date(u.createdAt) >= startOfCurrentMonth).length;
+
+    const customerSpendMap: Record<string, { id: string; name: string; email: string; country: string; totalSpend: number; bookingsCount: number }> = {};
+    for (const c of customersOnly) {
+      customerSpendMap[c.id] = {
+        id: c.id,
+        name: c.name,
+        email: c.email,
+        country: c.country || 'International',
+        totalSpend: 0,
+        bookingsCount: 0
+      };
+    }
+
+    for (const b of allBookings) {
+      if (b.userId && customerSpendMap[b.userId]) {
+        customerSpendMap[b.userId].bookingsCount += 1;
+        customerSpendMap[b.userId].totalSpend += (b.amountPaid || (b.paymentStatus === 'PAID' ? b.totalAmount : 0));
+      }
+    }
+
+    const customersWithBookings = Object.values(customerSpendMap).filter(c => c.bookingsCount > 0).length;
+    const customersWithoutBookings = totalCustomers - customersWithBookings;
+    const totalCustomerSpend = Object.values(customerSpendMap).reduce((sum, c) => sum + c.totalSpend, 0);
+
+    const topCustomers = Object.values(customerSpendMap)
+      .sort((a, b) => b.totalSpend - a.totalSpend || b.bookingsCount - a.bookingsCount)
+      .slice(0, 5);
+
+    // 6. MONTHLY BUSINESS SUMMARY (Last 6-12 Months)
+    const monthlySummaryMap: Record<string, { month: string; bookings: number; confirmed: number; paid: number; revenue: number }> = {};
+    for (const b of allBookings) {
+      const date = new Date(b.createdAt || b.startDate);
+      const monthKey = date.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+      if (!monthlySummaryMap[monthKey]) {
+        monthlySummaryMap[monthKey] = { month: monthKey, bookings: 0, confirmed: 0, paid: 0, revenue: 0 };
+      }
+      monthlySummaryMap[monthKey].bookings += 1;
+      if (b.bookingStatus === 'Confirmed' || b.bookingStatus === 'Completed') {
+        monthlySummaryMap[monthKey].confirmed += 1;
+      }
+      if (b.paymentStatus === 'PAID' || b.paymentStatus === 'Fully Paid') {
+        monthlySummaryMap[monthKey].paid += 1;
+      }
+      monthlySummaryMap[monthKey].revenue += (b.amountPaid || (b.paymentStatus === 'PAID' ? b.totalAmount : 0));
+    }
+
+    const monthlySummary = Object.values(monthlySummaryMap).slice(-8);
+
+    // 7. RECENT BUSINESS ACTIVITY
+    const recentActivity = allBookings
+      .slice(-10)
+      .reverse()
+      .map(b => ({
+        id: b.id,
+        bookingCode: b.bookingCode,
+        customerName: b.customerName,
+        tourTitle: b.tourTitle,
+        totalAmount: b.totalAmount,
+        bookingStatus: b.bookingStatus,
+        paymentStatus: b.paymentStatus,
+        timestamp: b.updatedAt || b.createdAt
+      }));
+
+    // 8. PENDING ADMINISTRATIVE ACTIONS
+    const pendingActions = {
+      awaitingConfirmationCount: allBookings.filter(b => b.bookingStatus === 'Pending').length,
+      unpaidConfirmedCount: allBookings.filter(b => b.bookingStatus === 'Confirmed' && (b.paymentStatus === 'NOT PAID' || b.paymentStatus === 'Unpaid')).length,
+      unverifiedCustomersCount: customersOnly.filter(u => !u.emailVerified).length
+    };
+
+    return c.json({
+      success: true,
+      period,
+      data: {
+        overview: {
+          totalRevenue,
+          totalPaymentsReceived: totalRevenue,
+          totalExpectedAmount,
+          outstandingAmount,
+          revenueThisMonth,
+          revenueThisYear,
+          averageBookingValue,
+          conversionRate,
+          totalBookings,
+          pendingBookings,
+          confirmedBookings,
+          rejectedBookings,
+          completedBookings,
+          cancelledBookings,
+          paidBookings,
+          unpaidBookings,
+          totalCustomers,
+          totalTours: allTours.length,
+          totalDestinations: allDestinations.length
+        },
+        revenueByMethod,
+        topTours,
+        leastTours,
+        topDestinations,
+        customerAnalytics: {
+          totalCustomers,
+          verifiedCustomers,
+          newCustomersThisMonth,
+          customersWithBookings,
+          customersWithoutBookings,
+          totalCustomerSpend,
+          topCustomers
+        },
+        monthlySummary,
+        recentActivity,
+        pendingActions
+      }
+    });
+  } catch (error: any) {
+    console.error('Error generating admin reports:', error);
+    return c.json({ success: false, error: error.message || 'Failed to generate admin reports' }, 500);
+  }
+}

@@ -24,6 +24,7 @@ export const AdminLayout: React.FC = () => {
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard, end: true },
     { name: 'Customer Bookings', href: '/admin/bookings', icon: Compass },
     { name: 'Customer Profiles', href: '/admin/customers', icon: Eye },
+    { name: 'Business Reports', href: '/admin/reports', icon: LayoutDashboard },
     { name: 'Tours & Itineraries', href: '/admin/tours', icon: BookOpen },
     { name: 'Vehicle Daily Rates', href: '/admin/vehicles', icon: Car },
     { name: 'Destinations & Tickets', href: '/admin/destinations', icon: MapPin },

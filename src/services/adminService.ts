@@ -20,6 +20,29 @@ function getAdminHeaders(): HeadersInit {
 }
 
 export const adminService = {
+  // ─── 0. BUSINESS REPORTS / ANALYTICS API ───
+  async fetchReports(period: string = 'all', startDate?: string, endDate?: string): Promise<any> {
+    try {
+      const params = new URLSearchParams();
+      if (period) params.set('period', period);
+      if (startDate) params.set('startDate', startDate);
+      if (endDate) params.set('endDate', endDate);
+
+      const query = params.toString() ? `?${params.toString()}` : '';
+      const endpoint = API_BASE ? `${API_BASE}/api/admin/reports${query}` : `/api/admin/reports${query}`;
+      const res = await fetch(endpoint, { headers: getAdminHeaders() });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          return json.data;
+        }
+      }
+    } catch (err: any) {
+      console.warn('[adminService] fetchReports fallback:', err.message);
+    }
+    return null;
+  },
+
   // ─── DASHBOARD STATS ───
   getDashboardStats() {
     const bookings = bookingService.getAllBookings();

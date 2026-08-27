@@ -20,13 +20,17 @@ import {
   getAdminDestinationById,
   createAdminDestination,
   updateAdminDestination,
-  deleteAdminDestination
+  deleteAdminDestination,
+  getAdminReports
 } from '../controllers/adminController.js';
 
 export const adminRouter = new Hono();
 
 // Enforce strict Server-Side Admin Authorization across all /api/admin/* endpoints
 adminRouter.use('*', requireAdmin);
+
+// ─── 0. BUSINESS REPORTS / ANALYTICS ───
+adminRouter.get('/reports', getAdminReports);
 
 // ─── 1. PROFILES / CUSTOMERS ───
 adminRouter.get('/users', getAdminUsers);
