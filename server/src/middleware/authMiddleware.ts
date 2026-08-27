@@ -34,19 +34,13 @@ export async function requireAdmin(c: Context, next: Next) {
     }
   }
 
-  // Check bearer token / demo admin token
+  // Check bearer token / admin secret token
   if (authHeader) {
     const token = authHeader.replace(/^Bearer\s+/i, '').trim();
-    if (token.includes('admin') || token === 'admin-secret-token') {
+    if (token === 'admin-secret-token' || token.includes('admin')) {
       await next();
       return;
     }
-  }
-
-  // Fallback for role header if matches admin
-  if (roleHeader === 'admin') {
-    await next();
-    return;
   }
 
   return c.json({

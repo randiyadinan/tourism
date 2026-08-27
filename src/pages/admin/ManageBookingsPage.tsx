@@ -7,32 +7,43 @@ import {
   XCircle, 
   Clock, 
   Users, 
-  Car, 
   Plane, 
-  Sparkles,
-  X
+  X,
+  Trash2,
+  AlertCircle,
+  RefreshCw
 } from 'lucide-react';
+import { adminService } from '../../services/adminService';
 import { bookingService } from '../../services/bookingService';
 import { formatPrice } from '../../utils/formatters';
 import type { Booking, BookingStatus, PaymentStatus } from '../../types';
 
 export const ManageBookingsPage: React.FC = () => {
-  const [bookings, setBookings] = useState<Booking[]>(() => bookingService.getAllBookings());
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const loadBookings = async () => {
+    setLoading(true);
+    try {
+      const data = await adminService.fetchBookings();
+      setBookings(data);
+    } catch {
+      setBookings(bookingService.getAllBookings());
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    bookingService.fetchBookingsFromServer().then((latest) => {
-      setBookings(latest);
-    });
+    loadBookings();
   }, []);
 
   const reloadBookings = () => {
-    setBookings(bookingService.getAllBookings());
-    bookingService.fetchBookingsFromServer().then((latest) => {
-      setBookings(latest);
-    });
+    loadBookings();
   };
 
   const filtered = bookings.filter(b => {
@@ -57,27 +68,61 @@ export const ManageBookingsPage: React.FC = () => {
 
   const handleConfirm = async (id: string) => {
     try {
-      const updated = await bookingService.confirmBooking(id);
-      setBookings(bookings.map(b => b.id === id ? updated : b));
+      const updated = await adminService.confirmBooking(id);
+      bookingService.updateBookingStatus(id, 'Confirmed');
+      setBookings(bookings.map(b => b.id === id ? { ...b, ...updated } : b));
       if (selectedBooking && selectedBooking.id === id) {
-        setSelectedBooking(updated);
+        setSelectedBooking({ ...selectedBooking, ...updated });
       }
+      setStatusMsg({ type: 'success', text: `Booking ${updated.bookingCode} confirmed. Customer notified with payment link.` });
+      setTimeout(() => setStatusMsg(null), 4000);
     } catch (err: any) {
-      alert(err.message || 'Failed to confirm booking.');
+      setStatusMsg({ type: 'error', text: err.message || 'Failed to confirm booking.' });
+      setTimeout(() => setStatusMsg(null), 4000);
     }
   };
 
   const handleReject = async (id: string) => {
-    if (window.confirm('Are you sure you want to reject this booking request?')) {
-      try {
-        const updated = await bookingService.rejectBooking(id);
-        setBookings(bookings.map(b => b.id === id ? updated : b));
-        if (selectedBooking && selectedBooking.id === id) {
-          setSelectedBooking(updated);
-        }
-      } catch (err: any) {
-        alert(err.message || 'Failed to reject booking.');
+    const reason = window.prompt('Optional: Enter a brief reason for rejection to send to the customer:');
+    if (reason === null) return; // Cancelled prompt
+
+    try {
+      const updated = await adminService.rejectBooking(id, reason || undefined);
+      bookingService.updateBookingStatus(id, 'Rejected');
+      setBookings(bookings.map(b => b.id === id ? { ...b, ...updated } : b));
+      if (selectedBooking && selectedBooking.id === id) {
+        setSelectedBooking({ ...selectedBooking, ...updated });
       }
+      setStatusMsg({ type: 'success', text: `Booking ${updated.bookingCode} was rejected and customer notified.` });
+      setTimeout(() => setStatusMsg(null), 4000);
+    } catch (err: any) {
+      setStatusMsg({ type: 'error', text: err.message || 'Failed to reject booking.' });
+      setTimeout(() => setStatusMsg(null), 4000);
+    }
+  };
+
+  const handleDelete = async (b: Booking) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to permanently delete booking record ${b.bookingCode} (${b.customerName} - ${b.tourTitle || 'Tour'})?\n\nThis will remove the booking safely while preserving the customer profile.`
+    );
+    if (!confirmed) return;
+
+    try {
+      const res = await adminService.deleteBooking(b.id);
+      if (res.success) {
+        bookingService.deleteBooking(b.id);
+        setBookings(prev => prev.filter(item => item.id !== b.id));
+        if (selectedBooking && selectedBooking.id === b.id) {
+          setSelectedBooking(null);
+        }
+        setStatusMsg({ type: 'success', text: res.message || `Booking ${b.bookingCode} was deleted successfully.` });
+      } else {
+        setStatusMsg({ type: 'error', text: res.error || 'Failed to delete booking' });
+      }
+      setTimeout(() => setStatusMsg(null), 4000);
+    } catch (err: any) {
+      setStatusMsg({ type: 'error', text: err.message || 'Failed to delete booking.' });
+      setTimeout(() => setStatusMsg(null), 4000);
     }
   };
 
@@ -106,15 +151,29 @@ export const ManageBookingsPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#062C22]">Manage Customer Bookings</h1>
-          <p className="text-xs text-stone-500">Review bespoke itineraries, confirm pending requests, and assign operations.</p>
+          <p className="text-xs text-stone-500">Review bespoke itineraries, confirm pending requests, and manage booking records.</p>
         </div>
         <button
           onClick={reloadBookings}
-          className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold rounded-xl transition-all"
+          disabled={loading}
+          className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 self-start sm:self-auto"
         >
-          ↻ Refresh List
+          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+          <span>Refresh List</span>
         </button>
       </div>
+
+      {/* Global Status Banner */}
+      {statusMsg && (
+        <div className={`p-3.5 rounded-2xl flex items-center gap-2 text-xs font-bold animate-scale-in ${
+          statusMsg.type === 'success' 
+            ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' 
+            : 'bg-rose-50 text-rose-800 border border-rose-200'
+        }`}>
+          {statusMsg.type === 'success' ? <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /> : <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />}
+          <span>{statusMsg.text}</span>
+        </div>
+      )}
 
       {/* Pending Banner Alert */}
       {pendingCount > 0 && (
@@ -144,7 +203,7 @@ export const ManageBookingsPage: React.FC = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by code, customer, or tour..."
-            className="w-full pl-10 pr-4 py-2 bg-white/70 backdrop-blur-sm border border-stone-200 rounded-xl text-xs text-[#062C22] focus:outline-none focus:border-[#39A982] transition-colors"
+            className="w-full pl-10 pr-4 py-2 bg-white/70 backdrop-blur-sm border border-stone-200 rounded-xl text-xs text-[#062C22] focus:outline-none focus:border-[#39A982] transition-colors font-medium"
           />
         </div>
 
@@ -159,7 +218,7 @@ export const ManageBookingsPage: React.FC = () => {
                   : 'bg-white/80 text-stone-600 hover:bg-stone-100 hover:text-[#062C22] border border-stone-200/60'
               }`}
             >
-              {st} {st === 'Pending' && pendingCount > 0 ? `(${pendingCount})` : ''}
+              {st}
             </button>
           ))}
         </div>
@@ -171,14 +230,13 @@ export const ManageBookingsPage: React.FC = () => {
           <table className="w-full text-left text-xs">
             <thead className="bg-[#F8F7F2] text-stone-700 font-bold border-b border-stone-200">
               <tr>
-                <th className="py-3.5 px-6">Booking ID</th>
+                <th className="py-3.5 px-6">Booking Ref</th>
                 <th className="py-3.5 px-4">Customer</th>
-                <th className="py-3.5 px-4">Tour</th>
-                <th className="py-3.5 px-4">Date</th>
-                <th className="py-3.5 px-4">Total</th>
-                <th className="py-3.5 px-4">Payment Method</th>
-                <th className="py-3.5 px-4">Payment Status</th>
-                <th className="py-3.5 px-4">Booking Status</th>
+                <th className="py-3.5 px-4">Tour / Flight</th>
+                <th className="py-3.5 px-4">Dates & Pax</th>
+                <th className="py-3.5 px-4">Amount</th>
+                <th className="py-3.5 px-4">Payment</th>
+                <th className="py-3.5 px-4">Status & Action</th>
                 <th className="py-3.5 px-6 text-right">Actions</th>
               </tr>
             </thead>
@@ -186,35 +244,40 @@ export const ManageBookingsPage: React.FC = () => {
               {filtered.map((b) => {
                 const isPaid = b.paymentStatus === 'PAID' || b.paymentStatus === 'Fully Paid';
                 const isNotPaid = b.paymentStatus === 'NOT PAID' || b.paymentStatus === 'Unpaid';
-                const isCash = b.paymentMethod === 'Cash Payment';
 
                 return (
-                  <tr key={b.id} className={`hover:bg-stone-50/50 ${b.bookingStatus === 'Pending' ? 'bg-amber-50/30' : ''}`}>
-                    <td className="py-4 px-6 font-bold text-[#176B52]">
+                  <tr key={b.id} className="hover:bg-stone-50/50">
+                    <td className="py-4 px-6 font-mono font-bold text-[#176B52]">
                       {b.bookingCode}
-                      <span className="block text-[10px] text-stone-400 font-normal">
-                        {b.type === 'custom_trip' ? 'Bespoke Custom' : 'Fixed Tour'}
-                      </span>
                     </td>
                     <td className="py-4 px-4">
-                      <strong className="text-[#062C22] block">{b.customerName}</strong>
-                      <span className="text-[10px] text-stone-400">{b.customerEmail}</span>
-                    </td>
-                    <td className="py-4 px-4 truncate max-w-[170px] font-medium">{b.tourTitle}</td>
-                    <td className="py-4 px-4 whitespace-nowrap text-xs">{b.startDate} to {b.endDate}</td>
-                    <td className="py-4 px-4 font-bold text-[#062C22]">{formatPrice(b.totalAmount)}</td>
-                    <td className="py-4 px-4">
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold ${
-                        isCash
-                          ? 'bg-amber-50 text-amber-900 border border-amber-200'
-                          : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                      }`}>
-                        {b.paymentMethod}
-                      </span>
+                      <div className="font-bold text-[#062C22]">{b.customerName}</div>
+                      <div className="text-[10px] text-stone-400">{b.customerEmail}</div>
+                      {b.customerPhone && (
+                        <div className="text-[10px] text-stone-400">{b.customerPhone}</div>
+                      )}
                     </td>
                     <td className="py-4 px-4">
-                      <div className="flex flex-col gap-1.5 items-start">
-                        <span className={`px-2.5 py-1 rounded-lg font-bold text-[11px] border ${
+                      <div className="font-medium text-[#062C22] max-w-[200px] truncate">{b.tourTitle}</div>
+                      {b.flightNumber && (
+                        <div className="text-[10px] text-[#176B52] font-semibold flex items-center gap-1 mt-0.5">
+                          <Plane className="w-3 h-3" /> Flight: {b.flightNumber}
+                        </div>
+                      )}
+                      <div className="text-[10px] text-stone-400 capitalize">{b.type.replace('_', ' ')}</div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div>{b.startDate} to {b.endDate}</div>
+                      <div className="text-[10px] text-stone-400 flex items-center gap-1 mt-0.5">
+                        <Users className="w-3 h-3 text-[#176B52]" /> {b.totalTravelers} Travelers ({b.adultsCount}A, {b.childrenCount}C)
+                      </div>
+                    </td>
+                    <td className="py-4 px-4 font-bold text-[#062C22]">
+                      {formatPrice(b.totalAmount)}
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex flex-col gap-1 items-start">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
                           isPaid
                             ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
                             : isNotPaid
@@ -224,7 +287,6 @@ export const ManageBookingsPage: React.FC = () => {
                           {isPaid ? 'PAID' : isNotPaid ? 'NOT PAID' : b.paymentStatus}
                         </span>
 
-                        {/* Admin Mark as Paid action for NOT PAID cash or pending bookings */}
                         {isNotPaid && (
                           <button
                             onClick={() => handleMarkAsPaid(b.id)}
@@ -232,7 +294,7 @@ export const ManageBookingsPage: React.FC = () => {
                             className="px-2 py-0.5 bg-[#0B3D2E] hover:bg-[#176B52] text-white rounded font-bold text-[10px] flex items-center gap-1 transition-colors shadow-xs"
                           >
                             <CheckCircle2 className="w-3 h-3 text-[#39A982]" />
-                            <span>Mark as Paid</span>
+                            <span>Mark Paid</span>
                           </button>
                         )}
                       </div>
@@ -279,20 +341,27 @@ export const ManageBookingsPage: React.FC = () => {
                         )}
                       </div>
                     </td>
-                    <td className="py-4 px-6 text-right space-x-2 whitespace-nowrap">
+                    <td className="py-4 px-6 text-right space-x-1.5 whitespace-nowrap">
                       <button
                         onClick={() => setSelectedBooking(b)}
-                        className="inline-flex items-center gap-1 text-xs font-bold text-[#0B3D2E] bg-stone-100 hover:bg-stone-200 px-2.5 py-1 rounded-lg"
+                        className="inline-flex items-center gap-1 text-xs font-bold text-[#0B3D2E] bg-stone-100 hover:bg-stone-200 px-2.5 py-1.5 rounded-xl shadow-xs"
                       >
                         <Eye className="w-3.5 h-3.5" />
                         <span>Inspect</span>
                       </button>
                       <Link
                         to={`/customer/bookings/${b.id}`}
-                        className="inline-flex items-center gap-1 text-xs font-bold text-[#176B52] hover:underline"
+                        className="inline-flex items-center gap-1 text-xs font-bold text-[#176B52] hover:underline px-2 py-1.5"
                       >
                         Voucher
                       </Link>
+                      <button
+                        onClick={() => handleDelete(b)}
+                        title="Delete Booking Record"
+                        className="p-1.5 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors inline-flex items-center"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </td>
                   </tr>
                 );
@@ -326,139 +395,73 @@ export const ManageBookingsPage: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               <div className="bg-[#F8F7F2] p-4 rounded-2xl border border-stone-200/80 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-[#062C22] flex items-center gap-1.5">
-                    <Users className="w-4 h-4 text-[#176B52]" />
-                    Customer Profile
-                  </span>
-                  <Link
-                    to={`/admin/customers`}
-                    className="text-[11px] font-bold text-[#176B52] hover:underline"
-                  >
-                    Directory →
-                  </Link>
-                </div>
-                <p><strong>Name:</strong> {selectedBooking.customerName}</p>
+                <span className="font-bold text-[#062C22] block">Client Contact Details</span>
+                <p><strong>Lead Guest:</strong> {selectedBooking.customerName}</p>
                 <p><strong>Email:</strong> {selectedBooking.customerEmail}</p>
                 <p><strong>Phone:</strong> {selectedBooking.customerPhone || 'Not provided'}</p>
-                <p><strong>Total Travelers:</strong> {selectedBooking.totalTravelers || (selectedBooking.adultsCount + selectedBooking.childrenCount + selectedBooking.infantsCount)} ({selectedBooking.adultsCount} Adults, {selectedBooking.childrenCount} Children, {selectedBooking.infantsCount} Infants)</p>
+                {selectedBooking.flightNumber && (
+                  <p><strong>Flight Number:</strong> <span className="font-bold text-[#176B52]">{selectedBooking.flightNumber}</span> ({selectedBooking.flightArrivalTime || 'Landing time TBA'})</p>
+                )}
               </div>
 
               <div className="bg-[#F8F7F2] p-4 rounded-2xl border border-stone-200/80 space-y-2">
-                <span className="font-bold text-[#062C22] flex items-center gap-1.5">
-                  <Car className="w-4 h-4 text-[#176B52]" />
-                  Transportation & Schedule
-                </span>
-                <p><strong>Vehicle:</strong> {selectedBooking.vehicleType || 'Toyota KDH Luxury Van'}</p>
-                <p><strong>Travel Dates:</strong> {selectedBooking.startDate} to {selectedBooking.endDate}</p>
-                <p><strong>Chauffeur:</strong> English-Speaking Tourist Guide</p>
-                <p><strong>Package Type:</strong> {selectedBooking.type === 'custom_trip' ? 'Bespoke Tour' : selectedBooking.type === 'airport_transfer' ? 'Airport Transfer' : 'Fixed Tour'}</p>
+                <span className="font-bold text-[#062C22] block">Package Preferences</span>
+                <p><strong>Hotel Tier:</strong> {selectedBooking.hotelTier || 'Selected tier'}</p>
+                <p><strong>Vehicle:</strong> {selectedBooking.vehicleType || 'Dedicated van'}</p>
+                <p><strong>Meal Plan:</strong> {selectedBooking.mealPlan || 'Half Board'}</p>
+                <p><strong>Airport Transfer:</strong> {selectedBooking.airportPickup ? 'Included' : 'Not requested'}</p>
               </div>
             </div>
 
-            {/* Individual Traveler Passenger Details */}
+            {/* Travelers Breakdown */}
             {selectedBooking.travelers && selectedBooking.travelers.length > 0 && (
-              <div className="bg-[#F8F7F2] p-4 rounded-2xl border border-stone-200/80 space-y-2 text-xs">
-                <span className="font-bold text-[#062C22] flex items-center gap-1.5">
-                  <Users className="w-4 h-4 text-[#176B52]" />
-                  Passenger / Traveler Profiles ({selectedBooking.travelers.length})
+              <div className="space-y-2">
+                <span className="font-bold text-xs text-[#062C22] flex items-center gap-1.5">
+                  <Users className="w-3.5 h-3.5 text-[#176B52]" />
+                  Traveler Manifest ({selectedBooking.travelers.length} Guests)
                 </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                   {selectedBooking.travelers.map((t, idx) => (
-                    <div key={idx} className="p-2.5 bg-white rounded-xl border border-stone-200 space-y-0.5">
-                      <div className="flex items-center justify-between">
-                        <strong className="text-[#062C22]">{t.title} {t.fullName}</strong>
-                        {t.isLead && (
-                          <span className="px-1.5 py-0.5 bg-[#0B3D2E] text-white text-[9px] font-bold rounded">
-                            Lead Guest
-                          </span>
-                        )}
+                    <div key={idx} className="p-3 bg-[#F8F7F2] rounded-xl border border-stone-200 flex items-center justify-between">
+                      <div>
+                        <div className="font-bold text-[#062C22]">{t.title} {t.fullName} {t.isLead && <span className="text-[10px] text-[#176B52] font-semibold">(Lead)</span>}</div>
+                        <div className="text-[10px] text-stone-500">{t.nationality} &bull; Passport: {t.passportNumber || 'N/A'}</div>
                       </div>
-                      <p className="text-[11px] text-stone-500"><strong>Nationality:</strong> {t.nationality || 'International'}</p>
-                      {t.passportNumber && (
-                        <p className="text-[11px] text-stone-500"><strong>Passport:</strong> <span className="font-mono">{t.passportNumber}</span></p>
-                      )}
-                      {t.email && (
-                        <p className="text-[11px] text-stone-500"><strong>Email:</strong> {t.email}</p>
-                      )}
-                      {t.phone && (
-                        <p className="text-[11px] text-stone-500"><strong>Phone:</strong> {t.phone}</p>
-                      )}
-                      {t.specialRequirements && (
-                        <p className="text-[11px] text-amber-700"><strong>Requirement:</strong> {t.specialRequirements}</p>
-                      )}
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Airport Transfer Info */}
-            <div className="bg-[#F8F7F2] p-4 rounded-2xl border border-stone-200/80 space-y-2 text-xs">
-              <span className="font-bold text-[#062C22] flex items-center gap-1.5">
-                <Plane className="w-4 h-4 text-[#176B52]" />
-                Airport Transfer Logistics
-              </span>
-              <p><strong>Transfer Option:</strong> {selectedBooking.airportTransferOption || (selectedBooking.airportPickup ? 'Arrival Pickup' : 'None')}</p>
-              <p><strong>Airport:</strong> {selectedBooking.airportTransferDetails?.airport || 'Bandaranaike Intl Airport (CMB)'}</p>
-              <p><strong>Flight Number:</strong> <span className="font-bold text-[#062C22] uppercase">{selectedBooking.flightNumber || 'Not specified'}</span> {selectedBooking.flightArrivalTime ? `(Arrival Time: ${selectedBooking.flightArrivalTime})` : ''}</p>
-            </div>
-
-            {/* Activities List */}
-            {selectedBooking.activitiesSelected && selectedBooking.activitiesSelected.length > 0 && (
-              <div className="bg-[#F8F7F2] p-4 rounded-2xl border border-stone-200/80 space-y-2 text-xs">
-                <span className="font-bold text-[#062C22] flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-[#176B52]" />
-                  Selected Activities ({selectedBooking.activitiesSelected.length})
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {selectedBooking.activitiesSelected.map((act, i) => (
-                    <span key={i} className="px-2.5 py-1 bg-white border border-stone-200 rounded text-stone-700 font-semibold">
-                      ✓ {act}
-                    </span>
-                  ))}
-                </div>
+            {/* Price Breakdown */}
+            <div className="bg-[#F8F7F2] p-4 rounded-2xl border border-stone-200 space-y-1.5 text-xs">
+              <span className="font-bold text-[#062C22] block mb-2">Financial Breakdown</span>
+              <div className="flex justify-between text-stone-600">
+                <span>Base Tour Price:</span>
+                <span>{formatPrice(selectedBooking.basePrice)}</span>
               </div>
-            )}
-
-            {/* Special Requests */}
-            {(selectedBooking.notes || (selectedBooking.travelers && selectedBooking.travelers[0]?.specialRequirements)) && (
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900">
-                <strong>Special Requests / Notes:</strong> {selectedBooking.travelers?.[0]?.specialRequirements || selectedBooking.notes}
-              </div>
-            )}
-
-            {/* Complete Price Breakdown */}
-            <div className="bg-[#F8F7F2] p-4 rounded-2xl border border-stone-200/80 space-y-2 text-xs">
-              <span className="font-bold text-[#062C22] block">Complete Price Breakdown</span>
-              <div className="space-y-1 text-stone-600">
-                <div className="flex justify-between">
-                  <span>Base Package Price:</span>
-                  <span className="font-semibold">{formatPrice(selectedBooking.basePrice || 0)}</span>
+              {selectedBooking.customizationTotal > 0 && (
+                <div className="flex justify-between text-stone-600">
+                  <span>Customization Addons:</span>
+                  <span>{formatPrice(selectedBooking.customizationTotal)}</span>
                 </div>
-                {selectedBooking.customizationTotal > 0 && (
-                  <div className="flex justify-between">
-                    <span>Custom Add-ons (Transport & Airport VIP):</span>
-                    <span className="font-semibold">{formatPrice(selectedBooking.customizationTotal)}</span>
-                  </div>
-                )}
-                {selectedBooking.discountAmount > 0 && (
-                  <div className="flex justify-between text-emerald-700">
-                    <span>Discount Applied:</span>
-                    <span className="font-semibold">-{formatPrice(selectedBooking.discountAmount)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between font-bold text-[#062C22] pt-1 border-t border-stone-200 text-sm">
-                  <span>Total Amount Paid / Due:</span>
-                  <span className="text-[#0B3D2E]">{formatPrice(selectedBooking.totalAmount)}</span>
+              )}
+              {selectedBooking.discountAmount > 0 && (
+                <div className="flex justify-between text-emerald-700 font-semibold">
+                  <span>Promo Discount ({selectedBooking.discountCode}):</span>
+                  <span>-{formatPrice(selectedBooking.discountAmount)}</span>
                 </div>
+              )}
+              <div className="flex justify-between font-bold text-[#062C22] pt-1 border-t border-stone-200 text-sm">
+                <span>Total Amount:</span>
+                <span className="text-[#0B3D2E]">{formatPrice(selectedBooking.totalAmount)}</span>
               </div>
             </div>
 
             {/* Status Actions in Modal */}
             <div className="pt-4 border-t border-stone-100 flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-stone-600">Change Status:</span>
+                <span className="text-xs font-bold text-stone-600">Status:</span>
                 <button
                   onClick={() => handleConfirm(selectedBooking.id)}
                   className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl flex items-center gap-1"
@@ -495,11 +498,18 @@ export const ManageBookingsPage: React.FC = () => {
               </div>
 
               <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleDelete(selectedBooking)}
+                  className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs rounded-xl flex items-center gap-1"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete Booking</span>
+                </button>
                 <Link
                   to={`/customer/bookings/${selectedBooking.id}`}
                   className="px-4 py-1.5 bg-[#0B3D2E] text-white font-bold text-xs rounded-xl hover:bg-[#134E3F]"
                 >
-                  Open Full Voucher
+                  Open Voucher
                 </Link>
                 <button
                   onClick={() => setSelectedBooking(null)}
