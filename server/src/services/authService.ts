@@ -189,6 +189,21 @@ export class AuthService {
       const codeHash = this.hashCode(code);
       const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes expiry
 
+      // Send OTP via Resend first and ensure it succeeds
+      const emailResult = await emailService.sendVerificationOTP({
+        to: cleanEmail,
+        name: existing.name,
+        code,
+        expiresInMinutes: 10
+      });
+
+      if (!emailResult.success) {
+        return {
+          success: false,
+          error: emailResult.error || 'Failed to send verification email. Please check the email address or service configuration.'
+        };
+      }
+
       existing.name = name.trim();
       existing.passwordHash = password;
       existing.phone = phone || existing.phone;
@@ -198,13 +213,6 @@ export class AuthService {
       existing.lastResentAt = new Date();
 
       await this.saveUser(existing);
-
-      await emailService.sendVerificationOTP({
-        to: cleanEmail,
-        name: existing.name,
-        code,
-        expiresInMinutes: 10
-      });
 
       return {
         success: true,
@@ -224,6 +232,21 @@ export class AuthService {
     const codeHash = this.hashCode(code);
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes expiry
 
+    // Send email via Resend and verify success
+    const emailResult = await emailService.sendVerificationOTP({
+      to: cleanEmail,
+      name: name.trim(),
+      code,
+      expiresInMinutes: 10
+    });
+
+    if (!emailResult.success) {
+      return {
+        success: false,
+        error: emailResult.error || 'Failed to send verification email. Please verify email settings.'
+      };
+    }
+
     const newUser: ServerUserRecord = {
       id: `user-cust-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`,
       name: name.trim(),
@@ -241,17 +264,6 @@ export class AuthService {
     };
 
     await this.saveUser(newUser);
-
-    const emailResult = await emailService.sendVerificationOTP({
-      to: cleanEmail,
-      name: newUser.name,
-      code,
-      expiresInMinutes: 10
-    });
-
-    if (!emailResult.success) {
-      console.warn(`⚠️ [AuthService] Account created for ${cleanEmail}, but email sending failed: ${emailResult.error}`);
-    }
 
     return {
       success: true,
@@ -302,11 +314,6 @@ export class AuthService {
     const codeHash = this.hashCode(code);
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    user.emailVerificationTokenHash = codeHash;
-    user.emailVerificationExpiresAt = expiresAt;
-    user.lastResentAt = new Date();
-    await this.saveUser(user);
-
     const emailResult = await emailService.sendVerificationOTP({
       to: cleanEmail,
       name: user.name,
@@ -317,6 +324,11 @@ export class AuthService {
     if (!emailResult.success) {
       return { success: false, error: emailResult.error || 'Failed to send verification email.' };
     }
+
+    user.emailVerificationTokenHash = codeHash;
+    user.emailVerificationExpiresAt = expiresAt;
+    user.lastResentAt = new Date();
+    await this.saveUser(user);
 
     return { success: true, message: 'A new 6-digit verification code has been sent to your email.' };
   }

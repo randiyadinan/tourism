@@ -4,6 +4,7 @@ import {
   loginController,
   verifyEmailController,
   resendVerificationController,
+  testEmailController,
   getAllUsersController
 } from '../controllers/authController.js';
 
@@ -14,6 +15,7 @@ authRouter.post('/login', loginController);
 authRouter.get('/verify-email', verifyEmailController);
 authRouter.post('/verify-email', verifyEmailController);
 authRouter.post('/resend-verification', resendVerificationController);
+authRouter.post('/test-email', testEmailController);
 authRouter.get('/users', getAllUsersController);
 
 export { authRouter };

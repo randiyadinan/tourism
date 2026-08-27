@@ -8,13 +8,15 @@ export interface SendVerificationOTPParams {
 }
 
 export class EmailService {
-  private getResendInstance(): { resend: Resend | null; fromEmail: string } {
-    const apiKey = typeof process !== 'undefined' ? process.env?.RESEND_API_KEY : undefined;
-    const fromEmail = (typeof process !== 'undefined' ? process.env?.EMAIL_FROM : undefined) || 'LankaVoyage <onboarding@resend.dev>';
-    if (apiKey && apiKey.startsWith('re_') && !apiKey.includes('re_demo')) {
-      return { resend: new Resend(apiKey), fromEmail };
+  private getResendClient(): { resend: Resend; fromEmail: string } {
+    const apiKey = (typeof process !== 'undefined' ? process.env?.RESEND_API_KEY : undefined)?.trim();
+    const fromEmail = (typeof process !== 'undefined' ? process.env?.EMAIL_FROM : undefined)?.trim() || 'LankaVoyage <onboarding@resend.dev>';
+    
+    if (!apiKey) {
+      throw new Error('RESEND_API_KEY is not configured on the server. Please set RESEND_API_KEY in environment variables.');
     }
-    return { resend: null, fromEmail };
+    
+    return { resend: new Resend(apiKey), fromEmail };
   }
 
   /**
@@ -22,17 +24,16 @@ export class EmailService {
    */
   async sendVerificationOTP(params: SendVerificationOTPParams): Promise<{ success: boolean; id?: string; error?: string }> {
     const { to, name, code, expiresInMinutes = 10 } = params;
-    const { resend, fromEmail } = this.getResendInstance();
 
-    if (!resend) {
-      console.log(`\n======================================================`);
-      console.log(`📧 [LankaVoyage 6-Digit OTP Verification Email Delivered via Simulator]`);
-      console.log(`To: ${to} (${name})`);
-      console.log(`Subject: Your LankaVoyage Verification Code is: ${code}`);
-      console.log(`Verification Code (OTP): [ ${code} ]`);
-      console.log(`Expires: In ${expiresInMinutes} Minutes`);
-      console.log(`======================================================\n`);
-      return { success: true, id: `msg_dev_${Date.now()}` };
+    let resend: Resend;
+    let fromEmail: string;
+    try {
+      const client = this.getResendClient();
+      resend = client.resend;
+      fromEmail = client.fromEmail;
+    } catch (err: any) {
+      console.error(`❌ [EmailService Config Error] Recipient: ${to} | Error: ${err.message}`);
+      return { success: false, error: err.message };
     }
 
     try {
@@ -173,21 +174,67 @@ export class EmailService {
 
       const response = await resend.emails.send({
         from: fromEmail,
-        to,
+        to: [to],
         subject,
         html: htmlContent,
       });
 
       if (response.error) {
-        console.error('❌ [Resend API Error]:', response.error);
+        console.error(`❌ [Resend Delivery Error] To: ${to} | ErrorName: ${response.error.name} | ErrorMsg: ${response.error.message}`);
         return { success: false, error: response.error.message };
       }
 
-      console.log(`✅ [EmailService] Verification OTP code sent to ${to} (ID: ${response.data?.id})`);
+      console.log(`✅ [EmailService Success] Verification email delivered to ${to} (Message ID: ${response.data?.id})`);
       return { success: true, id: response.data?.id };
     } catch (err: any) {
-      console.error('❌ [EmailService Exception]:', err);
-      return { success: false, error: err.message || 'Failed to send email' };
+      console.error(`❌ [EmailService Exception] To: ${to} | Exception: ${err.message || err}`);
+      return { success: false, error: err.message || 'Failed to deliver email through Resend.' };
+    }
+  }
+
+  /**
+   * Diagnostic test email sending method
+   */
+  async sendTestEmail(to: string): Promise<{ success: boolean; id?: string; fromEmail?: string; error?: string }> {
+    let resend: Resend;
+    let fromEmail: string;
+    try {
+      const client = this.getResendClient();
+      resend = client.resend;
+      fromEmail = client.fromEmail;
+    } catch (err: any) {
+      console.error(`❌ [EmailService Test Config Error] To: ${to} | Error: ${err.message}`);
+      return { success: false, error: err.message };
+    }
+
+    try {
+      const subject = 'LankaVoyage Email Service Test';
+      const htmlContent = `
+        <div style="font-family: sans-serif; padding: 20px; color: #062C22;">
+          <h2>LankaVoyage Email Service Connected</h2>
+          <p>This is a live test email confirming that Resend delivery is operating correctly on LankaVoyage.</p>
+          <p><strong>Sender:</strong> ${fromEmail}</p>
+          <p><strong>Timestamp:</strong> ${new Date().toISOString()}</p>
+        </div>
+      `;
+
+      const response = await resend.emails.send({
+        from: fromEmail,
+        to: [to],
+        subject,
+        html: htmlContent,
+      });
+
+      if (response.error) {
+        console.error(`❌ [Resend Test Error] To: ${to} | Error: ${response.error.message}`);
+        return { success: false, error: response.error.message, fromEmail };
+      }
+
+      console.log(`✅ [Resend Test Success] Delivered to ${to} (ID: ${response.data?.id})`);
+      return { success: true, id: response.data?.id, fromEmail };
+    } catch (err: any) {
+      console.error(`❌ [Resend Test Exception] To: ${to} | Exception: ${err.message || err}`);
+      return { success: false, error: err.message || 'Failed to send test email', fromEmail };
     }
   }
 }
