@@ -82,6 +82,9 @@ export const bookingService = {
    * Async fetch from backend server to synchronize local cache
    */
   async fetchBookingsFromServer(): Promise<Booking[]> {
+    const token = authService.getSessionToken();
+    const headers: HeadersInit = token ? { 'Authorization': `Bearer ${token}` } : {};
+
     const endpoints = [
       API_BASE ? `${API_BASE}/api/bookings` : '/api/bookings',
       '/api/bookings'
@@ -90,7 +93,7 @@ export const bookingService = {
     for (const url of endpoints) {
       if (!url) continue;
       try {
-        const res = await fetch(url);
+        const res = await fetch(url, { headers });
         if (res.ok) {
           const json = await res.json();
           if (json.success && Array.isArray(json.data)) {

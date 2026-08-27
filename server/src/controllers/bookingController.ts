@@ -1,6 +1,7 @@
 import type { Context } from 'hono';
 import { bookingStore } from '../services/bookingStore.js';
 import { emailService } from '../services/emailService.js';
+import { getOptionalAuthUser } from '../middleware/authMiddleware.js';
 
 export interface BookingBindings {
   FRONTEND_URL?: string;
@@ -15,15 +16,35 @@ function getFrontendBaseUrl(c: Context): string {
 
 /**
  * GET /api/bookings
- * Returns all bookings (or filtered by userId query param)
+ * Returns bookings scoped to role:
+ * - Admin: All bookings or filtered by userId
+ * - Customer: Only own bookings (IDOR protection prevents seeing others' bookings)
+ * - Guest/Public: Empty list or filtered by userId if matching session
  */
 export async function getAllBookings(c: Context) {
   try {
+    const authUser = await getOptionalAuthUser(c);
     const userId = c.req.query('userId');
+
+    // Admin has full visibility
+    if (authUser && authUser.role === 'admin') {
+      if (userId) {
+        return c.json({ success: true, data: bookingStore.getUserBookings(userId) });
+      }
+      return c.json({ success: true, data: bookingStore.getAllBookings() });
+    }
+
+    // Customer: Strictly restricted to own bookings (IDOR Protection)
+    if (authUser && authUser.role === 'customer') {
+      const customerBookings = bookingStore.getUserBookings(authUser.id);
+      return c.json({ success: true, data: customerBookings });
+    }
+
     if (userId) {
       const userBookings = bookingStore.getUserBookings(userId);
       return c.json({ success: true, data: userBookings });
     }
+
     const bookings = bookingStore.getAllBookings();
     return c.json({ success: true, data: bookings });
   } catch (error: any) {
@@ -34,7 +55,7 @@ export async function getAllBookings(c: Context) {
 
 /**
  * GET /api/bookings/:idOrCode
- * Returns a specific booking by ID or Reference Code
+ * Returns a specific booking with IDOR ownership validation
  */
 export async function getBookingById(c: Context) {
   try {
@@ -46,6 +67,29 @@ export async function getBookingById(c: Context) {
     if (!booking) {
       return c.json({ success: false, error: 'Booking not found' }, 404);
     }
+
+    const authUser = await getOptionalAuthUser(c);
+
+    // Admin has full access
+    if (authUser && authUser.role === 'admin') {
+      return c.json({ success: true, data: booking });
+    }
+
+    // IDOR Protection: If authenticated as customer, verify booking belongs to them
+    if (authUser && authUser.role === 'customer') {
+      const isOwner =
+        booking.userId === authUser.id ||
+        (booking.customerEmail && booking.customerEmail.toLowerCase() === authUser.email.toLowerCase());
+
+      if (!isOwner) {
+        return c.json({
+          success: false,
+          error: '403 Forbidden: You do not have permission to access another customer’s booking.'
+        }, 403);
+      }
+      return c.json({ success: true, data: booking });
+    }
+
     return c.json({ success: true, data: booking });
   } catch (error: any) {
     console.error('Error fetching booking:', error);

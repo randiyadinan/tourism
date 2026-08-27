@@ -7,8 +7,7 @@ import {
   forgotPasswordController,
   verifyResetOtpController,
   resetPasswordController,
-  testEmailController,
-  getAllUsersController
+  testEmailController
 } from '../controllers/authController.js';
 
 const authRouter = new Hono();
@@ -22,6 +21,5 @@ authRouter.post('/forgot-password', forgotPasswordController);
 authRouter.post('/verify-reset-otp', verifyResetOtpController);
 authRouter.post('/reset-password', resetPasswordController);
 authRouter.post('/test-email', testEmailController);
-authRouter.get('/users', getAllUsersController);
 
 export { authRouter };

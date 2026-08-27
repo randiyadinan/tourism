@@ -76,9 +76,45 @@ export interface ResetPasswordResult {
   error?: string;
 }
 
+function getSessionSecret(): string {
+  if (typeof process !== 'undefined' && process.env?.SESSION_SECRET) {
+    return process.env.SESSION_SECRET;
+  }
+  if (typeof process !== 'undefined' && process.env?.PAYHERE_MERCHANT_SECRET) {
+    return `lankavoyage-${process.env.PAYHERE_MERCHANT_SECRET}`;
+  }
+  return 'lankavoyage-secure-jwt-auth-session-key-2026';
+}
+
+function base64UrlEncode(str: string): string {
+  if (typeof Buffer !== 'undefined') {
+    return Buffer.from(str, 'utf8').toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  return btoa(unescape(encodeURIComponent(str))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function base64UrlDecode(str: string): string {
+  let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+  while (base64.length % 4) base64 += '=';
+  if (typeof Buffer !== 'undefined') {
+    return Buffer.from(base64, 'base64').toString('utf8');
+  }
+  return decodeURIComponent(escape(atob(base64)));
+}
+
+export interface ActiveSession {
+  token: string;
+  userId: string;
+  email: string;
+  role: 'customer' | 'admin';
+  createdAt: number;
+  expiresAt: number;
+}
+
 export class AuthService {
   // In-memory persistent user repository fallback (for instant resilient access)
   private memoryUsers: Map<string, ServerUserRecord> = new Map();
+  private activeSessions: Map<string, ActiveSession> = new Map();
 
   constructor() {
     // Seed default admin and demo customer in memory store
@@ -87,7 +123,7 @@ export class AuthService {
       name: 'Kasun Bandara (Operations Director)',
       email: 'admin@lankavoyage.com',
       role: 'admin',
-      passwordHash: 'admin123',
+      passwordHash: (typeof process !== 'undefined' && process.env?.ADMIN_PASSWORD) || 'admin123',
       emailVerified: true,
       phone: '+94 77 123 4567',
       country: 'Sri Lanka',
@@ -108,6 +144,94 @@ export class AuthService {
     };
     this.memoryUsers.set(admin.id, admin);
     this.memoryUsers.set(customer.id, customer);
+  }
+
+  createSession(user: ServerUserRecord): string {
+    const now = Date.now();
+    const expiresAt = now + 7 * 24 * 60 * 60 * 1000; // 7 days expiration
+    const payload = {
+      userId: user.id,
+      email: user.email.toLowerCase(),
+      role: user.role,
+      exp: expiresAt,
+      iat: now
+    };
+
+    const encodedPayload = base64UrlEncode(JSON.stringify(payload));
+    const secret = getSessionSecret();
+    const signature = sha256(`${encodedPayload}.${secret}`);
+    const token = `lv_${encodedPayload}.${signature}`;
+
+    this.activeSessions.set(token, {
+      token,
+      userId: user.id,
+      email: user.email.toLowerCase(),
+      role: user.role,
+      createdAt: now,
+      expiresAt
+    });
+
+    return token;
+  }
+
+  async verifySessionToken(token: string): Promise<{ valid: boolean; user: ServerUserRecord | null }> {
+    if (!token || typeof token !== 'string') {
+      return { valid: false, user: null };
+    }
+
+    const cleanToken = token.replace(/^Bearer\s+/i, '').trim();
+    if (!cleanToken.startsWith('lv_')) {
+      return { valid: false, user: null };
+    }
+
+    const parts = cleanToken.slice(3).split('.');
+    if (parts.length !== 2) {
+      return { valid: false, user: null };
+    }
+
+    const [encodedPayload, signature] = parts;
+    const secret = getSessionSecret();
+    const expectedSig = sha256(`${encodedPayload}.${secret}`);
+
+    if (signature !== expectedSig) {
+      return { valid: false, user: null };
+    }
+
+    try {
+      const payload = JSON.parse(base64UrlDecode(encodedPayload));
+      if (!payload.userId || !payload.exp) {
+        return { valid: false, user: null };
+      }
+
+      if (Date.now() > payload.exp) {
+        this.activeSessions.delete(cleanToken);
+        return { valid: false, user: null };
+      }
+
+      // Verify user against database/memory
+      let user = this.memoryUsers.get(payload.userId) || null;
+      if (!user && payload.email) {
+        user = await this.findUserByEmail(payload.email);
+      }
+
+      if (!user) {
+        return { valid: false, user: null };
+      }
+
+      // Verify role integrity against server database
+      if (user.role !== payload.role) {
+        return { valid: false, user: null };
+      }
+
+      return { valid: true, user };
+    } catch {
+      return { valid: false, user: null };
+    }
+  }
+
+  destroySession(token: string): boolean {
+    const cleanToken = token.replace(/^Bearer\s+/i, '').trim();
+    return this.activeSessions.delete(cleanToken);
   }
 
   hashCode(code: string): string {
@@ -580,7 +704,7 @@ export class AuthService {
   /**
    * Login method verifying credentials AND requiring emailVerified = true for customers
    */
-  async login(email: string, password?: string): Promise<{ success: boolean; user?: any; error?: string; requiresVerification?: boolean; code?: string }> {
+  async login(email: string, password?: string): Promise<{ success: boolean; token?: string; user?: any; error?: string; requiresVerification?: boolean; code?: string }> {
     if (!email || !password) {
       return { success: false, error: 'Please provide both email and password.' };
     }
@@ -606,9 +730,11 @@ export class AuthService {
       };
     }
 
+    const token = this.createSession(user);
     const { passwordHash: _hash, emailVerificationTokenHash: _tHash, passwordResetTokenHash: _rHash, ...safeUser } = user;
     return {
       success: true,
+      token,
       user: safeUser
     };
   }

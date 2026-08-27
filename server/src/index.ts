@@ -10,13 +10,25 @@ import type { Bindings } from './controllers/payhereController.js';
 
 const app = new Hono<{ Bindings: Bindings }>();
 
-// Enable CORS for frontend
+// Enable secure CORS for frontend
 app.use(
   '*',
   cors({
-    origin: '*',
+    origin: (origin) => {
+      if (!origin) return '*';
+      if (
+        origin.includes('localhost') ||
+        origin.includes('127.0.0.1') ||
+        origin.endsWith('.vercel.app') ||
+        origin.includes('tourism-swart-seven.vercel.app') ||
+        origin.includes('lankavoyage.com')
+      ) {
+        return origin;
+      }
+      return 'https://tourism-swart-seven.vercel.app';
+    },
     allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowHeaders: ['Content-Type', 'Authorization', 'x-user-role', 'x-user-email', 'x-user-id']
+    allowHeaders: ['Content-Type', 'Authorization']
   })
 );
 

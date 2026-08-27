@@ -26,6 +26,17 @@ export const authService = {
     }
   },
 
+  getSessionToken(): string | null {
+    const sessionData = localStorage.getItem(SESSION_KEY);
+    if (!sessionData) return null;
+    try {
+      const session: AuthSession = JSON.parse(sessionData);
+      return session?.token || null;
+    } catch {
+      return null;
+    }
+  },
+
   /**
    * Retrieves the currently authenticated user by validating the session against
    * the persistent user database. Never trusts client-modified role values.
@@ -92,10 +103,10 @@ export const authService = {
         }
         localStorage.setItem(USERS_KEY, JSON.stringify(users));
 
-        // Create authentic session
+        // Create authentic session with server-signed token
         const session: AuthSession = {
           userId: user.id,
-          token: `lv-token-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+          token: data.token || `lv-token-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
           loginTime: new Date().toISOString()
         };
         localStorage.setItem(SESSION_KEY, JSON.stringify(session));

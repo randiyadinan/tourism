@@ -9,13 +9,10 @@ import type { User, Booking, Tour, Destination } from '../types';
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 
 function getAdminHeaders(): HeadersInit {
-  const user = authService.getCurrentUser();
+  const token = authService.getSessionToken();
   return {
     'Content-Type': 'application/json',
-    'x-user-role': user?.role || 'admin',
-    'x-user-email': user?.email || 'admin@lankavoyage.com',
-    'x-user-id': user?.id || 'user-admin-1',
-    'Authorization': 'Bearer admin-secret-token'
+    'Authorization': token ? `Bearer ${token}` : ''
   };
 }
 
