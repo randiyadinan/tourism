@@ -131,6 +131,11 @@ export const DestinationTicketCard: React.FC<DestinationTicketCardProps> = ({ de
           <span className="text-[10px] text-[#68736E] block font-medium">Estimated Total</span>
         </div>
       </div>
+
+      {/* 4. Customer Information Notice */}
+      <div className="px-5 py-2.5 bg-stone-50/90 border-t border-stone-200/60 text-[10px] text-stone-500 leading-normal text-center">
+        The ticket prices shown are for customer information only. LankaVoyage does not provide or charge these ticket fees.
+      </div>
     </div>
   );
 };

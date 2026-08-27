@@ -61,6 +61,13 @@ export const HomePage: React.FC = () => {
             ))}
           </div>
 
+          {/* Customer Information Notice */}
+          <div className="p-4 rounded-2xl bg-[#F8F7F2] border border-stone-200 text-center max-w-2xl mx-auto">
+            <p className="text-xs text-stone-600 font-medium">
+              The ticket prices shown are for customer information only. LankaVoyage does not provide or charge these ticket fees.
+            </p>
+          </div>
+
         </div>
       </section>
 
