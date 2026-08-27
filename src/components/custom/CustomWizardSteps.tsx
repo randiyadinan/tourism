@@ -199,7 +199,7 @@ export const Step3Arrival: React.FC<WizardStepProps> = ({ tripState, onChange })
       airportTransferOption: option,
       airportPickup: option === 'pickup' || option === 'both',
       airportTransferDetails: {
-        airport: tripState.airport || 'Bandaranaike Intl Airport (CMB) - Colombo',
+        airport: tripState.airport || 'Bandaranaike International Airport (CMB) – Katunayake',
         flightNumber: tripState.flightNumber,
         arrivalTime: tripState.arrivalTime,
         passengers: tripState.adults + tripState.children,
@@ -276,9 +276,7 @@ export const Step3Arrival: React.FC<WizardStepProps> = ({ tripState, onChange })
               })}
               className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3 py-2.5 text-sm font-semibold text-[#062C22]"
             >
-              <option value="Bandaranaike Intl Airport (CMB) - Colombo">Bandaranaike Intl Airport (CMB - Colombo)</option>
-              <option value="Mattala Rajapaksa Intl Airport (HRI) - Hambantota">Mattala Rajapaksa Intl (HRI - Hambantota)</option>
-              <option value="Jaffna Intl Airport (JAF)">Jaffna Intl Airport (JAF)</option>
+              <option value="Bandaranaike International Airport (CMB) – Katunayake">Bandaranaike International Airport (CMB) – Katunayake</option>
             </select>
           </div>
 

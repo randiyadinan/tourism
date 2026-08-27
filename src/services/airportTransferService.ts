@@ -25,7 +25,7 @@ const INITIAL_TRANSFERS: AirportTransferBooking[] = [
   {
     id: 'atb-1',
     bookingCode: 'TRF-CMB-8801',
-    airport: 'Bandaranaike International Airport (CMB - Colombo)',
+    airport: 'Bandaranaike International Airport (CMB) – Katunayake',
     tripType: 'One Way: Airport to Hotel',
     destinationArea: 'Colombo City (Hotels / Galle Face / Port City)',
     hotelAddress: 'The Galle Face Hotel, 2 Galle Road, Colombo 03',

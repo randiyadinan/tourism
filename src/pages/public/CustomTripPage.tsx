@@ -47,7 +47,7 @@ export const CustomTripPage: React.FC = () => {
       adults: 2,
       children: 0,
       infants: 0,
-      airport: 'Bandaranaike Intl Airport (CMB) - Colombo',
+      airport: 'Bandaranaike International Airport (CMB) – Katunayake',
       flightNumber: '',
       arrivalTime: '14:30',
       airportPickup: true,

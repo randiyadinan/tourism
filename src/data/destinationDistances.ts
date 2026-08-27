@@ -10,21 +10,9 @@ export const SUPPORTED_AIRPORTS: AirportOption[] = [
   {
     id: 'airport-cmb',
     code: 'CMB',
-    name: 'Bandaranaike International Airport',
-    location: 'Katunayake, Colombo, Sri Lanka',
+    name: 'Bandaranaike International Airport (CMB) – Katunayake',
+    location: 'Katunayake, Sri Lanka',
     isDefault: true
-  },
-  {
-    id: 'airport-hri',
-    code: 'HRI',
-    name: 'Mattala Rajapaksa International Airport',
-    location: 'Hambantota, Southern Sri Lanka'
-  },
-  {
-    id: 'airport-jaf',
-    code: 'JAF',
-    name: 'Jaffna International Airport',
-    location: 'Palaly, Northern Sri Lanka'
   }
 ];
 

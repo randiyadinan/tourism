@@ -45,7 +45,7 @@ export const ContactPage: React.FC = () => {
     },
     {
       q: 'Do you provide airport meet and greet?',
-      a: 'Yes, our representative meets you at the Colombo (CMB) / Mattala (HRI) Arrivals exit gate with private transport.'
+      a: 'Yes, our representative meets you at the Bandaranaike International Airport (CMB) – Katunayake Arrivals exit gate with private transport.'
     }
   ];
 

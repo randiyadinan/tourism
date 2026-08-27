@@ -279,7 +279,7 @@ export interface CustomTripState {
 export interface AirportTransferBooking {
   id: string;
   bookingCode: string;
-  airport: 'Bandaranaike International Airport (CMB - Colombo)' | 'Mattala Rajapaksa International (HRI - Hambantota)' | 'Jaffna International Airport (JAF)';
+  airport: 'Bandaranaike International Airport (CMB) – Katunayake' | string;
   tripType: 'One Way: Airport to Hotel' | 'One Way: Hotel to Airport' | 'Round Trip';
   destinationArea: string;
   hotelAddress: string;
