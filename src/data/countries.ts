@@ -220,3 +220,73 @@ export function searchCountries(search: string): Country[] {
     c => c.name.toLowerCase().includes(q) || c.code.toLowerCase().includes(q) || c.dialCode.includes(q)
   );
 }
+
+export function getDialCodeByCountry(countryNameOrCode: string): string {
+  const country = findCountry(countryNameOrCode);
+  return country ? country.dialCode : '+94';
+}
+
+export function getCountryByDialCode(dialCode: string): Country | undefined {
+  if (!dialCode) return undefined;
+  const clean = dialCode.startsWith('+') ? dialCode : `+${dialCode}`;
+  // Look for exact match or country with this dialCode
+  return COUNTRIES.find(c => c.dialCode === clean);
+}
+
+/**
+ * Splits an existing full phone string into country dial code and local national number.
+ * e.g. "+94 77 123 4567" -> { dialCode: "+94", nationalNumber: "77 123 4567", country: Sri Lanka }
+ * e.g. "+447700900077" -> { dialCode: "+44", nationalNumber: "7700900077", country: UK }
+ */
+export function splitPhoneNumber(
+  fullPhone: string,
+  fallbackCountryName = 'Sri Lanka'
+): { dialCode: string; nationalNumber: string; country: Country } {
+  const defaultCountry = findCountry(fallbackCountryName) || COUNTRIES[0];
+  if (!fullPhone || !fullPhone.trim()) {
+    return {
+      dialCode: defaultCountry.dialCode,
+      nationalNumber: '',
+      country: defaultCountry
+    };
+  }
+
+  const trimmed = fullPhone.trim();
+
+  // If phone starts with '+', sort dialCodes by length descending to match +971 before +9, +358 before +35 etc.
+  if (trimmed.startsWith('+')) {
+    const sortedCountries = [...COUNTRIES].sort((a, b) => b.dialCode.length - a.dialCode.length);
+    for (const c of sortedCountries) {
+      if (trimmed.startsWith(c.dialCode)) {
+        const rawNational = trimmed.slice(c.dialCode.length).trim();
+        // Remove leading 0 if user had typed +94077...
+        const nationalNumber = rawNational.startsWith('0') ? rawNational.slice(1).trim() : rawNational;
+        return {
+          dialCode: c.dialCode,
+          nationalNumber,
+          country: c
+        };
+      }
+    }
+  }
+
+  // If no '+' prefix, assume it's national number for the fallback country
+  const raw = trimmed.startsWith('0') ? trimmed.slice(1).trim() : trimmed;
+  return {
+    dialCode: defaultCountry.dialCode,
+    nationalNumber: raw,
+    country: defaultCountry
+  };
+}
+
+/**
+ * Formats dial code and national number into standard E.164-like international string
+ * e.g. ("+94", "771234567") -> "+94 771234567" or "+94771234567"
+ */
+export function formatInternationalPhone(dialCode: string, nationalNumber: string): string {
+  const cleanDial = dialCode.startsWith('+') ? dialCode : `+${dialCode}`;
+  const cleanNational = nationalNumber.replace(/^0+/, '').trim();
+  if (!cleanNational) return '';
+  return `${cleanDial} ${cleanNational}`.trim();
+}
+

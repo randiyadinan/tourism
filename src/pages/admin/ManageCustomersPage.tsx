@@ -19,6 +19,7 @@ import { adminService } from '../../services/adminService';
 import { formatPrice } from '../../utils/formatters';
 import type { User, Booking } from '../../types';
 import { CountrySelect } from '../../components/common/CountrySelect';
+import { PhoneInput } from '../../components/common/PhoneInput';
 
 export const ManageCustomersPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -433,22 +434,20 @@ export const ManageCustomersPage: React.FC = () => {
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="font-bold text-stone-700">Phone Number</label>
-                <input
-                  type="text"
-                  value={editPhone}
-                  onChange={(e) => setEditPhone(e.target.value)}
-                  placeholder="+94 77 123 4567"
-                  className="w-full px-3 py-2 bg-[#F8F7F2] border border-stone-300 rounded-xl text-xs text-[#062C22] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
-                />
-              </div>
-
               <CountrySelect
                 label="Country of Residence"
                 value={editCountry}
                 onChange={(c) => setEditCountry(c)}
                 placeholder="Select country..."
+              />
+
+              <PhoneInput
+                label="Phone Number / WhatsApp"
+                value={editPhone}
+                country={editCountry}
+                onCountryChange={(c) => setEditCountry(c)}
+                onChange={(p) => setEditPhone(p)}
+                placeholder="77 123 4567"
               />
 
               <div className="space-y-1">

@@ -4,12 +4,12 @@ import {
   CheckCircle2, 
   ShieldCheck, 
   Mail, 
-  Phone, 
   User as UserIcon,
   AlertCircle
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { CountrySelect } from '../../components/common/CountrySelect';
+import { PhoneInput } from '../../components/common/PhoneInput';
 
 export const CustomerProfilePage: React.FC = () => {
   const { user, updateProfile } = useAuth();
@@ -102,27 +102,22 @@ export const CustomerProfilePage: React.FC = () => {
           <span className="text-[10px] text-stone-400">Account login email cannot be changed.</span>
         </div>
 
-        {/* Phone */}
-        <div className="space-y-1.5">
-          <label className="font-bold text-stone-700 flex items-center gap-1.5">
-            <Phone className="w-3.5 h-3.5 text-[#176B52]" />
-            Phone Number / WhatsApp
-          </label>
-          <input
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="e.g. +94 77 123 4567"
-            className="w-full px-3.5 py-2.5 bg-[#F8F7F2] border border-stone-300 rounded-xl font-medium text-[#062C22]"
-          />
-        </div>
-
         {/* Country */}
         <CountrySelect
           label="Country of Residence"
           value={country}
           onChange={(c) => setCountry(c)}
           placeholder="Select your country..."
+        />
+
+        {/* Phone */}
+        <PhoneInput
+          label="Phone Number / WhatsApp"
+          value={phone}
+          country={country}
+          onCountryChange={(c) => setCountry(c)}
+          onChange={(p) => setPhone(p)}
+          placeholder="77 123 4567"
         />
 
         <div className="pt-4 border-t border-stone-100 flex justify-end">

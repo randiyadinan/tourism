@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { getWhatsAppChatUrl, WHATSAPP_MESSAGES } from '../../config/whatsapp';
 import { WhatsAppIcon } from '../../components/common/WhatsAppButton';
+import { PhoneInput } from '../../components/common/PhoneInput';
 
 export const ContactPage: React.FC = () => {
   const [name, setName] = useState('');
@@ -192,16 +193,12 @@ export const ContactPage: React.FC = () => {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="font-semibold text-[#17231F]">Phone / WhatsApp</label>
-                    <input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="e.g. +44 7911 123456"
-                      className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-3 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
-                    />
-                  </div>
+                  <PhoneInput
+                    label="Phone / WhatsApp"
+                    value={phone}
+                    onChange={(p) => setPhone(p)}
+                    placeholder="7911 123456"
+                  />
 
                   <div className="space-y-1">
                     <label className="font-semibold text-[#17231F]">Inquiry Topic</label>

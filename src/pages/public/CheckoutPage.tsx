@@ -22,6 +22,7 @@ import { analytics } from '../../services/analytics';
 import { formatPrice } from '../../utils/formatters';
 import type { PaymentMethod } from '../../types';
 import { CountrySelect } from '../../components/common/CountrySelect';
+import { PhoneInput } from '../../components/common/PhoneInput';
 
 export const CheckoutPage: React.FC = () => {
   const location = useLocation();
@@ -386,17 +387,15 @@ export const CheckoutPage: React.FC = () => {
                       className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-3 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
                     />
                   </div>
-                  <div className="space-y-1">
-                    <label className="font-semibold text-[#17231F]">Phone / WhatsApp *</label>
-                    <input
-                      type="tel"
-                      required
-                      value={leadPhone}
-                      onChange={(e) => setLeadPhone(e.target.value)}
-                      placeholder="+44 7911 123456"
-                      className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-3 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
-                    />
-                  </div>
+                  <PhoneInput
+                    label="Phone / WhatsApp"
+                    required
+                    value={leadPhone}
+                    country={leadCountry}
+                    onCountryChange={(c) => setLeadCountry(c)}
+                    onChange={(p) => setLeadPhone(p)}
+                    placeholder="7911 123456"
+                  />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">

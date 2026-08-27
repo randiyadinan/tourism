@@ -5,13 +5,13 @@ import {
   Mail, 
   Lock, 
   User, 
-  Phone, 
   ArrowRight, 
   AlertCircle, 
   ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { CountrySelect } from '../../components/common/CountrySelect';
+import { PhoneInput } from '../../components/common/PhoneInput';
 
 export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
@@ -119,19 +119,14 @@ export const RegisterPage: React.FC = () => {
               placeholder="Select your country..."
             />
 
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-stone-700">Phone / WhatsApp</label>
-              <div className="relative">
-                <Phone className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+49 170 123456"
-                  className="w-full pl-10 pr-4 py-2.5 bg-[#F8F7F2] border border-stone-300 rounded-xl text-xs text-[#062C22] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
-                />
-              </div>
-            </div>
+            <PhoneInput
+              label="Phone / WhatsApp"
+              value={phone}
+              country={country}
+              onCountryChange={(c) => setCountry(c)}
+              onChange={(p) => setPhone(p)}
+              placeholder="77 123 4567"
+            />
           </div>
 
           <div className="space-y-1">

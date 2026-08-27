@@ -24,6 +24,8 @@ import { payhereService } from '../../services/payhereService';
 import { useAuth } from '../../context/AuthContext';
 import { INITIAL_DESTINATIONS } from '../../data/destinations';
 import { INITIAL_ACTIVITIES } from '../../data/activities';
+import { CountrySelect } from '../../components/common/CountrySelect';
+import { PhoneInput } from '../../components/common/PhoneInput';
 
 export const CustomTripPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -371,29 +373,23 @@ export const CustomTripPage: React.FC = () => {
                           className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-2.5 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
                         />
                       </div>
-                      <div className="space-y-1">
-                        <label className="font-semibold text-[#17231F]">Phone / WhatsApp *</label>
-                        <input
-                          type="tel"
-                          required
-                          value={contactPhone}
-                          onChange={(e) => setContactPhone(e.target.value)}
-                          placeholder="+44 7911 123456"
-                          className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-2.5 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="font-semibold text-[#17231F]">Country of Residence</label>
-                      <input
-                        type="text"
-                        value={contactCountry}
-                        onChange={(e) => setContactCountry(e.target.value)}
-                        placeholder="United Kingdom"
-                        className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-2.5 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
+                      <PhoneInput
+                        label="Phone / WhatsApp"
+                        required
+                        value={contactPhone}
+                        country={contactCountry}
+                        onCountryChange={(c) => setContactCountry(c)}
+                        onChange={(p) => setContactPhone(p)}
+                        placeholder="7911 123456"
                       />
                     </div>
+
+                    <CountrySelect
+                      label="Country of Residence"
+                      value={contactCountry}
+                      onChange={(c) => setContactCountry(c)}
+                      placeholder="Select country..."
+                    />
 
                     {/* Payment Method Selector */}
                     <div className="space-y-1.5 pt-2">
