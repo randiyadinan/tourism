@@ -111,7 +111,19 @@ export async function initiatePayment(c: Context<{ Bindings: Bindings }>) {
     const cancelUrl = `${frontendBaseUrl}/checkout?payment_status=cancelled&order_id=${encodeURIComponent(orderId)}`;
     const notifyUrl = callbackBaseUrl;
 
-    const numAmount = Number(amount);
+    let numAmount = Number(amount);
+    if (bookingId || bookingCode) {
+      const existingBooking = bookingStore.getBookingById(bookingId || bookingCode || '');
+      if (existingBooking && existingBooking.totalAmount) {
+        // Enforce the server-verified booking total
+        numAmount = Number(existingBooking.totalAmount);
+      }
+    }
+
+    if (isNaN(numAmount) || numAmount <= 0) {
+      return c.json({ error: 'Invalid payment amount.' }, 400);
+    }
+
     const formattedAmount = numAmount.toFixed(2);
 
     // Compute secure cryptographic hash
