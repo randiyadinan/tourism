@@ -45,7 +45,6 @@ import { ManageBookingsPage } from './pages/admin/ManageBookingsPage';
 import { ManagePaymentsPage } from './pages/admin/ManagePaymentsPage';
 import { ManageReviewsPage } from './pages/admin/ManageReviewsPage';
 import { ManageDiscountsPage } from './pages/admin/ManageDiscountsPage';
-import { ReportsPage } from './pages/admin/ReportsPage';
 import { ManageAirportTransfersPage } from './pages/admin/ManageAirportTransfersPage';
 import { AdminNotificationsPage } from './pages/admin/AdminNotificationsPage';
 import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
@@ -138,7 +137,7 @@ export const App: React.FC = () => {
           <Route path="payments" element={<ManagePaymentsPage />} />
           <Route path="reviews" element={<ManageReviewsPage />} />
           <Route path="discounts" element={<ManageDiscountsPage />} />
-          <Route path="reports" element={<ReportsPage />} />
+          <Route path="reports" element={<Navigate to="/admin" replace />} />
           <Route path="airport-transfers" element={<ManageAirportTransfersPage />} />
           <Route path="notifications" element={<AdminNotificationsPage />} />
           <Route path="settings" element={<AdminSettingsPage />} />

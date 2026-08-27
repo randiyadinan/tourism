@@ -29,7 +29,8 @@ export const adminRouter = new Hono();
 // Enforce strict Server-Side Admin Authorization across all /api/admin/* endpoints
 adminRouter.use('*', requireAdmin);
 
-// ─── 0. BUSINESS REPORTS / ANALYTICS ───
+// ─── 0. BUSINESS REPORTS / ANALYTICS / DASHBOARD ───
+adminRouter.get('/dashboard', getAdminReports);
 adminRouter.get('/reports', getAdminReports);
 
 // ─── 1. PROFILES / CUSTOMERS ───
