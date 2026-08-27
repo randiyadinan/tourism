@@ -2,11 +2,16 @@ import { PrismaClient } from '@prisma/client';
 import crypto from 'crypto';
 import { emailService } from './emailService.js';
 
-let prisma: PrismaClient | null = null;
-try {
-  prisma = new PrismaClient();
-} catch (e) {
-  console.warn('⚠️ [AuthService] Prisma client initialization notice:', e);
+let _prisma: PrismaClient | null = null;
+function getPrismaClient(): PrismaClient | null {
+  if (!_prisma && process.env.DATABASE_URL) {
+    try {
+      _prisma = new PrismaClient();
+    } catch (e) {
+      console.warn('⚠️ [AuthService] Prisma client initialization notice:', e);
+    }
+  }
+  return _prisma;
 }
 
 export interface ServerUserRecord {
@@ -95,6 +100,7 @@ export class AuthService {
     const cleanEmail = email.trim().toLowerCase();
     
     // 1. Try Prisma DB
+    const prisma = getPrismaClient();
     if (prisma) {
       try {
         const dbUser = await prisma.user.findUnique({
@@ -117,6 +123,7 @@ export class AuthService {
 
   private async findUserByTokenHash(tokenHash: string): Promise<ServerUserRecord | null> {
     // 1. Try Prisma DB
+    const prisma = getPrismaClient();
     if (prisma) {
       try {
         const dbUser = await prisma.user.findFirst({
@@ -140,6 +147,7 @@ export class AuthService {
   private async saveUser(user: ServerUserRecord): Promise<ServerUserRecord> {
     this.memoryUsers.set(user.id, user);
 
+    const prisma = getPrismaClient();
     if (prisma) {
       try {
         await prisma.user.upsert({
