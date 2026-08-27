@@ -17,7 +17,23 @@ app.use(
   })
 );
 
-// Health check endpoint (matches both /api/health and /health)
+// Health check endpoint (matches /, /api, /api/health, /health)
+app.get('/', (c) => {
+  return c.json({
+    status: 'ok',
+    service: 'LankaVoyage API Backend',
+    gateway: 'PayHere Sandbox',
+    time: new Date().toISOString()
+  });
+});
+app.get('/api', (c) => {
+  return c.json({
+    status: 'ok',
+    service: 'LankaVoyage API Backend',
+    gateway: 'PayHere Sandbox',
+    time: new Date().toISOString()
+  });
+});
 app.get('/api/health', (c) => {
   return c.json({
     status: 'ok',
