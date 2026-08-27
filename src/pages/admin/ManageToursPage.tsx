@@ -14,6 +14,7 @@ import { adminService } from '../../services/adminService';
 import { tourService } from '../../services/tourService';
 import type { Tour } from '../../types';
 import { formatPrice } from '../../utils/formatters';
+import { handleImageError } from '../../utils/imageFallback';
 
 export const ManageToursPage: React.FC = () => {
   const [tours, setTours] = useState<Tour[]>([]);
@@ -150,7 +151,12 @@ export const ManageToursPage: React.FC = () => {
               {filtered.map((tour) => (
                 <tr key={tour.id} className="hover:bg-stone-50/50">
                   <td className="py-4 px-6 flex items-center gap-3">
-                    <img src={tour.heroImage} alt={tour.title} className="w-12 h-12 rounded-xl object-cover" />
+                    <img
+                      src={tour.heroImage}
+                      alt={tour.title}
+                      className="w-12 h-12 rounded-xl object-cover"
+                      onError={(e) => handleImageError(e, 'tour')}
+                    />
                     <div>
                       <h4 className="font-serif font-bold text-xs text-[#062C22] line-clamp-1">{tour.title}</h4>
                       <p className="text-[10px] text-stone-400">{tour.destinations.join(' • ')}</p>

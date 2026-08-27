@@ -3,6 +3,7 @@ import { Clock, MapPin, Star, Heart, ArrowRight } from 'lucide-react';
 import type { Activity } from '../../types';
 import { useWishlist } from '../../context/WishlistContext';
 import { formatPrice } from '../../utils/formatters';
+import { handleImageError } from '../../utils/imageFallback';
 
 interface ActivityCardProps {
   activity: Activity;
@@ -37,6 +38,7 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity }) => {
           alt={activity.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
           loading="lazy"
+          onError={(e) => handleImageError(e, 'activity')}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#062C22]/85 via-transparent to-transparent" />
 

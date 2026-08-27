@@ -4,6 +4,8 @@ import { Clock, Star, Heart, ArrowRight } from 'lucide-react';
 import type { Tour } from '../../types';
 import { useWishlist } from '../../context/WishlistContext';
 
+import { handleImageError } from '../../utils/imageFallback';
+
 interface TourCardProps {
   tour: Tour;
   layout?: 'grid' | 'horizontal';
@@ -39,6 +41,7 @@ export const TourCard: React.FC<TourCardProps> = ({ tour, layout = 'grid' }) => 
             alt={tour.title}
             className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700"
             loading="lazy"
+            onError={(e) => handleImageError(e, 'tour')}
           />
           <button
             onClick={handleWishlistToggle}
@@ -114,6 +117,7 @@ export const TourCard: React.FC<TourCardProps> = ({ tour, layout = 'grid' }) => 
             alt={tour.title}
             className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700"
             loading="lazy"
+            onError={(e) => handleImageError(e, 'tour')}
           />
           
           {/* Emerald Pill Badge */}

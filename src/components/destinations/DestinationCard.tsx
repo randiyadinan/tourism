@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Heart, Star } from 'lucide-react';
 import type { Destination } from '../../types';
 import { useWishlist } from '../../context/WishlistContext';
+import { handleImageError } from '../../utils/imageFallback';
 
 interface DestinationCardProps {
   destination: Destination;
@@ -35,6 +36,7 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({ destination })
         alt={destination.name}
         className="absolute inset-0 w-full h-full object-cover group-hover:scale-108 transition-transform duration-700"
         loading="lazy"
+        onError={(e) => handleImageError(e, 'destination')}
       />
       
       {/* Deep Forest Gradient Overlay */}

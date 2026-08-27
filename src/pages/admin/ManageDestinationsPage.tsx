@@ -12,6 +12,7 @@ import { destinationTicketService, type DestinationTicketRecord } from '../../se
 import { adminService } from '../../services/adminService';
 import { Modal } from '../../components/common/Modal';
 import { formatPrice } from '../../utils/formatters';
+import { handleImageError } from '../../utils/imageFallback';
 
 export const ManageDestinationsPage: React.FC = () => {
   const [destinations, setDestinations] = useState<DestinationTicketRecord[]>(() => destinationTicketService.getAllDestinations());
@@ -204,7 +205,12 @@ export const ManageDestinationsPage: React.FC = () => {
               {filtered.map((dest) => (
                 <tr key={dest.id} className="hover:bg-stone-50/50">
                   <td className="py-4 px-6 flex items-center gap-3">
-                    <img src={dest.image} alt={dest.name} className="w-12 h-12 rounded-xl object-cover" />
+                    <img
+                      src={dest.image}
+                      alt={dest.name}
+                      className="w-12 h-12 rounded-xl object-cover"
+                      onError={(e) => handleImageError(e, 'destination')}
+                    />
                     <div>
                       <h4 className="font-serif font-bold text-xs text-[#062C22]">{dest.name}</h4>
                       <p className="text-[10px] text-stone-400 max-w-[220px] truncate">{dest.subtitle}</p>

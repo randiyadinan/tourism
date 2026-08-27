@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { 
   Calendar, 
   CloudSun, 
   Sparkles, 
-  Clock
+  Clock,
+  ArrowLeft
 } from 'lucide-react';
 import { destinationService } from '../../services/destinationService';
 import { tourService } from '../../services/tourService';
@@ -13,24 +14,43 @@ import { TourCard } from '../../components/tours/TourCard';
 import { ActivityCard } from '../../components/activities/ActivityCard';
 import { StarRating } from '../../components/common/StarRating';
 import { analytics } from '../../services/analytics';
+import { handleImageError } from '../../utils/imageFallback';
 
 export const DestinationDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
-  const destination = destinationService.getDestinationBySlug(slug || '');
+  const [destination, setDestination] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    if (slug) {
+      const dest = destinationService.getDestinationBySlug(slug);
+      setDestination(dest || null);
+      setLoading(false);
+    }
+  }, [slug]);
+
+  useEffect(() => {
     if (destination) {
       document.title = `${destination.name} Travel Guide | LankaVoyage Sri Lanka`;
       analytics.viewDestination(destination.id, destination.name);
     }
   }, [destination]);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F8F7F2]">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#176B52] border-t-transparent" />
+      </div>
+    );
+  }
+
   if (!destination) {
     return (
-      <div className="max-w-4xl mx-auto py-20 px-4 text-center">
+      <div className="min-h-[70vh] flex flex-col items-center justify-center bg-[#F8F7F2] p-8 text-center">
         <h2 className="font-serif text-3xl font-bold text-[#062C22] mb-4">Destination Not Found</h2>
-        <Link to="/destinations" className="px-6 py-3 bg-[#0B3D2E] text-white font-bold rounded-xl">
-          View All Destinations
+        <p className="text-stone-600 mb-8 max-w-md">We could not locate the bespoke destination profile you were searching for.</p>
+        <Link to="/destinations" className="px-6 py-3 bg-[#0B3D2E] text-white font-bold rounded-xl inline-flex items-center gap-2">
+          <ArrowLeft className="w-4 h-4" /> Return to Destinations
         </Link>
       </div>
     );
@@ -55,6 +75,7 @@ export const DestinationDetailPage: React.FC = () => {
           src={destination.heroImage}
           alt={destination.name}
           className="absolute inset-0 w-full h-full object-cover"
+          onError={(e) => handleImageError(e, 'destination')}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#062C22] via-[#062C22]/50 to-black/30" />
 
@@ -103,7 +124,7 @@ export const DestinationDetailPage: React.FC = () => {
 
             <div className="pt-4 border-t border-stone-100 flex flex-wrap gap-2">
               <span className="text-xs font-bold text-stone-400 block w-full mb-1">Top Recommended Highlights:</span>
-              {destination.popularActivities.map((act, i) => (
+              {destination.popularActivities.map((act: string, i: number) => (
                 <span key={i} className="px-3 py-1 bg-[#F8F7F2] text-[#062C22] font-semibold text-xs rounded-xl border border-stone-200">
                   ★ {act}
                 </span>
@@ -154,10 +175,15 @@ export const DestinationDetailPage: React.FC = () => {
           <div className="space-y-6">
             <h3 className="font-serif text-3xl font-bold text-[#062C22]">Key Attractions & Monuments</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {destination.attractions.map((att, idx) => (
+              {destination.attractions.map((att: any, idx: number) => (
                 <div key={idx} className="bg-white rounded-2xl overflow-hidden border border-stone-200 shadow-sm flex flex-col justify-between">
                   <div className="h-44 overflow-hidden relative">
-                    <img src={att.image} alt={att.name} className="w-full h-full object-cover" />
+                    <img
+                      src={att.image}
+                      alt={att.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => handleImageError(e, 'destination')}
+                    />
                     {att.entranceFee && (
                       <span className="absolute bottom-2 right-2 px-2.5 py-1 rounded-md bg-black/70 backdrop-blur-xs text-white text-[11px] font-semibold">
                         Fee: {att.entranceFee}

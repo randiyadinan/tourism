@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Camera, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { handleImageError } from '../../utils/imageFallback';
 
 interface TourGalleryProps {
   heroImage: string;
@@ -8,25 +9,23 @@ interface TourGalleryProps {
 }
 
 export const TourGallery: React.FC<TourGalleryProps> = ({ heroImage, gallery, title }) => {
-  const allImages = [heroImage, ...gallery.filter(img => img !== heroImage)];
-  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [currentIdx, setCurrentIdx] = useState(0);
+
+  // Compile unique array of all images
+  const allImages = [heroImage, ...(gallery || [])].filter((v, i, a) => a.indexOf(v) === i && !!v);
 
   const openLightbox = (index: number) => {
-    setSelectedIdx(index);
-  };
-
-  const closeLightbox = () => {
-    setSelectedIdx(null);
-  };
-
-  const prevImage = () => {
-    if (selectedIdx === null) return;
-    setSelectedIdx(selectedIdx === 0 ? allImages.length - 1 : selectedIdx - 1);
+    setCurrentIdx(index);
+    setLightboxOpen(true);
   };
 
   const nextImage = () => {
-    if (selectedIdx === null) return;
-    setSelectedIdx(selectedIdx === allImages.length - 1 ? 0 : selectedIdx + 1);
+    setCurrentIdx((prev) => (prev + 1) % allImages.length);
+  };
+
+  const prevImage = () => {
+    setCurrentIdx((prev) => (prev - 1 + allImages.length) % allImages.length);
   };
 
   return (
@@ -43,6 +42,7 @@ export const TourGallery: React.FC<TourGalleryProps> = ({ heroImage, gallery, ti
             src={allImages[0]}
             alt={title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            onError={(e) => handleImageError(e, 'tour')}
           />
           <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors" />
         </div>
@@ -59,6 +59,7 @@ export const TourGallery: React.FC<TourGalleryProps> = ({ heroImage, gallery, ti
                 src={img}
                 alt={`${title} - ${i + 1}`}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                onError={(e) => handleImageError(e, 'tour')}
               />
               <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors" />
             </div>
@@ -77,6 +78,7 @@ export const TourGallery: React.FC<TourGalleryProps> = ({ heroImage, gallery, ti
                 src={img}
                 alt={`${title} - ${i + 3}`}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                onError={(e) => handleImageError(e, 'tour')}
               />
               <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors" />
               {i === 1 && (
@@ -92,10 +94,10 @@ export const TourGallery: React.FC<TourGalleryProps> = ({ heroImage, gallery, ti
       </div>
 
       {/* Lightbox Modal */}
-      {selectedIdx !== null && (
+      {lightboxOpen && (
         <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
           <button
-            onClick={closeLightbox}
+            onClick={() => setLightboxOpen(false)}
             className="absolute top-6 right-6 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-50"
           >
             <X className="w-6 h-6" />
@@ -117,14 +119,15 @@ export const TourGallery: React.FC<TourGalleryProps> = ({ heroImage, gallery, ti
 
           <div className="max-w-5xl max-h-[85vh] overflow-hidden rounded-2xl">
             <img
-              src={allImages[selectedIdx]}
+              src={allImages[currentIdx]}
               alt={title}
               className="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl"
+              onError={(e) => handleImageError(e, 'tour')}
             />
           </div>
 
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/80 text-xs font-semibold bg-black/50 px-4 py-1.5 rounded-full border border-white/20">
-            {selectedIdx + 1} / {allImages.length}
+            {currentIdx + 1} / {allImages.length}
           </div>
         </div>
       )}

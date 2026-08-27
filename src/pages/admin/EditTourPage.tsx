@@ -12,6 +12,7 @@ import {
 import { tourService } from '../../services/tourService';
 import { adminService } from '../../services/adminService';
 import type { TourCategory, TourDifficulty, ItineraryDay } from '../../types';
+import { handleImageError } from '../../utils/imageFallback';
 
 export const EditTourPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -293,6 +294,19 @@ export const EditTourPage: React.FC = () => {
               onChange={(e) => setHeroImage(e.target.value)}
               className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl px-3.5 py-2 text-xs text-[#062C22]"
             />
+            {heroImage && (
+              <div className="mt-2 relative w-full h-36 max-w-sm rounded-xl overflow-hidden border border-stone-200 shadow-inner">
+                <img
+                  src={heroImage}
+                  alt="Tour Hero Preview"
+                  className="w-full h-full object-cover"
+                  onError={(e) => handleImageError(e, 'tour')}
+                />
+                <span className="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded text-[10px] font-bold bg-black/60 text-white backdrop-blur-xs">
+                  Hero Preview
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="space-y-1">
