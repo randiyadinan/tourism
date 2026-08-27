@@ -71,7 +71,16 @@ app.get('/api/tours', (c) => {
   const tours = tourStore.getAllTours().filter(t => t.published);
   return c.json({ success: true, data: tours });
 });
+app.get('/tours', (c) => {
+  const tours = tourStore.getAllTours().filter(t => t.published);
+  return c.json({ success: true, data: tours });
+});
 app.get('/api/tours/:idOrSlug', (c) => {
+  const tour = tourStore.getTourById(c.req.param('idOrSlug'));
+  if (!tour) return c.json({ success: false, error: 'Tour not found' }, 404);
+  return c.json({ success: true, data: tour });
+});
+app.get('/tours/:idOrSlug', (c) => {
   const tour = tourStore.getTourById(c.req.param('idOrSlug'));
   if (!tour) return c.json({ success: false, error: 'Tour not found' }, 404);
   return c.json({ success: true, data: tour });
@@ -81,7 +90,16 @@ app.get('/api/destinations', (c) => {
   const destinations = destinationStore.getAllDestinations().filter(d => d.active);
   return c.json({ success: true, data: destinations });
 });
+app.get('/destinations', (c) => {
+  const destinations = destinationStore.getAllDestinations().filter(d => d.active);
+  return c.json({ success: true, data: destinations });
+});
 app.get('/api/destinations/:idOrSlug', (c) => {
+  const dest = destinationStore.getDestinationById(c.req.param('idOrSlug'));
+  if (!dest) return c.json({ success: false, error: 'Destination not found' }, 404);
+  return c.json({ success: true, data: dest });
+});
+app.get('/destinations/:idOrSlug', (c) => {
   const dest = destinationStore.getDestinationById(c.req.param('idOrSlug'));
   if (!dest) return c.json({ success: false, error: 'Destination not found' }, 404);
   return c.json({ success: true, data: dest });
