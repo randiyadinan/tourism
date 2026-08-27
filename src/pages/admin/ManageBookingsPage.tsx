@@ -55,13 +55,29 @@ export const ManageBookingsPage: React.FC = () => {
     }
   };
 
-  const handleConfirm = (id: string) => {
-    handleUpdateStatus(id, 'Confirmed');
+  const handleConfirm = async (id: string) => {
+    try {
+      const updated = await bookingService.confirmBooking(id);
+      setBookings(bookings.map(b => b.id === id ? updated : b));
+      if (selectedBooking && selectedBooking.id === id) {
+        setSelectedBooking(updated);
+      }
+    } catch (err: any) {
+      alert(err.message || 'Failed to confirm booking.');
+    }
   };
 
-  const handleReject = (id: string) => {
+  const handleReject = async (id: string) => {
     if (window.confirm('Are you sure you want to reject this booking request?')) {
-      handleUpdateStatus(id, 'Rejected');
+      try {
+        const updated = await bookingService.rejectBooking(id);
+        setBookings(bookings.map(b => b.id === id ? updated : b));
+        if (selectedBooking && selectedBooking.id === id) {
+          setSelectedBooking(updated);
+        }
+      } catch (err: any) {
+        alert(err.message || 'Failed to reject booking.');
+      }
     }
   };
 

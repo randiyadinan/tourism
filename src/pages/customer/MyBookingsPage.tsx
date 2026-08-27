@@ -94,7 +94,7 @@ export const MyBookingsPage: React.FC = () => {
                             ? 'bg-amber-100 text-amber-800'
                             : 'bg-rose-100 text-rose-800'
                       }`}>
-                        {b.bookingStatus}
+                        {b.bookingStatus === 'Pending' ? 'Awaiting Confirmation' : b.bookingStatus}
                       </span>
                     </td>
                     <td className="py-3.5 px-4">
@@ -105,17 +105,27 @@ export const MyBookingsPage: React.FC = () => {
                           ? 'bg-amber-100 text-amber-900'
                           : 'bg-rose-100 text-rose-800'
                       }`}>
-                        {b.paymentStatus === 'PAID' || b.paymentStatus === 'Fully Paid' ? 'PAID' : b.paymentStatus === 'NOT PAID' || b.paymentStatus === 'Unpaid' ? 'NOT PAID' : b.paymentStatus}
+                        {b.paymentStatus === 'PAID' || b.paymentStatus === 'Fully Paid' ? 'PAID' : 'NOT PAID'}
                       </span>
                     </td>
                     <td className="py-3.5 px-4 text-right">
-                      <Link
-                        to={`/customer/bookings/${b.id}`}
-                        className="inline-flex items-center gap-1 text-xs font-bold text-[#0B3D2E] hover:underline"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        <span>View Booking</span>
-                      </Link>
+                      <div className="flex items-center justify-end gap-2">
+                        {b.bookingStatus === 'Confirmed' && (b.paymentStatus === 'NOT PAID' || b.paymentStatus === 'Unpaid') && (
+                          <Link
+                            to={`/customer/bookings/${b.id}`}
+                            className="px-2.5 py-1 bg-[#0B3D2E] hover:bg-[#134E3F] text-white font-bold text-[10px] rounded-lg shadow-xs transition-colors"
+                          >
+                            Pay Now &rarr;
+                          </Link>
+                        )}
+                        <Link
+                          to={`/customer/bookings/${b.id}`}
+                          className="inline-flex items-center gap-1 text-xs font-bold text-[#0B3D2E] hover:underline"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>View</span>
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))}

@@ -234,6 +234,7 @@ export interface Booking {
   amountPaid: number;
   bookingStatus: BookingStatus;
   paymentStatus: PaymentStatus;
+  paymentAvailable?: boolean;
   paymentMethod: PaymentMethod;
   notes?: string;
   assignedGuide?: {

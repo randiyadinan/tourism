@@ -1,6 +1,7 @@
 import type { Context } from 'hono';
 import { paymentStore } from '../services/paymentStore.js';
 import { bookingStore } from '../services/bookingStore.js';
+import { emailService } from '../services/emailService.js';
 import { md5 } from '../utils/crypto.js';
 
 export interface Bindings {
@@ -114,8 +115,33 @@ export async function initiatePayment(c: Context<{ Bindings: Bindings }>) {
     let numAmount = Number(amount);
     if (bookingId || bookingCode) {
       const existingBooking = bookingStore.getBookingById(bookingId || bookingCode || '');
-      if (existingBooking && existingBooking.totalAmount) {
-        // Enforce the server-verified booking total
+      if (!existingBooking) {
+        return c.json({ error: 'Referenced booking not found.' }, 404);
+      }
+
+      // STRICT APPROVAL RULE 1: Booking MUST be CONFIRMED by Admin before payment can be initiated
+      if (existingBooking.bookingStatus !== 'Confirmed') {
+        return c.json({
+          error: `Payment is locked. Your booking request is currently ${existingBooking.bookingStatus.toUpperCase()} and must be approved by an administrator before payment can be accepted.`
+        }, 403);
+      }
+
+      // STRICT APPROVAL RULE 2: If already paid, block duplicate initiation
+      if (existingBooking.paymentStatus === 'PAID' || existingBooking.paymentStatus === 'Fully Paid') {
+        return c.json({
+          error: 'This booking has already been paid in full. No further payment is required.'
+        }, 400);
+      }
+
+      // STRICT APPROVAL RULE 3: paymentAvailable flag must be explicitly true
+      if (existingBooking.paymentAvailable === false) {
+        return c.json({
+          error: 'Payment is currently unavailable for this booking.'
+        }, 403);
+      }
+
+      // STRICT AMOUNT RULE: Always use server-verified booking total amount
+      if (existingBooking.totalAmount) {
         numAmount = Number(existingBooking.totalAmount);
       }
     }
@@ -268,7 +294,29 @@ export async function handleNotification(c: Context<{ Bindings: Bindings }>) {
     const paymentRecord = paymentStore.getPayment(order_id);
     const bookingIdentifier = paymentRecord?.bookingId || paymentRecord?.bookingCode || order_id;
     if (mappedStatus === 'SUCCESS') {
-      bookingStore.markAsPaid(bookingIdentifier);
+      const updatedBooking = bookingStore.markAsPaid(bookingIdentifier);
+      
+      // Dispatch real email receipts to Customer and Admin upon verified payment
+      if (updatedBooking) {
+        emailService.sendCustomerPaymentSuccess({
+          to: updatedBooking.customerEmail,
+          name: updatedBooking.customerName,
+          bookingCode: updatedBooking.bookingCode,
+          paymentId: payment_id || order_id,
+          amount: Number(payhere_amount || updatedBooking.totalAmount),
+          tourTitle: updatedBooking.tourTitle || 'Sri Lanka Tour',
+          paymentDate: new Date().toLocaleDateString('en-GB')
+        }).catch((err: any) => console.warn('⚠️ [EmailService] Customer payment receipt email warning:', err));
+
+        emailService.sendAdminPaymentNotification({
+          bookingCode: updatedBooking.bookingCode,
+          customerName: updatedBooking.customerName,
+          customerEmail: updatedBooking.customerEmail,
+          paymentId: payment_id || order_id,
+          amount: Number(payhere_amount || updatedBooking.totalAmount),
+          tourTitle: updatedBooking.tourTitle || 'Sri Lanka Tour'
+        }).catch((err: any) => console.warn('⚠️ [EmailService] Admin payment notification email warning:', err));
+      }
     } else if (mappedStatus === 'FAILED' || mappedStatus === 'CANCELLED') {
       bookingStore.updatePaymentStatus(bookingIdentifier, mappedStatus);
     }

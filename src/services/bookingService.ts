@@ -47,6 +47,7 @@ export interface CreateBookingInput {
   amountPaid: number;
   bookingStatus?: BookingStatus;
   paymentStatus: PaymentStatus;
+  paymentAvailable?: boolean;
   paymentMethod: PaymentMethod;
   notes?: string;
 }
@@ -218,6 +219,86 @@ export const bookingService = {
   },
 
   /**
+   * Admin-Only Confirm Booking: sets bookingStatus = "Confirmed" and paymentAvailable = true
+   */
+  async confirmBooking(id: string): Promise<Booking> {
+    const currentUser = authService.getCurrentUser();
+    if (!currentUser || currentUser.role !== 'admin') {
+      throw new Error('403 Forbidden: Only administrators are authorized to confirm bookings.');
+    }
+    const bookings = this.getAllBookings();
+    const idx = bookings.findIndex(b => b.id === id);
+    if (idx === -1) throw new Error('Booking not found');
+    
+    bookings[idx].bookingStatus = 'Confirmed';
+    bookings[idx].paymentAvailable = true;
+    bookings[idx].updatedAt = new Date().toISOString();
+    localStorage.setItem(BOOKINGS_KEY, JSON.stringify(bookings));
+
+    const endpoint = API_BASE ? `${API_BASE}/api/bookings/${id}/confirm` : `/api/bookings/${id}/confirm`;
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-user-role': 'admin'
+        }
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          bookings[idx] = json.data;
+          localStorage.setItem(BOOKINGS_KEY, JSON.stringify(bookings));
+        }
+      }
+    } catch (err: any) {
+      console.warn('[bookingService] Server confirm sync notice:', err.message);
+    }
+
+    return bookings[idx];
+  },
+
+  /**
+   * Admin-Only Reject Booking: sets bookingStatus = "Rejected" and paymentAvailable = false
+   */
+  async rejectBooking(id: string): Promise<Booking> {
+    const currentUser = authService.getCurrentUser();
+    if (!currentUser || currentUser.role !== 'admin') {
+      throw new Error('403 Forbidden: Only administrators are authorized to reject bookings.');
+    }
+    const bookings = this.getAllBookings();
+    const idx = bookings.findIndex(b => b.id === id);
+    if (idx === -1) throw new Error('Booking not found');
+
+    bookings[idx].bookingStatus = 'Rejected';
+    bookings[idx].paymentAvailable = false;
+    bookings[idx].updatedAt = new Date().toISOString();
+    localStorage.setItem(BOOKINGS_KEY, JSON.stringify(bookings));
+
+    const endpoint = API_BASE ? `${API_BASE}/api/bookings/${id}/reject` : `/api/bookings/${id}/reject`;
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-user-role': 'admin'
+        }
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          bookings[idx] = json.data;
+          localStorage.setItem(BOOKINGS_KEY, JSON.stringify(bookings));
+        }
+      }
+    } catch (err: any) {
+      console.warn('[bookingService] Server reject sync notice:', err.message);
+    }
+
+    return bookings[idx];
+  },
+
+  /**
    * Admin-Only Status Update with permission verification.
    */
   updateBookingStatus(id: string, bookingStatus: BookingStatus): Booking {
@@ -229,6 +310,11 @@ export const bookingService = {
     const idx = bookings.findIndex(b => b.id === id);
     if (idx === -1) throw new Error('Booking not found');
     bookings[idx].bookingStatus = bookingStatus;
+    if (bookingStatus === 'Confirmed') {
+      bookings[idx].paymentAvailable = true;
+    } else if (bookingStatus === 'Rejected' || bookingStatus === 'Cancelled') {
+      bookings[idx].paymentAvailable = false;
+    }
     bookings[idx].updatedAt = new Date().toISOString();
     localStorage.setItem(BOOKINGS_KEY, JSON.stringify(bookings));
 

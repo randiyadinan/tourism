@@ -53,6 +53,7 @@ export interface ServerBookingRecord {
   amountPaid: number;
   bookingStatus: 'Pending' | 'Confirmed' | 'Completed' | 'Cancelled' | 'Rejected';
   paymentStatus: 'NOT PAID' | 'PAID' | 'FAILED' | 'CANCELLED' | 'REFUNDED' | 'Unpaid' | 'Deposit Paid' | 'Fully Paid';
+  paymentAvailable?: boolean;
   paymentMethod: 'Credit / Debit Card' | 'Cash Payment' | 'Direct Bank Transfer' | 'PayHere Online';
   notes?: string;
   assignedGuide?: {
@@ -117,7 +118,8 @@ const INITIAL_SERVER_BOOKINGS: ServerBookingRecord[] = [
     totalAmount: 180000,
     amountPaid: 180000,
     bookingStatus: 'Confirmed',
-    paymentStatus: 'Fully Paid',
+    paymentStatus: 'PAID',
+    paymentAvailable: true,
     paymentMethod: 'Credit / Debit Card',
     notes: 'Please arrange a quiet high-floor room in Nuwara Eliya with garden views.',
     assignedGuide: {
@@ -168,6 +170,7 @@ const INITIAL_SERVER_BOOKINGS: ServerBookingRecord[] = [
     amountPaid: 0,
     bookingStatus: 'Pending',
     paymentStatus: 'NOT PAID',
+    paymentAvailable: false,
     paymentMethod: 'Cash Payment',
     notes: 'Require 1 child car safety seat for our 4-year-old.',
     createdAt: '2026-08-20T14:15:00Z',
@@ -217,8 +220,9 @@ class BookingStore {
       bookingCode,
       flightNumber: input.flightNumber.trim(),
       totalTravelers: totalTravelers || 1,
-      bookingStatus: input.bookingStatus || 'Pending',
-      paymentStatus: input.paymentStatus || 'NOT PAID',
+      bookingStatus: 'Pending', // Strictly start as Pending for review
+      paymentStatus: 'NOT PAID',
+      paymentAvailable: false,  // Payment lock active until Admin confirms
       assignedGuide: input.assignedGuide || {
         name: 'Roshan Silva',
         phone: '+94 77 889 9112',
@@ -232,11 +236,38 @@ class BookingStore {
     return booking;
   }
 
+  confirmBooking(idOrCode: string): ServerBookingRecord | undefined {
+    const booking = this.getBookingById(idOrCode);
+    if (!booking) return undefined;
+
+    booking.bookingStatus = 'Confirmed';
+    booking.paymentAvailable = true;
+    booking.updatedAt = new Date().toISOString();
+    this.bookings.set(booking.id, booking);
+    return booking;
+  }
+
+  rejectBooking(idOrCode: string): ServerBookingRecord | undefined {
+    const booking = this.getBookingById(idOrCode);
+    if (!booking) return undefined;
+
+    booking.bookingStatus = 'Rejected';
+    booking.paymentAvailable = false;
+    booking.updatedAt = new Date().toISOString();
+    this.bookings.set(booking.id, booking);
+    return booking;
+  }
+
   updateBookingStatus(idOrCode: string, status: ServerBookingRecord['bookingStatus']): ServerBookingRecord | undefined {
     const booking = this.getBookingById(idOrCode);
     if (!booking) return undefined;
 
     booking.bookingStatus = status;
+    if (status === 'Confirmed') {
+      booking.paymentAvailable = true;
+    } else if (status === 'Rejected' || status === 'Cancelled' || status === 'Pending') {
+      booking.paymentAvailable = false;
+    }
     booking.updatedAt = new Date().toISOString();
     this.bookings.set(booking.id, booking);
     return booking;
@@ -250,6 +281,10 @@ class BookingStore {
     if (amountPaid !== undefined) {
       booking.amountPaid = amountPaid;
     }
+    if (paymentStatus === 'PAID' || paymentStatus === 'Fully Paid') {
+      booking.amountPaid = booking.totalAmount;
+      booking.paymentAvailable = false; // Already paid
+    }
     booking.updatedAt = new Date().toISOString();
     this.bookings.set(booking.id, booking);
     return booking;
@@ -262,6 +297,7 @@ class BookingStore {
     booking.paymentStatus = 'PAID';
     booking.amountPaid = booking.totalAmount;
     booking.bookingStatus = 'Confirmed';
+    booking.paymentAvailable = false;
     booking.updatedAt = new Date().toISOString();
     this.bookings.set(booking.id, booking);
     return booking;

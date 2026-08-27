@@ -16,7 +16,6 @@ import {
   MapPin
 } from 'lucide-react';
 import { bookingService } from '../../services/bookingService';
-import { paymentService } from '../../services/paymentService';
 import { payhereService } from '../../services/payhereService';
 import { useAuth } from '../../context/AuthContext';
 import { analytics } from '../../services/analytics';
@@ -156,178 +155,64 @@ export const CheckoutPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      if (paymentMethod === 'Credit / Debit Card') {
-        // Step 1 & 2: Create booking with temporary/pending payment state
-        const newBooking = bookingService.createBooking({
-          type: 'standard_tour',
-          userId: user?.id || 'guest-user',
-          customerName: leadName,
-          customerEmail: leadEmail,
-          customerPhone: leadPhone,
-          tourId: state.tourId,
-          tourTitle: state.tourTitle,
-          tourImage: state.tourImage,
-          startDate: state.startDate || '2026-10-15',
-          endDate: '2026-10-25',
-          adultsCount: state.adults || 2,
-          childrenCount: state.children || 0,
-          infantsCount: 0,
-          destinationsCovered: state.destinations || [],
-          vehicleType: state.vehicleType || 'Private Luxury Sedan',
-          airportPickup: state.airportPickup || false,
-          flightNumber: flightNumber.trim(),
-          flightArrivalTime: state.arrivalTime || '14:30',
-          basePrice: state.totalAmount + (state.discountAmount || 0),
-          customizationTotal: state.airportPickup ? 40 : 0,
-          discountAmount: state.discountAmount || 0,
-          discountCode: state.discountCode,
-          taxAmount: 0,
-          totalAmount: state.totalAmount,
-          amountPaid: 0,
-          bookingStatus: 'Pending',
-          paymentStatus: 'NOT PAID',
-          paymentMethod: 'Credit / Debit Card',
-          notes: specialRequests,
-          travelers: [
-            {
-              title: 'Mr',
-              fullName: leadName,
-              email: leadEmail,
-              phone: leadPhone,
-              nationality: leadCountry,
-              passportNumber: passportNumber || undefined,
-              isLead: true
-            }
-          ]
-        });
+      // UNIFIED APPROVAL FLOW:
+      // When a customer selects any Tour or Airport Transfer and submits checkout:
+      // 1. DO NOT immediately open PayHere.
+      // 2. Create booking request with bookingStatus = "Pending", paymentStatus = "NOT PAID", paymentAvailable = false.
+      // 3. Customer sees confirmation that their request is under review.
+      const newBooking = bookingService.createBooking({
+        type: 'standard_tour',
+        userId: user?.id || 'guest-user',
+        customerName: leadName,
+        customerEmail: leadEmail,
+        customerPhone: leadPhone,
+        tourId: state.tourId,
+        tourTitle: state.tourTitle,
+        tourImage: state.tourImage,
+        startDate: state.startDate || '2026-10-15',
+        endDate: '2026-10-25',
+        adultsCount: state.adults || 2,
+        childrenCount: state.children || 0,
+        infantsCount: 0,
+        destinationsCovered: state.destinations || [],
+        vehicleType: state.vehicleType || 'Private Luxury Sedan',
+        airportPickup: state.airportPickup || false,
+        flightNumber: flightNumber.trim(),
+        flightArrivalTime: state.arrivalTime || '14:30',
+        basePrice: state.totalAmount + (state.discountAmount || 0),
+        customizationTotal: state.airportPickup ? 40 : 0,
+        discountAmount: state.discountAmount || 0,
+        discountCode: state.discountCode,
+        taxAmount: 0,
+        totalAmount: state.totalAmount,
+        amountPaid: 0,
+        bookingStatus: 'Pending',
+        paymentStatus: 'NOT PAID',
+        paymentAvailable: false,
+        paymentMethod: paymentMethod,
+        notes: specialRequests,
+        travelers: [
+          {
+            title: 'Mr',
+            fullName: leadName,
+            email: leadEmail,
+            phone: leadPhone,
+            nationality: leadCountry,
+            passportNumber: passportNumber || undefined,
+            isLead: true
+          }
+        ]
+      });
 
-        // Step 3: Open PayHere flow
-        try {
-          const payhereData = await payhereService.initiatePayment({
-            orderId: newBooking.bookingCode,
-            bookingId: newBooking.id,
-            bookingCode: newBooking.bookingCode,
-            userId: user?.id,
-            amount: state.totalAmount,
-            currency: 'LKR',
-            itemTitle: state.tourTitle || 'Sri Lanka Tour',
-            customerName: leadName,
-            customerEmail: leadEmail,
-            customerPhone: leadPhone,
-            flightNumber: flightNumber.trim(),
-            city: 'Colombo',
-            country: leadCountry || 'Sri Lanka'
-          });
+      setIsSubmitting(false);
+      try {
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+      } catch (e) {}
 
-          payhereService.launchPayment(payhereData, {
-            onCompleted: (orderId: string) => {
-              // Step 5: ONLY after PayHere confirms SUCCESS:
-              bookingService.applyGatewayPaymentSuccess(newBooking.id, {
-                amountPaid: state.totalAmount!,
-                paymentMethod: 'Credit / Debit Card'
-              });
-
-              paymentService.recordTransaction({
-                userId: user?.id || 'guest',
-                bookingId: newBooking.id,
-                bookingCode: newBooking.bookingCode,
-                customerName: leadName,
-                amountUSD: state.totalAmount!,
-                paymentMethod: 'Credit / Debit Card',
-                status: 'Successful',
-                transactionReference: `PAYHERE-${orderId}`,
-                cardBrand: 'Visa/Mastercard'
-              });
-
-              analytics.purchase(
-                orderId,
-                newBooking.bookingCode,
-                state.totalAmount!,
-                'LKR'
-              );
-
-              try {
-                confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
-              } catch (e) {}
-
-              // Step 6: Customer sees successful booking confirmation
-              navigate(`/customer/bookings/${newBooking.id}`);
-            },
-            onDismissed: () => {
-              setIsSubmitting(false);
-              bookingService.applyGatewayPaymentFailure(newBooking.id, 'CANCELLED');
-              setSubmitError(`PayHere payment was dismissed. Your booking ${newBooking.bookingCode} remains pending with Payment Status: NOT PAID.`);
-            },
-            onError: (err: string) => {
-              setIsSubmitting(false);
-              bookingService.applyGatewayPaymentFailure(newBooking.id, 'FAILED');
-              setSubmitError(`Payment Gateway Error: ${err}. Your booking ${newBooking.bookingCode} remains pending with Payment Status: FAILED.`);
-            }
-          });
-        } catch (err: any) {
-          console.error('Failed to initialize PayHere session:', err);
-          setIsSubmitting(false);
-          setSubmitError(err?.message || 'Payment Gateway could not be reached. Please try again.');
-        }
-      } else {
-        // CASH PAYMENT FLOW:
-        // 1. Customer submits the booking.
-        // 2. Do NOT open PayHere.
-        // 3. Create the booking directly.
-        // 4. Set booking status = CONFIRMED.
-        // 5. Set payment status = NOT PAID.
-        // 6. Set payment method = CASH (Cash Payment).
-        const newBooking = bookingService.createBooking({
-          type: 'standard_tour',
-          userId: user?.id || 'guest-user',
-          customerName: leadName,
-          customerEmail: leadEmail,
-          customerPhone: leadPhone,
-          tourId: state.tourId,
-          tourTitle: state.tourTitle,
-          tourImage: state.tourImage,
-          startDate: state.startDate || '2026-10-15',
-          endDate: '2026-10-25',
-          adultsCount: state.adults || 2,
-          childrenCount: state.children || 0,
-          infantsCount: 0,
-          destinationsCovered: state.destinations || [],
-          vehicleType: state.vehicleType || 'Private Luxury Sedan',
-          airportPickup: state.airportPickup || false,
-          flightNumber: flightNumber.trim(),
-          flightArrivalTime: state.arrivalTime || '14:30',
-          basePrice: state.totalAmount + (state.discountAmount || 0),
-          customizationTotal: state.airportPickup ? 40 : 0,
-          discountAmount: state.discountAmount || 0,
-          discountCode: state.discountCode,
-          taxAmount: 0,
-          totalAmount: state.totalAmount,
-          amountPaid: 0,
-          bookingStatus: 'Confirmed',
-          paymentStatus: 'NOT PAID',
-          paymentMethod: 'Cash Payment',
-          notes: specialRequests,
-          travelers: [
-            {
-              title: 'Mr',
-              fullName: leadName,
-              email: leadEmail,
-              phone: leadPhone,
-              nationality: leadCountry,
-              passportNumber: passportNumber || undefined,
-              isLead: true
-            }
-          ]
-        });
-
-        setIsSubmitting(false);
-        try {
-          confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-        } catch (e) {}
-
-        // Customer receives the booking confirmation showing Confirmed & NOT PAID
-        navigate(`/customer/bookings/${newBooking.id}`);
-      }
+      // Navigate to booking detail confirmation screen
+      navigate(`/customer/bookings/${newBooking.id}`, {
+        state: { newRequestSubmitted: true }
+      });
     } catch (err: any) {
       setSubmitError(err?.message || 'Failed to finalize your reservation. Please try again.');
       setIsSubmitting(false);

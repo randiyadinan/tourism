@@ -1,8 +1,16 @@
 import type { Context } from 'hono';
-import { bookingStore, type ServerBookingRecord } from '../services/bookingStore.js';
+import { bookingStore } from '../services/bookingStore.js';
+import { emailService } from '../services/emailService.js';
 
 export interface BookingBindings {
   FRONTEND_URL?: string;
+}
+
+/**
+ * Helper to get environment variable or origin from context
+ */
+function getFrontendBaseUrl(c: Context): string {
+  return (c.env && (c.env as any).FRONTEND_URL) || (typeof process !== 'undefined' ? process.env.FRONTEND_URL : undefined) || new URL(c.req.url).origin;
 }
 
 /**
@@ -47,7 +55,8 @@ export async function getBookingById(c: Context) {
 
 /**
  * POST /api/bookings
- * Creates a new customer booking on the server
+ * Creates a new customer booking request (Status = Pending, paymentAvailable = false)
+ * Dispatches Admin notification email
  */
 export async function createBooking(c: Context) {
   try {
@@ -65,12 +74,116 @@ export async function createBooking(c: Context) {
     }
 
     const booking = bookingStore.createBooking(body);
-    console.log(`[Server Bookings] New booking created: ${booking.bookingCode} (${booking.id}) - Status: ${booking.bookingStatus}`);
+    console.log(`[Server Bookings] New booking request created: ${booking.bookingCode} (${booking.id}) - Status: ${booking.bookingStatus} (Awaiting Admin Review)`);
 
-    return c.json({ success: true, data: booking }, 201);
+    // Asynchronously dispatch Admin Notification Email
+    const frontendUrl = getFrontendBaseUrl(c);
+    emailService.sendAdminNewBookingNotification({
+      bookingCode: booking.bookingCode,
+      customerName: booking.customerName,
+      customerEmail: booking.customerEmail,
+      customerPhone: booking.customerPhone,
+      tourTitle: booking.tourTitle || 'Custom Sri Lanka Journey',
+      startDate: booking.startDate,
+      flightNumber: booking.flightNumber,
+      totalTravelers: booking.totalTravelers,
+      totalAmount: booking.totalAmount,
+      adminDashboardUrl: `${frontendUrl}/admin/bookings`
+    }).catch(err => console.warn('⚠️ [EmailService] Admin new booking notification email dispatch warning:', err));
+
+    return c.json({
+      success: true,
+      message: 'Your booking request has been submitted. Our team will review your request and confirm availability.',
+      data: booking
+    }, 201);
   } catch (error: any) {
     console.error('Error creating booking on server:', error);
     return c.json({ success: false, error: error.message || 'Failed to create booking' }, 400);
+  }
+}
+
+/**
+ * POST /api/bookings/:id/confirm
+ * Admin confirms booking -> bookingStatus = "Confirmed", paymentAvailable = true
+ * Dispatches Customer confirmation email with Pay Now button
+ */
+export async function confirmBookingController(c: Context) {
+  try {
+    const id = c.req.param('id');
+    if (!id) {
+      return c.json({ success: false, error: 'Booking ID is required' }, 400);
+    }
+
+    // Role verification (Admin authorization check)
+    const roleHeader = c.req.header('x-user-role');
+    const authHeader = c.req.header('authorization');
+    if (roleHeader && roleHeader !== 'admin' && !authHeader?.includes('admin')) {
+      return c.json({ success: false, error: 'Unauthorized: Admin privileges required to confirm bookings.' }, 403);
+    }
+
+    const updated = bookingStore.confirmBooking(id);
+    if (!updated) {
+      return c.json({ success: false, error: 'Booking not found' }, 404);
+    }
+
+    console.log(`[Server Bookings] Booking ${id} (${updated.bookingCode}) CONFIRMED by Admin -> Payment is now available.`);
+
+    // Dispatch Customer Confirmation Email with Pay Now Link
+    const frontendUrl = getFrontendBaseUrl(c);
+    const payNowUrl = `${frontendUrl}/customer/bookings/${updated.id}`;
+    
+    emailService.sendCustomerBookingConfirmed({
+      to: updated.customerEmail,
+      name: updated.customerName,
+      bookingCode: updated.bookingCode,
+      tourTitle: updated.tourTitle || 'Sri Lanka Tour',
+      startDate: updated.startDate,
+      totalAmount: updated.totalAmount,
+      payNowUrl
+    }).catch(err => console.warn('⚠️ [EmailService] Customer confirmation email dispatch warning:', err));
+
+    return c.json({
+      success: true,
+      message: 'Booking confirmed successfully. Customer has been notified with payment instructions.',
+      data: updated
+    }, 200);
+  } catch (error: any) {
+    console.error('Error confirming booking:', error);
+    return c.json({ success: false, error: error.message || 'Failed to confirm booking' }, 500);
+  }
+}
+
+/**
+ * POST /api/bookings/:id/reject
+ * Admin rejects/cancels booking -> bookingStatus = "Rejected", paymentAvailable = false
+ */
+export async function rejectBookingController(c: Context) {
+  try {
+    const id = c.req.param('id');
+    if (!id) {
+      return c.json({ success: false, error: 'Booking ID is required' }, 400);
+    }
+
+    const roleHeader = c.req.header('x-user-role');
+    const authHeader = c.req.header('authorization');
+    if (roleHeader && roleHeader !== 'admin' && !authHeader?.includes('admin')) {
+      return c.json({ success: false, error: 'Unauthorized: Admin privileges required to reject bookings.' }, 403);
+    }
+
+    const updated = bookingStore.rejectBooking(id);
+    if (!updated) {
+      return c.json({ success: false, error: 'Booking not found' }, 404);
+    }
+
+    console.log(`[Server Bookings] Booking ${id} (${updated.bookingCode}) REJECTED by Admin.`);
+    return c.json({
+      success: true,
+      message: 'Booking request rejected.',
+      data: updated
+    }, 200);
+  } catch (error: any) {
+    console.error('Error rejecting booking:', error);
+    return c.json({ success: false, error: error.message || 'Failed to reject booking' }, 500);
   }
 }
 
@@ -94,6 +207,20 @@ export async function updateBookingStatus(c: Context) {
     const updated = bookingStore.updateBookingStatus(id, status);
     if (!updated) {
       return c.json({ success: false, error: 'Booking not found' }, 404);
+    }
+
+    // If updated to Confirmed, send customer email
+    if (status === 'Confirmed') {
+      const frontendUrl = getFrontendBaseUrl(c);
+      emailService.sendCustomerBookingConfirmed({
+        to: updated.customerEmail,
+        name: updated.customerName,
+        bookingCode: updated.bookingCode,
+        tourTitle: updated.tourTitle || 'Sri Lanka Tour',
+        startDate: updated.startDate,
+        totalAmount: updated.totalAmount,
+        payNowUrl: `${frontendUrl}/customer/bookings/${updated.id}`
+      }).catch(err => console.warn('⚠️ [EmailService] Confirmation email warning:', err));
     }
 
     console.log(`[Server Bookings] Booking ${id} status updated to: ${status}`);

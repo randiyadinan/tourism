@@ -3,6 +3,8 @@ import {
   getAllBookings,
   getBookingById,
   createBooking,
+  confirmBookingController,
+  rejectBookingController,
   updateBookingStatus,
   updateBookingPayment,
   markBookingAsPaid,
@@ -17,8 +19,14 @@ bookingRouter.get('/', getAllBookings);
 // Get single booking by ID or Reference Code
 bookingRouter.get('/:id', getBookingById);
 
-// Create new customer booking
+// Create new customer booking request (Pending status)
 bookingRouter.post('/', createBooking);
+
+// Admin Confirm booking endpoint (Activates Pay Now payment lock)
+bookingRouter.post('/:id/confirm', confirmBookingController);
+
+// Admin Reject booking endpoint
+bookingRouter.post('/:id/reject', rejectBookingController);
 
 // Admin update booking status (Pending -> Confirmed / Rejected / Cancelled)
 bookingRouter.patch('/:id/status', updateBookingStatus);
