@@ -1,9 +1,9 @@
 import { Hono } from 'hono';
 import { handle } from 'hono/vercel';
-import app from '../server/src/index.js';
+import app from '../server/dist/index.js';
 
 export const config = {
-  runtime: 'edge'
+  runtime: 'nodejs'
 };
 
 const router = new Hono();
