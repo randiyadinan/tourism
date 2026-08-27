@@ -259,7 +259,7 @@ export const VerifyEmailPage: React.FC = () => {
               <label className="block text-[11px] font-bold text-stone-700 text-center uppercase tracking-wider">
                 Enter 6-Digit Code
               </label>
-              <div className="flex justify-center items-center gap-2 sm:gap-2.5" onPaste={handlePaste}>
+              <div className="flex justify-center items-center gap-1.5 sm:gap-2.5" onPaste={handlePaste}>
                 {otp.map((digit, index) => (
                   <input
                     key={index}
@@ -270,7 +270,7 @@ export const VerifyEmailPage: React.FC = () => {
                     value={digit}
                     onChange={(e) => handleOtpChange(index, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(index, e)}
-                    className={`w-11 h-13 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-bold font-mono rounded-xl border bg-white shadow-inner transition-all duration-200 focus:outline-none ${
+                    className={`w-10 h-12 sm:w-12 sm:h-14 text-center text-lg sm:text-2xl font-bold font-mono rounded-xl border bg-white shadow-inner transition-all duration-200 focus:outline-none ${
                       digit 
                         ? 'border-[#39A982] text-[#062C22] bg-[#F4F8F6] ring-2 ring-[#39A982]/20' 
                         : 'border-stone-300 text-[#062C22] focus:border-[#39A982] focus:ring-2 focus:ring-[#39A982]/20'

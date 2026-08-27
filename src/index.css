@@ -18,6 +18,16 @@
   --color-gold-light: #E6CA85;
 }
 
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  font-family: var(--font-sans);
+  color: var(--color-dark-text);
+  background-color: var(--color-ivory);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 /* =========================================================
    Apple VisionOS & Liquid Glass Design System
    ========================================================= */

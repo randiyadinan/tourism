@@ -28,9 +28,9 @@ export const Hero: React.FC = () => {
         <div className="max-w-3xl space-y-7 animate-[fadeInUp_0.8s_cubic-bezier(0.16,1,0.3,1)]">
           
           {/* Liquid Glass Eyebrow Pill */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full liquid-glass text-[#DDEFE8] text-xs font-semibold tracking-wider uppercase shadow-md">
-            <Compass className="w-3.5 h-3.5 text-[#39A982] animate-spin-slow" />
-            <span>BESPOKE SRI LANKAN JOURNEYS & AIRPORT CHAUFFEURS</span>
+          <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 rounded-full liquid-glass text-[#DDEFE8] text-[10px] sm:text-xs font-semibold tracking-wider uppercase shadow-md max-w-full">
+            <Compass className="w-3.5 h-3.5 text-[#39A982] shrink-0 animate-spin-slow" />
+            <span className="truncate sm:overflow-visible">Bespoke Sri Lanka Journeys & Chauffeurs</span>
           </div>
 
           {/* Editorial Heading with Playfair Display */}

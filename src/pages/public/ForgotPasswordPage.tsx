@@ -324,7 +324,7 @@ export const ForgotPasswordPage: React.FC = () => {
               <label className="text-xs font-bold text-stone-700 block text-center">
                 6-Digit Verification Code
               </label>
-              <div className="flex justify-between gap-2">
+              <div className="flex justify-between gap-1.5 sm:gap-2">
                 {otp.map((digit, idx) => (
                   <input
                     key={idx}
@@ -337,7 +337,7 @@ export const ForgotPasswordPage: React.FC = () => {
                     onChange={(e) => handleOtpChange(idx, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(idx, e)}
                     disabled={loading}
-                    className="w-12 h-14 sm:w-13 sm:h-14 text-center font-mono text-xl font-bold bg-[#F8F7F2] border-2 border-stone-300 rounded-xl text-[#062C22] focus:border-[#176B52] focus:bg-white focus:outline-none transition-all shadow-xs"
+                    className="w-10 h-12 sm:w-12 sm:h-14 text-center font-mono text-lg sm:text-xl font-bold bg-[#F8F7F2] border-2 border-stone-300 rounded-xl text-[#062C22] focus:border-[#176B52] focus:bg-white focus:outline-none transition-all shadow-xs"
                   />
                 ))}
               </div>
