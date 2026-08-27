@@ -6,12 +6,12 @@ import {
   Lock, 
   User, 
   Phone, 
-  Globe, 
   ArrowRight, 
   AlertCircle, 
   ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { CountrySelect } from '../../components/common/CountrySelect';
 
 export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
@@ -112,19 +112,12 @@ export const RegisterPage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-stone-700">Country</label>
-              <div className="relative">
-                <Globe className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  value={country}
-                  onChange={(e) => setCountry(e.target.value)}
-                  placeholder="e.g. Germany"
-                  className="w-full pl-10 pr-4 py-2.5 bg-[#F8F7F2] border border-stone-300 rounded-xl text-xs text-[#062C22] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
-                />
-              </div>
-            </div>
+            <CountrySelect
+              label="Country"
+              value={country}
+              onChange={(c) => setCountry(c)}
+              placeholder="Select your country..."
+            />
 
             <div className="space-y-1">
               <label className="text-xs font-bold text-stone-700">Phone / WhatsApp</label>

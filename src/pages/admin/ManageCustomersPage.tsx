@@ -18,6 +18,7 @@ import {
 import { adminService } from '../../services/adminService';
 import { formatPrice } from '../../utils/formatters';
 import type { User, Booking } from '../../types';
+import { CountrySelect } from '../../components/common/CountrySelect';
 
 export const ManageCustomersPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -443,16 +444,12 @@ export const ManageCustomersPage: React.FC = () => {
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="font-bold text-stone-700">Country of Residence</label>
-                <input
-                  type="text"
-                  value={editCountry}
-                  onChange={(e) => setEditCountry(e.target.value)}
-                  placeholder="United Kingdom"
-                  className="w-full px-3 py-2 bg-[#F8F7F2] border border-stone-300 rounded-xl text-xs text-[#062C22] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
-                />
-              </div>
+              <CountrySelect
+                label="Country of Residence"
+                value={editCountry}
+                onChange={(c) => setEditCountry(c)}
+                placeholder="Select country..."
+              />
 
               <div className="space-y-1">
                 <label className="font-bold text-stone-700">Passport Number</label>

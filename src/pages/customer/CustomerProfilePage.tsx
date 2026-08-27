@@ -5,11 +5,11 @@ import {
   ShieldCheck, 
   Mail, 
   Phone, 
-  Globe, 
   User as UserIcon,
   AlertCircle
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { CountrySelect } from '../../components/common/CountrySelect';
 
 export const CustomerProfilePage: React.FC = () => {
   const { user, updateProfile } = useAuth();
@@ -118,19 +118,12 @@ export const CustomerProfilePage: React.FC = () => {
         </div>
 
         {/* Country */}
-        <div className="space-y-1.5">
-          <label className="font-bold text-stone-700 flex items-center gap-1.5">
-            <Globe className="w-3.5 h-3.5 text-[#176B52]" />
-            Country of Residence
-          </label>
-          <input
-            type="text"
-            value={country}
-            onChange={(e) => setCountry(e.target.value)}
-            placeholder="e.g. United Kingdom, Germany, Australia..."
-            className="w-full px-3.5 py-2.5 bg-[#F8F7F2] border border-stone-300 rounded-xl font-medium text-[#062C22]"
-          />
-        </div>
+        <CountrySelect
+          label="Country of Residence"
+          value={country}
+          onChange={(c) => setCountry(c)}
+          placeholder="Select your country..."
+        />
 
         <div className="pt-4 border-t border-stone-100 flex justify-end">
           <button

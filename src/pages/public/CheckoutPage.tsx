@@ -21,6 +21,7 @@ import { useAuth } from '../../context/AuthContext';
 import { analytics } from '../../services/analytics';
 import { formatPrice } from '../../utils/formatters';
 import type { PaymentMethod } from '../../types';
+import { CountrySelect } from '../../components/common/CountrySelect';
 
 export const CheckoutPage: React.FC = () => {
   const location = useLocation();
@@ -428,16 +429,12 @@ export const CheckoutPage: React.FC = () => {
                     )}
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="font-semibold text-[#17231F]">Country of Residence</label>
-                    <input
-                      type="text"
-                      value={leadCountry}
-                      onChange={(e) => setLeadCountry(e.target.value)}
-                      placeholder="United Kingdom"
-                      className="w-full bg-[#F8F7F2] border border-stone-300 rounded-xl p-3 font-medium text-[#17231F] focus:outline-none focus:ring-2 focus:ring-[#176B52]"
-                    />
-                  </div>
+                  <CountrySelect
+                    label="Country of Residence"
+                    value={leadCountry}
+                    onChange={(c) => setLeadCountry(c)}
+                    placeholder="Select country..."
+                  />
 
                   <div className="space-y-1">
                     <label className="font-semibold text-[#17231F]">Passport (Optional)</label>
