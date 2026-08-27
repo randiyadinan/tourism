@@ -27,7 +27,6 @@ dist-ssr
 .env
 .env*.local
 server/.env
-server/dist
 server/node_modules
 .env
 .env*
