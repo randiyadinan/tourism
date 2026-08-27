@@ -40,13 +40,8 @@ export async function getAllBookings(c: Context) {
       return c.json({ success: true, data: customerBookings });
     }
 
-    if (userId) {
-      const userBookings = bookingStore.getUserBookings(userId);
-      return c.json({ success: true, data: userBookings });
-    }
-
-    const bookings = bookingStore.getAllBookings();
-    return c.json({ success: true, data: bookings });
+    // Unauthenticated requests cannot browse bookings
+    return c.json({ success: true, data: [] });
   } catch (error: any) {
     console.error('Error fetching bookings:', error);
     return c.json({ success: false, error: error.message || 'Failed to fetch bookings' }, 500);
