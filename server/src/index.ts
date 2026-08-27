@@ -17,7 +17,7 @@ app.use(
   })
 );
 
-// Health check endpoint
+// Health check endpoint (matches both /api/health and /health)
 app.get('/api/health', (c) => {
   return c.json({
     status: 'ok',
@@ -26,11 +26,24 @@ app.get('/api/health', (c) => {
     time: new Date().toISOString()
   });
 });
+app.get('/health', (c) => {
+  return c.json({
+    status: 'ok',
+    service: 'LankaVoyage API Backend',
+    gateway: 'PayHere Sandbox',
+    time: new Date().toISOString()
+  });
+});
 
-// API Routes
+// API Routes (Mounted under both /api/* and /* for transparent Vercel Function routing)
 app.route('/api/payhere', payhereRouter);
+app.route('/payhere', payhereRouter);
+
 app.route('/api/bookings', bookingRouter);
+app.route('/bookings', bookingRouter);
+
 app.route('/api/auth', authRouter);
+app.route('/auth', authRouter);
 
 // Export for Cloudflare Workers / Node server
 export default app;
